@@ -179,7 +179,6 @@ module Forklift
     def transform_directory(args)
       directory = args[:directory]
       frequency = args[:frequency]
-      logger.log "transforming directory: #{directory}"
       Dir.glob("#{directory}/*.sql").each do |file|
         transform_sql({
           :file => file,
