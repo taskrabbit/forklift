@@ -65,7 +65,7 @@ module Forklift
         if skipped_tables.include?(table)
           logger.log " > Explicitly Skipping table `#{destination_table_name}`"
         elsif frequency_check(to, destination_table_name, forklift_data_table, frequency)
-          logger.log " > cloning `#{table}` to `#{destination_table_name}`"
+          logger.log " > cloning `#{from}`.`#{table}` to `#{to}`.`#{destination_table_name}`"
           q("drop table if exists `#{to}`.`#{destination_table_name}`")
           q("create table `#{to}`.`#{destination_table_name}` like `#{from}`.`#{table}`")
           q("insert into `#{to}`.`#{destination_table_name}` select * from `#{from}`.`#{table}`")
@@ -84,7 +84,7 @@ module Forklift
         if skipped_tables.include?(table)
           logger.log " > Explicitly Skipping table `#{destination_table_name}`"
         elsif local_connection.frequency_check(to, destination_table_name, forklift_data_table, frequency)
-          logger.log " > importing remote table `#{table}` to local `#{destination_table_name}`"
+          logger.log " > importing remote table `#{from}`.`#{table}` to local `#{to}`.`#{destination_table_name}`"
           local_connection.q("drop table if exists `#{to}`.`#{destination_table_name}`")
           create_table_command = connection.query("show create table #{table}").first["Create Table"]
           create_table_command.gsub!("CREATE TABLE `#{table}`", "CREATE TABLE `#{destination_table_name}`")
