@@ -187,7 +187,7 @@ module Forklift
       end
       Dir.glob("#{directory}/*.rb").each do |file|
         forklift.transform_ruby({
-          :file => file
+          :file => file,
           :frequency => frequency
         })
       end
