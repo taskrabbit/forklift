@@ -116,12 +116,14 @@ module Forklift
       end
     end
 
-    def direct_local_copy(from, to)
+    def local_copy_with_swap(from, to, swap_table)
       logger.log "Copping database `#{from}` to `#{to}`"
       get_tables(from).each do |table|
+        q("drop table if exists `#{to}`.`#{swap_table}`")
+        q("create table `#{to}`.`#{swap_table}` like `#{from}`.`#{table}`")
+        q("insert into `#{to}`.`#{swap_table}` select * from `#{from}`.`#{table}`")
         q("drop table if exists `#{to}`.`#{table}`")
-        q("create table `#{to}`.`#{table}` like `#{from}`.`#{table}`")
-        q("insert into `#{to}`.`#{table}` select * from `#{from}`.`#{table}`")
+        q("rename table `#{to}`.`#{swap_table}` to `#{to}`.`#{table}`")
       end
     end
 

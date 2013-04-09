@@ -16,6 +16,7 @@ module Forklift
         :local_connection => {},
         :remote_connections => [],
 
+        :swap_table => '_swap',
         :forklift_data_table => '_forklift',
         
         :verbose? => true,

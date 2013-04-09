@@ -274,7 +274,7 @@ module Forklift
     def run_load
       logger.log "Loading working set into #{config.get(:final_database)}"
       if config.get(:do_load?)
-        @connections[:local_connection].direct_local_copy(config.get(:working_database), config.get(:final_database))
+        @connections[:local_connection].local_copy_with_swap(config.get(:working_database), config.get(:final_database), config.get(:swap_table))
       end
     end
 
