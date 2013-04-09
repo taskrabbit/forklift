@@ -12,8 +12,11 @@ module Forklift
         :threads => 4,
         :lock_with_pid? => true,
 
-        :final_database => {},
-        :local_database => {},
+        :final_database => nil,
+        :working_database => nil,
+        :local_connection => {},
+        :remote_connections => [],
+
         :forklift_data_table => '_forklift',
         
         :verbose? => true,
