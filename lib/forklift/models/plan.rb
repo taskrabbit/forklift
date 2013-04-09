@@ -181,7 +181,7 @@ module Forklift
       frequency = args[:frequency]
       Dir.glob("#{directory}/*.sql").each do |file|
         forklift.transform_sql({
-          :file => file
+          :file => file,
           :frequency => frequency
         })
       end
