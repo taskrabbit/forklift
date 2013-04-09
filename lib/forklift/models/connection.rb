@@ -65,12 +65,15 @@ module Forklift
         if skipped_tables.include?(table)
           logger.log " > Explicitly Skipping table `#{destination_table_name}`"
         elsif frequency_check(to, destination_table_name, forklift_data_table, frequency)
+          start = Time.new.to_i
           logger.log " > cloning `#{from}`.`#{table}` to `#{to}`.`#{destination_table_name}`"
           q("drop table if exists `#{to}`.`#{destination_table_name}`")
           q("create table `#{to}`.`#{destination_table_name}` like `#{from}`.`#{table}`")
           q("insert into `#{to}`.`#{destination_table_name}` select * from `#{from}`.`#{table}`")
           q("delete from `#{to}`.`#{forklift_data_table}` where name='#{destination_table_name}' and type='extraction'")
           q("insert into `#{to}`.`#{forklift_data_table}` (created_at, name, type) values (NOW(), '#{destination_table_name}', 'extraction') ")
+          delta = Time.new.to_i - start
+          logger.log "    ^ took #{delta}s"
         else
           logger.log " > Skipping table `#{destination_table_name}` because last import was too recently"
         end
@@ -84,6 +87,7 @@ module Forklift
         if skipped_tables.include?(table)
           logger.log " > Explicitly Skipping table `#{destination_table_name}`"
         elsif local_connection.frequency_check(to, destination_table_name, forklift_data_table, frequency)
+          start = Time.new.to_i
           logger.log " > importing remote table `#{from}`.`#{table}` to local `#{to}`.`#{destination_table_name}`"
           local_connection.q("drop table if exists `#{to}`.`#{destination_table_name}`")
           create_table_command = connection.query("show create table #{table}").first["Create Table"]
@@ -110,6 +114,8 @@ module Forklift
 
           local_connection.q("delete from `#{to}`.`#{forklift_data_table}` where name='#{destination_table_name}' and type='extraction'")
           local_connection.q("insert into `#{to}`.`#{forklift_data_table}` (created_at, name, type) values (NOW(), '#{destination_table_name}', 'extraction') ")
+          delta = Time.new.to_i - start
+          logger.log "    ^ took #{delta}s"
         else
           logger.log " > Skipping table `#{destination_table_name}` because last import was too recently"
         end
@@ -119,11 +125,15 @@ module Forklift
     def local_copy_with_swap(from, to, swap_table)
       logger.log "Copping database `#{from}` to `#{to}`"
       get_tables(from).each do |table|
+        start = Time.new.to_i
+        logger.log " > copying with swap `#{from}`.`#{table}` to `#{to}`.`#{destination_table_name}`"
         q("drop table if exists `#{to}`.`#{swap_table}`")
         q("create table `#{to}`.`#{swap_table}` like `#{from}`.`#{table}`")
         q("insert into `#{to}`.`#{swap_table}` select * from `#{from}`.`#{table}`")
         q("drop table if exists `#{to}`.`#{table}`")
         q("rename table `#{to}`.`#{swap_table}` to `#{to}`.`#{table}`")
+        delta = Time.new.to_i - start
+        logger.log "    ^ took #{delta}s"
       end
     end
 

@@ -13,6 +13,10 @@ module Forklift
     def pid_dir
       "#{@config.get(:project_root)}/pids"
     end
+
+    def ensure_pid_dir
+      `mkdir -p #{pid_dir}`
+    end
     
     def pidfile
       "#{pid_dir}/pidfile"
@@ -20,12 +24,12 @@ module Forklift
     
     def store
       logger.log "Creating pidfile @ #{pidfile}"
-      `mkdir -p #{pid_dir}` 
+      ensure_pid_dir
       File.open(pidfile, 'w') {|f| f << Process.pid}
     end
     
     def recall
-      `mkdir -p #{pid_dir}` 
+      ensure_pid_dir
       IO.read(pidfile).to_i rescue nil
     end
     
@@ -35,8 +39,13 @@ module Forklift
     end
     
     def ensure_not_already_running
-      unless recall.nil?
-        logger.fatal "This application is already running (pidfile). Exiting now"
+      return if recall.nil?
+      count = `ps -p #{recall} | wc -l`.to_i
+      if count == 2
+        logger.fatal "This application is already running (pidfile) #{recall}. Exiting now"
+      else
+        logger.log "Clearing old pidfile from previous process #{recall}"
+        delete
       end
     end
 
