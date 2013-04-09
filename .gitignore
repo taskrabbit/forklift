@@ -1,0 +1,7 @@
+.DS_Store
+pids
+log
+config/databases.yml
+config/email.yml
+config/dump.yml
+/deploy
