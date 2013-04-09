@@ -1,7 +1,7 @@
 # Forklift
 Moving heavy databases around.
 
-![picture](https://raw.github.com/taskrabbit/taskrabbit/master/forklift.jpg)
+![picture](https://raw.github.com/taskrabbit/forklift/master/forklift.jpg)
 
 ---
 ## What?
