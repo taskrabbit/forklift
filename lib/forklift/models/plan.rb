@@ -179,14 +179,15 @@ module Forklift
     def transform_directory(args)
       directory = args[:directory]
       frequency = args[:frequency]
+      logger.log "transforming directory: #{directory}"
       Dir.glob("#{directory}/*.sql").each do |file|
-        forklift.transform_sql({
+        transform_sql({
           :file => file,
           :frequency => frequency
         })
       end
       Dir.glob("#{directory}/*.rb").each do |file|
-        forklift.transform_ruby({
+        transform_ruby({
           :file => file,
           :frequency => frequency
         })
