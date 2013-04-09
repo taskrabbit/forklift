@@ -280,11 +280,5 @@ forklift.transform_ruby({
 - Forklift's logger is [Lumberjack](https://github.com/bdurand/lumberjack) with a wrapper to also echo the log lines to stdout and save them to an array to be accessed later by the email system.
 - The connections hash will be passed directly to a [mysql2](https://github.com/brianmario/mysql2) connection.  Follow the link to see all the available options.
 
-
 ## Limitations
-- forklift must be running on the same physical server as the `working` and final `databases`
 - mySQL only (the [mysql2](https://github.com/brianmario/mysql2) gem specifically)
-
-## Roadmap to V1
-- remote import functions
-- moving the `mysqldump` output off of the server

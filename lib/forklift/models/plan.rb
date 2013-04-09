@@ -284,7 +284,7 @@ module Forklift
         username = config.get(:local_connection)[:username]
         password = nil
         password = config.get(:local_connection)[:pasword] unless config.get(:local_connection)[:pasword].nil?
-        database = config.get(:local_connection)[:database]
+        database = config.get(:final_database)
         file = config.get(:dump_file)
         dumper = Forklift::Dump.new(username, password, database, file, logger)
         dumper.run
