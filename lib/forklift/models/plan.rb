@@ -236,8 +236,6 @@ module Forklift
     end
 
     def ensure_forklift_data_table
-      @connections[:local_connection].q("use `#{config.get(:working_database)}`")
-
       create_syntax = <<-SQL
 
       CREATE TABLE IF NOT EXISTS `#{config.get(:forklift_data_table)}` (
@@ -249,6 +247,7 @@ module Forklift
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
       SQL
       logger.log "Ensuring forklift data table exists: #{config.get(:forklift_data_table)}"
+      @connections[:local_connection].q("use `#{config.get(:final_database)}`")
       @connections[:local_connection].q(create_syntax)
 
       logger.log "Copying #{config.get(:forklift_data_table)} to the working database"
