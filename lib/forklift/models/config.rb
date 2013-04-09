@@ -9,7 +9,6 @@ module Forklift
     def defaults
       {
         :project_root => Dir.pwd,
-        :threads => 4,
         :lock_with_pid? => true,
 
         :final_database => nil,

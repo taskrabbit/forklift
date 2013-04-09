@@ -50,11 +50,6 @@ module Forklift
       end
     end
 
-    def parallel_query(queries)
-      parallel_runner ||= Forklift::ParallelQuery.new(args, threads, logger)
-      parallel_runner.run(queries)
-    end
-
     def connection_test
       begin
         connection.query("select NOW()")
@@ -83,9 +78,6 @@ module Forklift
     end
 
     def remote_copy_tables(local_connection, from, to, skipped_tables=[], to_prefix=false, frequency=nil, forklift_data_table)
-      #TODO Each table imported can be a thread
-      #TODO Selects from remote tables should be done in batches
-
       logger.log "Cloning remote database `#{from}` to `#{to}`"
       get_tables(from).each do |table|
         destination_table_name = generate_name(from, table, to_prefix)
@@ -98,10 +90,24 @@ module Forklift
           create_table_command.gsub!("CREATE TABLE `#{table}`", "CREATE TABLE `#{destination_table_name}`")
           local_connection.q("use #{to}")
           local_connection.q(create_table_command)
-          connection.query("select * from #{table}", :cast => false).each do |row|
-            sql = build_remote_insert_row(row, to, destination_table_name)
-            local_connection.q(sql)
+
+          offest = 0
+          limit = 1000
+          to_continue = true
+
+          while(to_continue == true)
+            rows = connection.query("select * from #{table} limit #{offset}, #{limit}", :cast => false)
+            if rows.length > 0
+              rows.each do |row|
+                sql = build_remote_insert_row(row, to, destination_table_name)
+                local_connection.q(sql)
+              end
+              offest = offest + limit
+            else
+              to_continue = false
+            end
           end
+
           local_connection.q("delete from `#{to}`.`#{forklift_data_table}` where name='#{destination_table_name}' and type='extraction'")
           local_connection.q("insert into `#{to}`.`#{forklift_data_table}` (created_at, name, type) values (NOW(), '#{destination_table_name}', 'extraction') ")
         else

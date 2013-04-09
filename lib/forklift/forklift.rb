@@ -9,7 +9,6 @@ module Forklift
     'dump', 
     'check_evaluator', 
     'email', 
-    'parallel_query', 
     'pid_file', 
     'plan', 
     'transformation'

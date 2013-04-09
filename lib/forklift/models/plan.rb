@@ -176,10 +176,21 @@ module Forklift
       @plan[:transform][:ruby].push(args)
     end
 
-    def transform_directory(dirs)
-      #TODO
-      # Apply the frequency to every file in a dir (recursive)
-      # Determinet the proper transformation to run
+    def transform_directory(args)
+      directory = args[:directory]
+      frequency = args[:frequency]
+      Dir.glob("#{directory}/*.sql").each do |file|
+        forklift.transform_sql({
+          :file => file
+          :frequency => frequency
+        })
+      end
+      Dir.glob("#{directory}/*.rb").each do |file|
+        forklift.transform_ruby({
+          :file => file
+          :frequency => frequency
+        })
+      end
     end
 
     def template_transformation

@@ -204,7 +204,6 @@ The defaults for a new `Forklift::Plan` are:
 ```ruby
 {
    :project_root => Dir.pwd,
-   :threads => 4,
    :lock_with_pid? => true,
 
    :final_database => {},
