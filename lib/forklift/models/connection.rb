@@ -65,23 +65,21 @@ module Forklift
 
     def local_copy_tables(from, to, skipped_tables=[], to_prefix=false, frequency=nil, forklift_data_table)
       logger.log "Cloning local database `#{from}` to `#{to}`"
-      queries = []
       get_tables(from).each do |table|
         destination_table_name = generate_name(from, table, to_prefix)
         if skipped_tables.include?(table)
           logger.log " > Explicitly Skipping table `#{destination_table_name}`"
         elsif frequency_check(to, destination_table_name, forklift_data_table, frequency)
           logger.log " > cloning `#{table}` to `#{destination_table_name}`"
-          queries.push("drop table if exists `#{to}`.`#{destination_table_name}`")
-          queries.push("create table `#{to}`.`#{destination_table_name}` like `#{from}`.`#{table}`")
-          queries.push("insert into `#{to}`.`#{destination_table_name}` select * from `#{from}`.`#{table}`")
-          queries.push("delete from `#{to}`.`#{forklift_data_table}` where name='#{destination_table_name}' and type='extraction'")
-          queries.push("insert into `#{to}`.`#{forklift_data_table}` (created_at, name, type) values (NOW(), '#{destination_table_name}', 'extraction') ")
+          q("drop table if exists `#{to}`.`#{destination_table_name}`")
+          q("create table `#{to}`.`#{destination_table_name}` like `#{from}`.`#{table}`")
+          q("insert into `#{to}`.`#{destination_table_name}` select * from `#{from}`.`#{table}`")
+          q("delete from `#{to}`.`#{forklift_data_table}` where name='#{destination_table_name}' and type='extraction'")
+          q("insert into `#{to}`.`#{forklift_data_table}` (created_at, name, type) values (NOW(), '#{destination_table_name}', 'extraction') ")
         else
           logger.log " > Skipping table `#{destination_table_name}` because last import was too recently"
         end
       end
-      parallel_query(queries)
     end
 
     def remote_copy_tables(local_connection, from, to, skipped_tables=[], to_prefix=false, frequency=nil, forklift_data_table)
@@ -114,13 +112,11 @@ module Forklift
 
     def direct_local_copy(from, to)
       logger.log "Copping database `#{from}` to `#{to}`"
-      queries = []
       get_tables(from).each do |table|
-        queries.push("drop table if exists `#{to}`.`#{table}`")
-        queries.push("create table `#{to}`.`#{table}` like `#{from}`.`#{table}`")
-        queries.push("insert into `#{to}`.`#{table}` select * from `#{from}`.`#{table}`")
+        q("drop table if exists `#{to}`.`#{table}`")
+        q("create table `#{to}`.`#{table}` like `#{from}`.`#{table}`")
+        q("insert into `#{to}`.`#{table}` select * from `#{from}`.`#{table}`")
       end
-      parallel_query(queries)
     end
 
     def delete_and_recreate_db(db)

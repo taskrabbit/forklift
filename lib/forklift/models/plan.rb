@@ -64,7 +64,6 @@ module Forklift
       args.each do |k,v|
         @config.set(k,v)
       end
-      display_settings
 
       @plan = {
         :check => {

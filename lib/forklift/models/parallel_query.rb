@@ -49,7 +49,7 @@ module Forklift
           logger.debug " ... (thread #{id}) took #{Time.new - start_time}s" 
         rescue Exception => e
           logger.log "MYSQL ERROR: mysql command failed: #{e}"
-          Thread.main.raise message
+          Thread.main.raise e.message
         end
       }
       active_threads.push thread
