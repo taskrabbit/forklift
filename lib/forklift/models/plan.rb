@@ -260,7 +260,7 @@ module Forklift
       @connections[:local_connection].q("use `#{config.get(:final_database)}`")
       @connections[:local_connection].q(create_syntax)
 
-      logger.log "Copying #{config.get(:forklift_data_table)} to the working database"
+      logger.log "Copying Forklift metadata table, `#{config.get(:forklift_data_table)}`, to the working database"
       @connections[:local_connection].q("drop table if exists `#{config.get(:working_database)}`.`#{config.get(:forklift_data_table)}`")
       @connections[:local_connection].q("create table `#{config.get(:working_database)}`.`#{config.get(:forklift_data_table)}` like `#{config.get(:final_database)}`.`#{config.get(:forklift_data_table)}`")
       @connections[:local_connection].q("insert into `#{config.get(:working_database)}`.`#{config.get(:forklift_data_table)}` select * from `#{config.get(:final_database)}`.`#{config.get(:forklift_data_table)}`")
