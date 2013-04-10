@@ -126,7 +126,7 @@ module Forklift
       logger.log "Copping database `#{from}` to `#{to}`"
       get_tables(from).each do |table|
         start = Time.new.to_i
-        logger.log " > copying with swap `#{from}`.`#{table}` to `#{to}`.`#{destination_table_name}`"
+        logger.log " > copying with swap `#{from}`.`#{table}` to `#{to}`.`#{table}`"
         q("drop table if exists `#{to}`.`#{swap_table}`")
         q("create table `#{to}`.`#{swap_table}` like `#{from}`.`#{table}`")
         q("insert into `#{to}`.`#{swap_table}` select * from `#{from}`.`#{table}`")
