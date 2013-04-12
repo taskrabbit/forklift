@@ -36,7 +36,12 @@ module Forklift
         lines = contents.split(";")
         lines.each do |line|
           line.strip!
-          connection.q(line) if line.length > 0
+          begin
+            connection.q(line, false) if line.length > 0
+          rescue Exception => e
+            logger.log "   !!! transformation error: #{e} !!! "
+            logger.log "   moving on..."
+          end
         end
         log_transformation(file)
         logger.log " ... took #{Time.new - stat_time}s"
@@ -53,7 +58,12 @@ module Forklift
         connection.q("use `#{database}`")
         require file
         transformation = eval("#{klass}.new")
-        transformation.transform(connection, database, logger)
+        begin
+          transformation.transform(connection, database, logger)
+        rescue Exception => e
+          logger.log "   !!! transformation error: #{e} !!! "
+          logger.log "   moving on..."
+        end
         log_transformation(file)
         logger.log " ... took #{Time.new - stat_time}s"
       else

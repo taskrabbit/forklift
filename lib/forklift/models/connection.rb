@@ -32,7 +32,7 @@ module Forklift
       connection_test
     end
 
-    def q(query)
+    def q(query, exit_on_exception=true)
       logger.debug "[ #{@name} ] #{query}"
       begin
         response = connection.query(query);
@@ -46,7 +46,11 @@ module Forklift
           response
         end
       rescue Exception => e
-        logger.fatal "mySQL error: #{e}"
+        if exit_on_exception
+          logger.fatal "mySQL error: #{e}"
+        else
+          raise e
+        end
       end
     end
 
