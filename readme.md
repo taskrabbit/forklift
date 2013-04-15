@@ -3,28 +3,34 @@ Moving heavy databases around.
 
 ![picture](https://raw.github.com/taskrabbit/forklift/master/forklift.jpg)
 
----
 ## What?
-Forklift is a ruby gem that can help you collect, augment, and save copies of your mySQL databases.  This is often called an ["ETL" tool](http://en.wikipedia.org/wiki/Extract,_transform,_load) as the steps in this process mirror the actions of "Extracting the data", "Transforming the data", and finally "Loading the data" into its final place.
 
-With Forklift, you create a plan about how to manipulate your data. The process for this involves (at least) 3 databases:
+[Forklift](https://github.com/taskrabbit/forklift) is a ruby gem that can help you collect, augment, and save copies of your mySQL databases.  This is often called an ["ETL" tool](http://en.wikipedia.org/wiki/Extract,_transform,_load) as the steps in this process mirror the actions of "Extracting the data", "Transforming the data", and finally "Loading the data" into its final place.
 
-- Live set
+With Forklift, you create a **Plan** which describes how to manipulate your data. The process for this involves (at least) 3 databases:
+
+- Live Set
 - Working Database
 - Final Database
 
-The Live set is first loaded into the working set.  Then, any transformations/manipulations are run on the data in the working set.  This might include normalizing or cleaning up data which was great in production, but hard for analysts to use.  Finally, when all of your transformations are complete, that data is loaded into the final database.
+The "Live Set" is first loaded into the "Working Set" to create a copy of your production data we can manipulate without fear of breaking replication.  Then, any transformations/manipulations are run on the data in the working set.  This might include normalizing or cleaning up data which was great for production but hard for analysts to use.  Finally, when all of your transformations are complete, that data is loaded into the final database.
 
 Forklift is appropriate to use by itself or integrated within a larger project.  Forklift aims to be as fast as can be by using native mySQL copy commands and eschewing all ORMs and other RAM hogs.
 
 ## Features
-- Can extract data from both local and remote database servers (coming soon)
-- Can preform optional integrity checks on your source data to determine if this run of Forklift should be preformed
-- Can run each extract step either each run or only every-so-often
-- Can run each Transform step either each run or only every-so-often
-- Data kept in the woking database after each run to be used on subsequent runs
+- Can extract data from both local and remote databases
+- Can preform integrity checks on your source data to determine if this run of Forklift should be executed
+- Can run each Extract either each run or at a frequency
+- Can run each Transform either each run or at a frequency
+- Data kept in the woking database after each run to be used on subsequent transformations
 - Only ETL'd tables will be copied into the final database, leaving other tables untouched
 - Emails sent on errors
+
+## What does TaskRabbit use This For?
+
+At TaskRabbit, the website you see at [www.taskrabbit.com](https://www.taskrabbit.com) is actually made up of many [smaller rails applications](http://en.wikipedia.org/wiki/Service-oriented_architecture).  When analyzing our site, we need to collect all of this data into one place so we can easily join across it.
+
+We replicate all of our databases into one server in our office, and then use Forklift to extract the data we want into a common place.  This gives us the option to both look at live data and to have a more accessible transformed set which we create on a rolling basis. Our "Forklift Loop" also git-pulls to check for any new transformations before each run.
 
 ## Example Annotated Plan
 
@@ -34,7 +40,7 @@ In Forklift, you build a plan.  You can add any action to the plan in any order 
 require 'rubygems'
 require 'bundler'
 Bundler.require(:default)
-require 'forklift/forklift'
+require 'forklift/forklift' # Be sure to have installed the gem!
 
 #########
 # SETUP #
@@ -249,7 +255,7 @@ forklift.import_local_database({
   :database => STRING,              # The Database to Extract
   :prefix => BOOLEAN,               # Should we prefix the names of all tables in this database when imported wight the database?
   :frequency => INTEGER (seconds),  # How often should we import this database?
-  :skip => ARRAY OR STRINGS	         # A list of tables to ignore and not import
+  :skip => ARRAY OR STRINGS          # A list of tables to ignore and not import
 })
 
 forklift.import_remote_database({
@@ -257,7 +263,7 @@ forklift.import_remote_database({
   :database => STRING,              # The Database to Extract
   :prefix => BOOLEAN,               # Should we prefix the names of all tables in this database when imported wight the database?
   :frequency => INTEGER (seconds),  # How often should we import this database?
-  :skip => ARRAY OR STRINGS	         # A list of tables to ignore and not import
+  :skip => ARRAY OR STRINGS          # A list of tables to ignore and not import
 })
 ```
 
