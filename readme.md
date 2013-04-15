@@ -120,9 +120,15 @@ forklift.import_local_database({
   :frequency => 24 * 60 * 60,
 })
 
+forklift.import_local_database({
+  :database => "database_2",
+  :prefix => false,
+  :only => ['table_1', 'table_2'],
+})
+
 forklift.import_remote_database({
   :connection_name => 'remote_connection_a',
-  :database => "database_2",
+  :database => "database_3",
   :prefix => true,
   :skip => ['schema_migrations']
 })
@@ -256,6 +262,7 @@ forklift.import_local_database({
   :prefix => BOOLEAN,               # Should we prefix the names of all tables in this database when imported wight the database?
   :frequency => INTEGER (seconds),  # How often should we import this database?
   :skip => ARRAY OR STRINGS          # A list of tables to ignore and not import
+  :only => ARRAY OR STRINGS          # A list of tables to ignore and not import (use :only or :skip, not both)
 })
 
 forklift.import_remote_database({
@@ -264,6 +271,7 @@ forklift.import_remote_database({
   :prefix => BOOLEAN,               # Should we prefix the names of all tables in this database when imported wight the database?
   :frequency => INTEGER (seconds),  # How often should we import this database?
   :skip => ARRAY OR STRINGS          # A list of tables to ignore and not import
+  :only => ARRAY OR STRINGS          # A list of tables to ignore and not import (use :only or :skip, not both)
 })
 ```
 

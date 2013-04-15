@@ -159,6 +159,15 @@ module Forklift
       table_array
     end
 
+    def only_list_to_skip_list(db, only)
+      tables = get_tables(db)
+      skipped = []
+      tables.each do |table|
+        skipped << table unless only.include?(table)
+      end
+      skipped
+    end
+
     def frequency_check(db, table, forklift_data_table, frequency=nil)
       return true if frequency.nil?
       timestamps = q("select unix_timestamp(`created_at`) as 'time' from `#{db}`.`#{forklift_data_table}` where `name` =  '#{table}' and type='extraction'")
