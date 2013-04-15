@@ -55,11 +55,12 @@ module Forklift
       klass = class_name_from_file(file)
       if frequency_check(file, frequency)
         logger.log "Starting RUBY transformation: #{klass} @ #{file}"
+        return
         connection.q("use `#{database}`")
         require file
         transformation = eval("#{klass}.new")
         begin
-          transformation.transform(connection, database, logger)
+          transformation.transform(connection, database, logger) unless Forklift::Debug.debug? == true
         rescue Exception => e
           logger.log "   !!! transformation error: #{e} !!! "
           logger.log "   moving on..."

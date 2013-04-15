@@ -1,8 +1,10 @@
 require 'rubygems'
 
 module Forklift
+
   lib = File.expand_path(File.dirname(__FILE__))
   [
+    'debug', 
     'config', 
     'logger', 
     'connection', 

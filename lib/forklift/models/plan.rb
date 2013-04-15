@@ -9,6 +9,7 @@ module Forklift
 
     def run
       logger.emphatically "Forklift Starting"
+      logger.emphatically "RUNNING IN DEBUG MORE" if Forklift::Debug.debug? == true
 
       lock_pidfile                # Ensure that only one instance of Forklift is running
       rebuild_working_database    # Ensure that the working database exists
@@ -247,7 +248,6 @@ module Forklift
 
     def ensure_forklift_data_table
       create_syntax = <<-SQL
-
       CREATE TABLE IF NOT EXISTS `#{config.get(:forklift_data_table)}` (
         `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
         `created_at` datetime DEFAULT NULL,
@@ -256,6 +256,7 @@ module Forklift
         PRIMARY KEY (`id`)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
       SQL
+
       logger.log "Ensuring forklift data table exists: #{config.get(:forklift_data_table)}"
       @connections[:local_connection].q("use `#{config.get(:final_database)}`")
       @connections[:local_connection].q(create_syntax)

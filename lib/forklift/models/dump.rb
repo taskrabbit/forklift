@@ -31,6 +31,8 @@ module Forklift
 
     def run
       # mysqldump needs to be in $PATH
+      return if Forklift::Debug.debug? == true
+
       cmd = "mysqldump" 
       cmd << " -u#{username}"
       cmd << " -p#{password}" unless password.nil?

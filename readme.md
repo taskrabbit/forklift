@@ -281,6 +281,15 @@ forklift.transform_ruby({
 })
 ```
 
+## Debug
+
+You can launch forklift in "debug mode" with `--debug` (we check `ARGV["--debug"]` and `ARGV["-debug"]`).  In debug mode the following will happen:
+- verbose = true
+- no SQL will be run (extract, load)
+- no transforms will be run
+- no email will be sent
+- no mySQL dumps will be created
+
 ## Options & Notes
 - email_options is a hash consumed by the [Pony mail gem](https://github.com/benprew/pony)
 - Forklift's logger is [Lumberjack](https://github.com/bdurand/lumberjack) with a wrapper to also echo the log lines to stdout and save them to an array to be accessed later by the email system.

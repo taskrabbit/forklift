@@ -34,7 +34,11 @@ module Forklift
     private 
 
     def deliver(params)
-      Pony.mail(params)
+      if Forklift::Debug.debug? == true
+        logger.log "Not sending emails in debug mode"
+      else
+        Pony.mail(params)
+      end
     end
 
   end
