@@ -283,7 +283,7 @@ module Forklift
         logger.emphatically "saving mysql dump"
         username = config.get(:local_connection)[:username]
         password = nil
-        password = config.get(:local_connection)[:pasword] unless config.get(:local_connection)[:pasword].nil?
+        password = config.get(:local_connection)[:password] unless config.get(:local_connection)[:password].nil?
         database = config.get(:final_database)
         file = config.get(:dump_file)
         dumper = Forklift::Dump.new(username, password, database, file, logger)

@@ -5,3 +5,4 @@ config/databases.yml
 config/email.yml
 config/dump.yml
 /deploy
+/config
