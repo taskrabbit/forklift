@@ -5,28 +5,28 @@ Moving heavy databases around.
 
 ## What?
 
-[Forklift](https://github.com/taskrabbit/forklift) is a ruby gem that can help you collect, augment, and save copies of your mySQL databases.  This is often called an ["ETL" tool](http://en.wikipedia.org/wiki/Extract,_transform,_load) as the steps in this process mirror the actions of "Extracting the data", "Transforming the data", and finally "Loading the data" into its final place.
+[Forklift](https://github.com/taskrabbit/forklift) is a ruby gem that can help you collect, augment, and save copies of your mySQL databases.  This is often called an ["ETL" tool](http://en.wikipedia.org/wiki/Extract,_transform,_load) as the steps in this process mirror the actions of "Extracting the data," "Transforming the data," and finally "Loading the data" into its final place.
 
-With Forklift, you create a **Plan** which describes how to manipulate your data. The process for this involves (at least) 3 databases:
+With Forklift, you create a **Plan** which describes how to manipulate your data. The process for this involves (at least) three databases:
 
 - Live Set
 - Working Database
 - Final Database
 
-The "Live Set" is first loaded into the "Working Set" to create a copy of your production data we can manipulate without fear of breaking replication.  Then, any transformations/manipulations are run on the data in the working set.  This might include normalizing or cleaning up data which was great for production but hard for analysts to use.  Finally, when all of your transformations are complete, that data is loaded into the final database.
+The "Live Set" is first loaded into the "Working Set" to create a copy of your production data we can manipulate without fear of breaking replication. Then, any transformations/manipulations are run on the data in the working set.  This might include normalizing or cleaning up data which was great for production but hard for analysts to use.  Finally, when all of your transformations are complete, that data is loaded into the final database.
 
 Forklift is appropriate to use by itself or integrated within a larger project.  Forklift aims to be as fast as can be by using native mySQL copy commands and eschewing all ORMs and other RAM hogs.
 
 ## Features
 - Can extract data from both local and remote databases
-- Can preform integrity checks on your source data to determine if this run of Forklift should be executed
+- Can perform integrity checks on your source data to determine if this run of Forklift should be executed
 - Can run each Extract either each run or at a frequency
 - Can run each Transform either each run or at a frequency
 - Data kept in the woking database after each run to be used on subsequent transformations
 - Only ETL'd tables will be copied into the final database, leaving other tables untouched
 - Emails sent on errors
 
-## What does TaskRabbit use This For?
+## What does TaskRabbit use this for?
 
 At TaskRabbit, the website you see at [www.taskrabbit.com](https://www.taskrabbit.com) is actually made up of many [smaller rails applications](http://en.wikipedia.org/wiki/Service-oriented_architecture).  When analyzing our site, we need to collect all of this data into one place so we can easily join across it.
 
@@ -166,12 +166,12 @@ def run
   
   run_checks                  # Preform any data integrity checks
   run_extractions             # Extact data from the life databases into the working database
-  run_transformations         # Preform any Transformations
+  run_transformations         # Perform any transformations
   run_load                    # Load the manipulated data into the final database
   
   save_dump                   # mySQLdump the new final database for safe keeping
   send_email                  # Email folks the status of this forklift
-  unlock_pidfile              # Cleanup the pidfile so I can run next time
+  unlock_pidfile              # Clean up the pidfile so I can run next time
 end
 ```
 
