@@ -292,6 +292,11 @@ forklift.transform_ruby({
   :file => STRING,                 # The transformation file to run
   :frequency => INTEGER (seconds), # How often should we run this transformation?
 })
+
+forklift.transform_directory({
+  :frequency => INTEGER (seconds), # How often should we run this transformation?
+  :directory => STRING             # A directory of files to run (ruby/sql)
+})
 ```
 
 ### Before & After
@@ -312,6 +317,15 @@ forklift.after_sql({
 forklift.after_ruby({
   :file => STRING,                 # The after file to run
 })
+
+forklift.before_directory({
+  :directory => STRING             # A directory of files to run (ruby/sql)
+})
+
+forklift.after_directory({
+  :directory => STRING             # A directory of files to run (ruby/sql)
+})
+
 ```
 
 ## Debug
