@@ -27,6 +27,8 @@ module Forklift
         :do_load? => true,
         :do_email? => false,
         :do_dump? => false,
+        :do_before? => true,
+        :do_after? => true,
       }
     end
 

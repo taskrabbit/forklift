@@ -4,6 +4,7 @@ module Forklift
 
   lib = File.expand_path(File.dirname(__FILE__))
   [
+    'utils', 
     'debug', 
     'config', 
     'logger', 
@@ -13,7 +14,8 @@ module Forklift
     'email', 
     'pid_file', 
     'plan', 
-    'transformation'
+    'transformation',
+    'before_after'
   ].each do |file|
     require "#{lib}/models/#{file}"
   end

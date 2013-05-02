@@ -208,6 +208,11 @@ end
 
 SQL Transformations can be used to [generate new tables like this](http://stackoverflow.com/questions/1201874/calendar-table-for-data-warehouse) as well
 
+## Befores & Afters
+
+Froklift also alows you to run arbitraty "before" and "after" scripts to prepare or close-out your envrionemnt.  They can be SQL or Ruby (just like transformations).  For Ruby Befores & Afters, the database argument is the FINAL database, not the working database.  Use `def before()` or `def after()`
+
+Before and After files are run each time, and cannot be restricted with a frequency
 
 ## Defaults
 
@@ -286,6 +291,26 @@ forklift.transform_sql({
 forklift.transform_ruby({
   :file => STRING,                 # The transformation file to run
   :frequency => INTEGER (seconds), # How often should we run this transformation?
+})
+```
+
+### Before & After
+
+```ruby
+forklift.before_sql({
+  :file => STRING,                 # The before file to run
+})
+
+forklift.before_ruby({
+  :file => STRING,                 # The before file to run
+})
+
+forklift.after_sql({
+  :file => STRING,                 # The after file to run
+})
+
+forklift.after_ruby({
+  :file => STRING,                 # The after file to run
 })
 ```
 
