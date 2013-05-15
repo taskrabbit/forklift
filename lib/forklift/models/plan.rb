@@ -23,7 +23,7 @@ module Forklift
       run_after                   # Run any conclustion actions
       
       save_dump                   # mySQLdump the new final database for safe keeping
-      send_email                  # Email folks the status of this forklift
+      send_emails                 # Email folks the status of this forklift and send any status emails
       unlock_pidfile              # Cleanup the pidfile so I can run next time
 
       logger.emphatically "Forklift Complete"
@@ -88,7 +88,8 @@ module Forklift
         :after => {
           :sql => [],
           :ruby => []
-        }
+        }, 
+        :templated_emails => []
       }
 
       build_connections
@@ -332,6 +333,39 @@ module Forklift
       end
     end
 
+    ###################
+    # TEMPLATED EMAIL #
+    ###################
+
+
+    def templated_email(args)
+      @plan[:templated_emails].push(args)
+    end
+
+    def send_templated_emails(emailer)
+      @plan[:templated_emails].each do |templaed_email|
+        variables = resolve_email_variables(templaed_email[:variables])
+        emailer.send_template({
+          :to => templaed_email[:to],
+          :subject => templaed_email[:subject],
+        }, templaed_email[:template], variables)
+      end
+    end
+
+    def resolve_email_variables(variable_hash)
+      resolved = {}
+      variable_hash.each do |k,v|
+        connection = @connections[:local_connection]
+        #TODO: Better SQL determiniation
+        if(v.include?("select") || v.include?("SELECT"))
+          connection.q("use `#{config.get(:final_database)}`")
+          resolved[k] = connection.q("#{v}")
+        else
+          resolved[k] = v
+        end
+      end
+      return resolved
+    end
 
     ################
     # BASE ACTIONS #
@@ -405,12 +439,14 @@ module Forklift
       end
     end
 
-    def send_email
+    def send_emails
       if config.get(:do_email?)
         emailer = Forklift::Email.new(config.get(:email_options), logger)
-        config.get(:email_to).each do |recipient|
-          logger.log "Emailing #{recipient}"
-          emailer.send({:to => recipient}, true)
+        send_templated_emails(emailer)
+        unless config.get(:email_logs_to).nil?
+          config.get(:email_logs_to).each do |recipient|
+            emailer.send({:to => recipient}, true)
+          end
         end
       end
     end

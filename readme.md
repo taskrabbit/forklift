@@ -76,7 +76,7 @@ forklift = Forklift::Plan.new({
   :dump_file => "/data/backups/dump-#{Time.new}.sql.gz",
 
   :do_email? => true,
-  :email_to => ['XXX'],
+  :email_logs_to => ['XXX'],
   :email_options => { 
     :via => :smtp, 
     :via_options => {
@@ -170,7 +170,7 @@ def run
   run_load                    # Load the manipulated data into the final database
   
   save_dump                   # mySQLdump the new final database for safe keeping
-  send_email                  # Email folks the status of this forklift
+  send_emails                 # Email folks the status of this forklift and send any status emails
   unlock_pidfile              # Clean up the pidfile so I can run next time
 end
 ```
@@ -210,9 +210,13 @@ SQL Transformations can be used to [generate new tables like this](http://stacko
 
 ## Befores & Afters
 
-Froklift also alows you to run arbitraty "before" and "after" scripts to prepare or close-out your envrionemnt.  They can be SQL or Ruby (just like transformations).  For Ruby Befores & Afters, the database argument is the FINAL database, not the working database.  Use `def before()` or `def after()`
+Forklift also alows you to run arbitraty "before" and "after" scripts to prepare or close-out your envrionemnt.  They can be SQL or Ruby (just like transformations).  For Ruby Befores & Afters, the database argument is the FINAL database, not the working database.  Use `def before()` or `def after()`
 
 Before and After files are run each time, and cannot be restricted with a frequency
+
+## Templated Emails
+
+Forklift provides basic support for ERB-templated emails which can be sent at the end of every forklift run.  Want to notify folks automatically about how many new users we got yesterday?  Forklift can help you out.
 
 ## Defaults
 
@@ -326,6 +330,20 @@ forklift.after_directory({
   :directory => STRING             # A directory of files to run (ruby/sql)
 })
 
+```
+
+### Templated Emails
+
+```ruby
+forklift.templated_email({
+  :to => STRING,        # The recipient of the email
+  :subject => STRING,   # The subject of the email
+  :template => STRING,  # The path to the ERB template file
+  :variables => {       # Symbolized hash
+    :KEY => VALUE,      # > if VALUE is a string which contains "select", the SQL statement will be evaluated on the final DB
+    :KEY => VALUE,      # > otherwise, the litteral value will be passed to the template as a string
+  }
+})
 ```
 
 ## Debug

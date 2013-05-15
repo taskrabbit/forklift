@@ -1,3 +1,3 @@
 module Forklift
-  VERSION = "0.0.20"
+  VERSION = "0.0.30"
 end

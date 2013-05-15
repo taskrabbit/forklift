@@ -1,4 +1,5 @@
 require 'pony'
+require 'erb'
 
 module Forklift
   class Email
@@ -20,7 +21,15 @@ module Forklift
       }
     end
 
-    def send(args, send_log=true)
+    def send_template(args, template_file, variables)
+      renderer = ERB.new(File.read(template_file))
+      binder = ERBBinding.new(variables)
+      body = renderer.result(binder.get_binding)
+      args[:body] = body
+      send(args)
+    end
+
+    def send(args, send_log=false)
       params = message_defaults
       [:to, :from, :subject, :body].each do |i|
         params[i] = args[i] unless args[i].nil?
@@ -37,7 +46,20 @@ module Forklift
       if Forklift::Debug.debug? == true
         logger.log "Not sending emails in debug mode"
       else
+      logger.log "Emailing #{params[:to]} about `#{params[:subject]}`"
         Pony.mail(params)
+      end
+    end
+
+    class ERBBinding
+      def initialize(hash)
+        hash.each do |k,v|
+          eval("@#{k} = '#{v}'")
+        end
+      end
+
+      def get_binding
+        return binding()
       end
     end
 
