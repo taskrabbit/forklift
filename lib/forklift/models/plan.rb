@@ -1,4 +1,5 @@
 require 'lumberjack'
+require 'terminal-table'
 
 module Forklift 
   class Plan
@@ -359,7 +360,18 @@ module Forklift
         #TODO: Better SQL determiniation
         if(v.include?("select") || v.include?("SELECT"))
           connection.q("use `#{config.get(:final_database)}`")
-          resolved[k] = connection.q("#{v}")
+          result = connection.q("#{v}")
+          if result.class == Mysql2::Result
+            rows = []
+            result.each do |row|
+              rows << row.values
+            end
+            table = Terminal::Table.new({:rows => rows, :headings => result.first.keys})
+            table.align_column(1, :right)
+            resolved[k] = table
+          else
+            resolved[k] = result
+          end
         else
           resolved[k] = v
         end

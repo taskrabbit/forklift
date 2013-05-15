@@ -46,9 +46,17 @@ module Forklift
       if Forklift::Debug.debug? == true
         logger.log "Not sending emails in debug mode"
       else
-      logger.log "Emailing #{params[:to]} about `#{params[:subject]}`"
+        logger.log "Emailing #{params[:to]} about `#{params[:subject]}`"
+        params[:html_body] = to_html(params[:body]) if params[:html_body].nil?
         Pony.mail(params)
       end
+    end
+
+    def to_html(body)
+      body.gsub!("\n", "<br />")
+      body = "<pre>#{body}</pre>"
+      body = "<font face=\"Courier New, Courier, monospace\">#{body}</font>"
+      body
     end
 
     class ERBBinding

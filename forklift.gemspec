@@ -23,4 +23,5 @@ Gem::Specification.new do |s|
   s.add_dependency "mysql2"
   s.add_dependency "pony"
   s.add_dependency "lumberjack"
+  s.add_dependency "terminal-table"
 end
