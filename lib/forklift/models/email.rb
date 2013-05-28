@@ -62,6 +62,8 @@ module Forklift
     class ERBBinding
       def initialize(hash)
         hash.each do |k,v|
+          v = v.gsub("'", " ") if v.class == String
+          v = v.to_s.gsub("'", " ") if v.class == Terminal::Table
           eval("@#{k} = '#{v}'")
         end
       end
