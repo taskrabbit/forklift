@@ -32,14 +32,14 @@ module Forklift
       connection_test
     end
 
-    def q(query, exit_on_exception=true)
+    def q(query, exit_on_exception=true, compress_single_row_results=true)
       logger.debug "[ #{@name} ] #{query}"
       return if Forklift::Debug.debug? == true
       begin
         response = connection.query(query);
         if hash_count(response) == 0
           return nil
-        elsif hash_count(response) == 1
+        elsif (hash_count(response) == 1 && compress_single_row_results == true)
           response.first.each do |k,v|
             return v
           end 

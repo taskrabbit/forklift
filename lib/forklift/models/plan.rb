@@ -357,20 +357,23 @@ module Forklift
       resolved = {}
       variable_hash.each do |k,v|
         connection = @connections[:local_connection]
+        connection.q("use `#{config.get(:final_database)}`")
         #TODO: Better SQL determiniation
         if(v.include?("select") || v.include?("SELECT"))
-          connection.q("use `#{config.get(:final_database)}`")
-          result = connection.q("#{v}")
-          if result.class == Mysql2::Result
-            rows = []
-            result.each do |row|
-              rows << row.values
+          rows = []
+          connection.connection.query("#{v}").each do |row|
+            rows << row
+          end
+          if rows.length == 1 && rows[0].values.length == 1 # single value
+            resolved[k] = rows[0].values[0]
+          else # Table-ize
+            value_rows = []
+            rows.each do |row|
+              value_rows << row.values
             end
-            table = Terminal::Table.new({:rows => rows, :headings => result.first.keys})
+            table = Terminal::Table.new({:rows => value_rows, :headings => rows.first.keys})
             table.align_column(1, :right)
             resolved[k] = table
-          else
-            resolved[k] = result
           end
         else
           resolved[k] = v
