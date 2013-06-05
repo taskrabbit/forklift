@@ -161,17 +161,20 @@ forklift.run
 ```ruby
 def run
   lock_pidfile                # Ensure that only one instance of Forklift is running
+  determine_what_to_run       # Should we run every part of the plan, or only some?
   rebuild_working_database    # Ensure that the working database exists
   ensure_forklift_data_table  # Ensure that the metadata table for forklift exists (used for frequency calculations)
   
   run_checks                  # Preform any data integrity checks
+  run_before                  # Run any setup actions
   run_extractions             # Extact data from the life databases into the working database
-  run_transformations         # Perform any transformations
+  run_transformations         # Preform any Transformations
   run_load                    # Load the manipulated data into the final database
+  run_after                   # Run any conclustion actions
   
   save_dump                   # mySQLdump the new final database for safe keeping
   send_emails                 # Email folks the status of this forklift and send any status emails
-  unlock_pidfile              # Clean up the pidfile so I can run next time
+  unlock_pidfile              # Cleanup the pidfile so I can run next time
 end
 ```
 
@@ -346,7 +349,46 @@ forklift.templated_email({
 })
 ```
 
-## Debug
+## Command Line Options
+
+### Help
+
+Forklift's help: `ruby #{your_plan}.rb --help`
+
+```bash
+Options:
+      --debug, -d:   Use debug mode
+  --names, -n <s>:   specific set of named actions to run
+     --checks, -c:   (overide) use checks
+    --extract, -e:   (overide) use extract
+  --transform, -t:   (overide) use transform
+       --load, -l:   (overide) use load
+      --email, -m:   (overide) use email
+       --dump, -u:   (overide) use dump
+     --before, -b:   (overide) use before
+      --after, -a:   (overide) use after
+       --help, -h:   Show this message
+```
+
+By default, forklift will run sections defined in your plan.  However, there might be times which you need to only run part of your plan.  To help you with this, there are 2 paterns which allow for command line use:
+
+### Step Definition
+
+You can pass the steps which you specificly wish to run to forklift, which will overwrite your `do_*` blocks in your plan.  For example: 
+
+- `ruby #{your_plan}.rb --no-checks` will run your plan as normal, but skip the cheks.  
+- `ruby #{your_plan}.rb --no-checks --no-extrat --no-transform --no-load --no-dump --no-before --no-after` would only send emails
+
+### Named actions
+
+Alternatively, if you only want to run a specific action from you plan, you can use the `names` option.  You will note above that each step you define in your plan has a `:name` attribute.  This is used to signal forklift to run only that step.  For example:
+
+- `ruby #{your_plan}.rb --names="send_daily_email"` would only re-send the email.  It will run against the existing forklift database.
+- `ruby #{your_plan}.rb --names="send_daily_email, DUMP"` would only re-send the email and dump the `final` database.  The email will run against the existing forklift database.
+
+`LOAD` and `DUMP` are the only reserved names to indicate those specific steps should be run by name.
+
+### Debug Mode
 
 You can launch forklift in "debug mode" with `--debug` (we check `ARGV["--debug"]` and `ARGV["-debug"]`).  In debug mode the following will happen:
 - verbose = true

@@ -6,8 +6,21 @@ module Forklift
       set_defaults
     end
 
-    def defaults
+    def dos 
       {
+        "before" => true,
+        "checks" => true,
+        "extract" => true,
+        "transform" => true,
+        "load" => true,
+        "dump" => false,
+        "email" => false,
+        "after" => true,
+      }
+    end
+
+    def defaults
+      defaults = {
         :project_root => Dir.pwd,
         :lock_with_pid? => true,
 
@@ -20,22 +33,29 @@ module Forklift
         :forklift_data_table => '_forklift',
         
         :verbose? => true,
-
-        :do_checks? => true,
-        :do_extract? => true,
-        :do_transform? => true,
-        :do_load? => true,
-        :do_email? => false,
-        :do_dump? => false,
-        :do_before? => true,
-        :do_after? => true,
       }
+      dos.each do |k,v|
+        defaults["do_#{k}?".to_sym] = v
+      end
+      defaults
     end
 
     def set_defaults
       defaults.each do |k,v|
         set(k,v)
       end
+    end
+
+    def merge_with_argv
+      dos.each do |k,v|
+        if Forklift::Argv.args["#{k}_given".to_sym] == true
+          @data["do_#{k}?".to_sym] = Forklift::Argv.args[k.to_sym] 
+        end
+      end
+    end
+
+    def data
+      @data
     end
 
     def set(k,v)
