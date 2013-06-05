@@ -31,7 +31,7 @@ module Forklift
 
     def run
       # mysqldump needs to be in $PATH
-      return if Forklift::Debug.debug? == true
+      return if Forklift::Argv.args[:debug] == true
 
       cmd = "mysqldump" 
       cmd << " -u#{username}"

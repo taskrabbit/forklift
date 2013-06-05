@@ -4,7 +4,7 @@ module Forklift
     def local(check, connection, logger)
       connection.q("USE #{check[:database]}")
       result = connection.q(check[:query])
-      if Forklift::Debug.debug? == true
+      if Forklift::Argv.args[:debug] == true
         logger.log "[local check] #{check[:name]} SKIPPED"
       elsif result.to_s == check[:expected].to_s
         logger.log "[local check] #{check[:name]} PASSED"
@@ -16,7 +16,7 @@ module Forklift
     def remote(check, connection, logger)
       connection.q("USE #{check[:database]}")
       result = connection.q(check[:query])
-      if Forklift::Debug.debug? == true
+      if Forklift::Argv.args[:debug] == true
         logger.log "[local check] #{check[:name]} SKIPPED"
       elsif result.to_s == check[:expected].to_s
         logger.log "[remote check] #{check[:name]} PASSED"

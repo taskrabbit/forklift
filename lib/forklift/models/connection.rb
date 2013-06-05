@@ -34,7 +34,7 @@ module Forklift
 
     def q(query, exit_on_exception=true, compress_single_row_results=true)
       logger.debug "[ #{@name} ] #{query}"
-      return if Forklift::Debug.debug? == true
+      return if Forklift::Argv.args[:debug] == true
       begin
         response = connection.query(query);
         if hash_count(response) == 0
@@ -56,7 +56,7 @@ module Forklift
     end
 
     def connection_test
-      return if Forklift::Debug.debug? == true
+      return if Forklift::Argv.args[:debug] == true
       begin
         connection.query("select NOW()")
       rescue Error => e
@@ -95,7 +95,7 @@ module Forklift
         elsif local_connection.frequency_check(to, destination_table_name, forklift_data_table, frequency)
           start = Time.new.to_i
           logger.log " > importing remote table `#{from}`.`#{table}` to local `#{to}`.`#{destination_table_name}`"
-          return if Forklift::Debug.debug? == true
+          return if Forklift::Argv.args[:debug] == true
           local_connection.q("drop table if exists `#{to}`.`#{destination_table_name}`")
           create_table_command = connection.query("show create table #{table}").first["Create Table"]
           create_table_command.gsub!("CREATE TABLE `#{table}`", "CREATE TABLE `#{destination_table_name}`")

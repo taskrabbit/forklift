@@ -5,7 +5,7 @@ module Forklift
   lib = File.expand_path(File.dirname(__FILE__))
   [
     'utils', 
-    'debug', 
+    'argv', 
     'config', 
     'logger', 
     'connection', 
