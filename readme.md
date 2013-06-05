@@ -115,18 +115,21 @@ forklift.check_remote_source({
 ###########
 
 forklift.import_local_database({
+  :name => "import_database_1",
   :database => "database_1",
   :prefix => false,
   :frequency => 24 * 60 * 60,
 })
 
 forklift.import_local_database({
+  :name => "import_database_2",
   :database => "database_2",
   :prefix => false,
   :only => ['table_1', 'table_2'],
 })
 
 forklift.import_remote_database({
+  :name => "import_database_3",
   :connection_name => 'remote_connection_a',
   :database => "database_3",
   :prefix => true,
@@ -140,11 +143,13 @@ forklift.import_remote_database({
 transformation_base = File.dirname(__FILE__) + "/transformations"
 
 forklift.transform_sql({
+  :name => "transform_calendar",
   :file => "#{transformation_base}/calendars/create_calendars.sql",
   :frequency => 24 * 60 * 60,
 })
 
 forklift.transform_ruby({
+  :name => "transform_ruby_test",
   :file => "#{transformation_base}/test/test.rb",
 })
 
@@ -242,6 +247,8 @@ The defaults for a new `Forklift::Plan` are:
    :do_load? => true,
    :do_email? => false,
    :do_dump? => false,
+   :do_before? => true,
+   :do_after? => true
  }
 ```
 
@@ -258,8 +265,8 @@ forklift.check_local_source({
 })
 
 forklift.check_remote_source({
-  :connection_name => STRING,  # The name of the remote_connection
   :name => STRING,             # A name for the test
+  :connection_name => STRING,  # The name of the remote_connection
   :database => STRING,         # The Database to test
   :query => STRING,            # The Query to Run.  Needs to return only 1 row with 1 value
   :expected => STRING          # The response to compare against
@@ -270,6 +277,7 @@ forklift.check_remote_source({
 
 ```ruby
 forklift.import_local_database({
+  :name => STRING,                  # A name for the action
   :database => STRING,              # The Database to Extract
   :prefix => BOOLEAN,               # Should we prefix the names of all tables in this database when imported wight the database?
   :frequency => INTEGER (seconds),  # How often should we import this database?
@@ -278,6 +286,7 @@ forklift.import_local_database({
 })
 
 forklift.import_remote_database({
+  :name => STRING,                  # A name for the action
   :connection_name => STRING,       # The name of the remote_connection
   :database => STRING,              # The Database to Extract
   :prefix => BOOLEAN,               # Should we prefix the names of all tables in this database when imported wight the database?
@@ -291,16 +300,19 @@ forklift.import_remote_database({
 
 ```ruby
 forklift.transform_sql({
+  :name => STRING,                 # A name for the action
   :file => STRING,                 # The transformation file to run
   :frequency => INTEGER (seconds), # How often should we run this transformation?
 })
 
 forklift.transform_ruby({
+  :name => STRING,                 # A name for the action
   :file => STRING,                 # The transformation file to run
   :frequency => INTEGER (seconds), # How often should we run this transformation?
 })
 
 forklift.transform_directory({
+  :name => STRING,                 # A name for the action
   :frequency => INTEGER (seconds), # How often should we run this transformation?
   :directory => STRING             # A directory of files to run (ruby/sql)
 })
@@ -310,26 +322,32 @@ forklift.transform_directory({
 
 ```ruby
 forklift.before_sql({
+  :name => STRING,                 # A name for the action
   :file => STRING,                 # The before file to run
 })
 
 forklift.before_ruby({
+  :name => STRING,                 # A name for the action
   :file => STRING,                 # The before file to run
 })
 
 forklift.after_sql({
+  :name => STRING,                 # A name for the action
   :file => STRING,                 # The after file to run
 })
 
 forklift.after_ruby({
+  :name => STRING,                 # A name for the action
   :file => STRING,                 # The after file to run
 })
 
 forklift.before_directory({
+  :name => STRING,                 # A name for the action
   :directory => STRING             # A directory of files to run (ruby/sql)
 })
 
 forklift.after_directory({
+  :name => STRING,                 # A name for the action
   :directory => STRING             # A directory of files to run (ruby/sql)
 })
 
