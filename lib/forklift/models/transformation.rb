@@ -59,7 +59,7 @@ module Forklift
         begin
           require file
           transformation = eval("#{klass}.new")
-          transformation.transform(connection, database, logger) unless Forklift::Debug.debug? == true
+          transformation.transform(connection, database, logger) unless Forklift::Argv.args[:debug] == true
         rescue Exception => e
           logger.log "   !!! transformation error: #{e} !!! "
           logger.log "   moving on..."

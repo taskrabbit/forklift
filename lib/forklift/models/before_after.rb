@@ -48,9 +48,9 @@ module Forklift
         require file
         model = eval("#{klass}.new")
         if defined? model.before 
-          model.before(connection, database, logger) unless Forklift::Debug.debug? == true
+          model.before(connection, database, logger) unless Forklift::Argv.args[:debug] == true
         elsif defined? model.after
-          model.after(connection, database, logger) unless Forklift::Debug.debug? == true
+          model.after(connection, database, logger) unless Forklift::Argv.args[:debug] == true
         else
           throw "no before or after defined in #{file}"
         end

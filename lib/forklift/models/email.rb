@@ -43,7 +43,7 @@ module Forklift
     private 
 
     def deliver(params)
-      if Forklift::Debug.debug? == true
+      if Forklift::Argv.args[:debug] == true
         logger.log "Not sending emails in debug mode"
       else
         logger.log "Emailing #{params[:to]} about `#{params[:subject]}`"

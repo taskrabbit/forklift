@@ -1,3 +1,5 @@
+require 'lumberjack'
+
 module Forklift
   class Logger
 
@@ -28,7 +30,7 @@ module Forklift
     def debug(message)
       if config.get(:verbose?) == true
         log(message)
-      elsif Forklift::Debug.debug? == true
+      elsif Forklift::Argv.args[:debug] == true
         log(message)
       end
     end
