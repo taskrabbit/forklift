@@ -32,7 +32,9 @@ module Forklift
           connection.connection.query("#{v}").each do |row|
             rows << row
           end
-          if rows.length == 1 && rows[0].values.length == 1 # single value
+          if rows.length == 0
+            resolved[k] = "{no results}"
+          elsif rows.length == 1 && rows[0].values.length == 1 # single value
             resolved[k] = rows[0].values[0]
           else # Table-ize
             value_rows = []
