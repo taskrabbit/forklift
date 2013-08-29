@@ -43,16 +43,16 @@ module Forklift
 
     def fatal(message)
       log "!!! #{message} !!!"
-      send_fatal_email
+      send_fatal_email(message)
       exit(1)
     end
 
-    def send_fatal_email
+    def send_fatal_email(message)
       if config.get(:do_email?)
         emailer = Forklift::Email.new(config.get(:email_options), self)
         config.get(:email_logs_to).each do |recipient|
           self.log "Emailing #{recipient}"
-          emailer.send({:to => recipient, :subject => "Forklift Failed @ #{Time.new}", :body => "Forklift encountered an error."}, true)
+          emailer.send({:to => recipient, :subject => "Forklift Failed @ #{Time.new}", :body => "Forklift encountered an error: #{message}"}, true)
         end
       end
     end
