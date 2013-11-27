@@ -1,4 +1,5 @@
 .DS_Store
+*/.DS_Store
 pids
 log
 config/databases.yml

@@ -10,5 +10,9 @@ module Forklift
       klass
     end
 
+    def self.name_from_file(file)
+      file.split("/").last.split(".").first
+    end
+
   end
 end

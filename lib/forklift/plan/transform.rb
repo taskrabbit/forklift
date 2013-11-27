@@ -19,13 +19,15 @@ module Forklift
       Dir.glob("#{directory}/*.sql").each do |file|
         transform_sql({
           :file => file,
-          :frequency => frequency
+          :frequency => frequency,
+          :name => Utils.name_from_file(file)
         })
       end
       Dir.glob("#{directory}/*.rb").each do |file|
         transform_ruby({
           :file => file,
-          :frequency => frequency
+          :frequency => frequency,
+          :name => Utils.name_from_file(file)
         })
       end
     end

@@ -26,11 +26,13 @@ module Forklift
       Dir.glob("#{directory}/*.sql").each do |file|
         before_sql({
           :file => file,
+          :name => Utils.name_from_file(file)
         })
       end
       Dir.glob("#{directory}/*.rb").each do |file|
         before_ruby({
           :file => file,
+          :name => Utils.name_from_file(file)
         })
       end
     end
@@ -40,11 +42,13 @@ module Forklift
       Dir.glob("#{directory}/*.sql").each do |file|
         after_sql({
           :file => file,
+          :name => Utils.name_from_file(file)
         })
       end
       Dir.glob("#{directory}/*.rb").each do |file|
         after_ruby({
           :file => file,
+          :name => Utils.name_from_file(file)
         })
       end
     end

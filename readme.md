@@ -198,7 +198,7 @@ Forklift allows you to create both Ruby transformations and SQL transformations
 ```ruby
 class Test
 
-  def transform(connection, database, logger)
+  def before(connection, database, logger)
     logger.log "Running on DB: #{database}"
     logger.log "Counting users..."
     connection.q("USE `#{database}`")
