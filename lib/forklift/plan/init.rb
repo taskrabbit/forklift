@@ -49,14 +49,17 @@ module Forklift
           collection.keys.each do |type|
             typed_collection = collection[type]
             counter = 0
+
             typed_collection.each do |elem|
               if Forklift::Argv.names.include?( elem[:name] )
-                # ok
+                # puts " > Will Run #{elem[:name]}"
               else
-                @plan[key][type].delete_at( counter )
+                puts " > Skipping #{elem[:name]}"
+                @plan[key][type][counter] = nil
               end
               counter = counter + 1
             end
+            @plan[key][type].compact! 
           end
         end
       end
