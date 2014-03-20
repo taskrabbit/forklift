@@ -1,6 +1,39 @@
 # Forklift
 Moving heavy databases around.
 
+Expectations:
+
+You write your own plan with helper/movers
+
+/forklift.rb
+/initializers
+|-/sources
+|--/(DB).yml
+|-/destination
+|--(DB).yml
+|-airbrake.yml
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---
+
 ![picture](https://raw.github.com/taskrabbit/forklift/master/forklift.jpg)
 
 ## What?

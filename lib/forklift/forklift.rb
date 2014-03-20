@@ -4,20 +4,14 @@ module Forklift
 
   lib = File.expand_path(File.dirname(__FILE__))
   
-  [
-    'utils', 
-    'argv', 
-    'config', 
-    'logger', 
-    'connection', 
-    'dump', 
-    'check_evaluator', 
-    'email', 
-    'pid_file', 
-    'plan', 
-    'transformation',
-    'before_after'
-  ].each do |file|
-    require "#{lib}/models/#{file}"
-  end
+  require "#{lib}/base/utils.rb"
+  require "#{lib}/base/pid.rb"
+  require "#{lib}/base/logger.rb"
+  require "#{lib}/base/mailer.rb"
+  require "#{lib}/base/connection.rb"
+
+  require "#{lib}/connection/mysql.rb"
+  require "#{lib}/connection/elasticsearch.rb"
+
+  require "#{lib}/plan.rb"
 end
