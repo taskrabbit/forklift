@@ -51,7 +51,7 @@ end
 working.exec!("./transformations.sql");
 
 working.tables.each do |table|
-  source.optomistic_pipe(working.database, table, destination.database, table)
+  working.optomistic_pipe(working.database, table, destination.database, table)
 end
 ```
 
