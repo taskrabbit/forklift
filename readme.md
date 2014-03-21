@@ -204,9 +204,10 @@ A config file for each connection is to live in `./config/connections/#{transpor
 
 in the `/connections` firectory in your project, create a file that defines at least the following:
 
+```ruby
 module Forklift
   module Connection
-    class Elasticsearch < Forklift::Base::Connection
+    class MyTransport < Forklift::Base::Connection
 
       def initialize(config, forklift)
         @config = config
@@ -239,7 +240,7 @@ module Forklift
 
     end
   end
-end```ruby
+end
 
 ```
 
