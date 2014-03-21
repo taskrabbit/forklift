@@ -7,6 +7,12 @@ Moving heavy databases around.
 
 [Forklift](https://github.com/taskrabbit/forklift) is a ruby gem that makes it easy for you to move your data around.  Forklift can be an integral part of your datawarehouse pipeline or a backup too.  Forklift can collect and collapse data from multiple sources or accross a source.  In forklift's first version, it was only a mySQL tool.  Now, you can create [transports]() to deal with the data of your choice.
 
+## What does TaskRabbit use this for?
+
+At TaskRabbit, the website you see at [www.taskrabbit.com](https://www.taskrabbit.com) is actually made up of many [smaller rails applications](http://en.wikipedia.org/wiki/Service-oriented_architecture).  When analyzing our site, we need to collect all of this data into one place so we can easily join across it.
+
+We replicate all of our databases into one server in our office, and then use Forklift to extract the data we want into a common place.  This gives us the option to both look at live data and to have a more accessible transformed set which we create on a rolling basis. Our "Forklift Loop" also git-pulls to check for any new transformations before each run.
+
 ## Suggested Paterns
 
 ### In-Place Modificaiton
@@ -59,33 +65,29 @@ Cons:
 - slow
 - requires 2x space of final working set
 
-## What does TaskRabbit use this for?
-
-At TaskRabbit, the website you see at [www.taskrabbit.com](https://www.taskrabbit.com) is actually made up of many [smaller rails applications](http://en.wikipedia.org/wiki/Service-oriented_architecture).  When analyzing our site, we need to collect all of this data into one place so we can easily join across it.
-
-We replicate all of our databases into one server in our office, and then use Forklift to extract the data we want into a common place.  This gives us the option to both look at live data and to have a more accessible transformed set which we create on a rolling basis. Our "Forklift Loop" also git-pulls to check for any new transformations before each run.
-
 ## Example Annotated Plan
 
 Forklift expexts your project to be arranged like:
 
 ```bash
-| - forklift.rb
-| - /config
-| -- email.yml
-| -- /connections
-| --- /mysql
-| ---- (DB).yml
-| --- /elasticsearch
-| ---- (DB).yml
-| - /log
-| - /pids
-| - /template
-| - /transformations
-| - Gemfile
-| - Gemfile.lock
-| - plan.rb
+|-forklift.rb
+|-/config
+|--email.yml
+|--/connections
+|---/mysql
+|----(DB).yml
+|---/elasticsearch
+|----(DB).yml
+|-/log
+|-/pids
+|-/template
+|-/transformations
+|-Gemfile
+|-Gemfile.lock
+|-plan.rb
 ```
+
+Run your plan with `bundle exec plan.rb`
 
 ```ruby
 require 'rubygems'
@@ -188,7 +190,7 @@ end
 
 ## Transports
 
-Transports are how you interact with your data.  Every transport defines a `read` and `write` method which handle arrays of data object.  Transports optionaly define `pipe` methods which a shortcuts to copy data within a transport (IE: `insert into #{to_db}.#{to_table} select * from #{from_db}.`#{from_table}` for mysql).   A trasport may also define other helers (like how to create a mysql dump).
+Transports are how you interact with your data.  Every transport defines a `read` and `write` method which handle arrays of data object.  Transports optionaly define `pipe` methods which a shortcuts to copy data within a transport (IE: `insert into #{to_db}.#{to_table} select * from #{from_db}.#{from_table}` for mysql).   A trasport may also define other helers (like how to create a mysql dump).
 
 A config file for each connection is to live in `./config/connections/#{transport}/` and will be loaded at boot.
 
