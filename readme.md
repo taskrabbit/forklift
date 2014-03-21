@@ -82,6 +82,7 @@ Forklift expexts your project to be arranged like:
 |-/pids
 |-/template
 |-/transformations
+|-/connections
 |-Gemfile
 |-Gemfile.lock
 |-plan.rb
@@ -198,6 +199,49 @@ end
 Transports are how you interact with your data.  Every transport defines a `read` and `write` method which handle arrays of data object.  Transports optionaly define `pipe` methods which a shortcuts to copy data within a transport (IE: `insert into #{to_db}.#{to_table} select * from #{from_db}.#{from_table}` for mysql).   A trasport may also define other helers (like how to create a mysql dump).
 
 A config file for each connection is to live in `./config/connections/#{transport}/` and will be loaded at boot.
+
+### Creating your own transport
+
+in the `/connections` firectory in your project, create a file that defines at least the following:
+
+module Forklift
+  module Connection
+    class Elasticsearch < Forklift::Base::Connection
+
+      def initialize(config, forklift)
+        @config = config
+        @forklift = forklift
+      end
+
+      def config
+        @config
+      end
+
+      def forklift
+        @forklift
+      end
+
+      def read(index, query, args)
+        # ... 
+      end
+
+      def write(data, table)
+        # ... 
+      end
+
+      def pipe(from_table, from_db, to_table, to_db)
+        # ...
+      end
+
+      private
+
+      #/private
+
+    end
+  end
+end```ruby
+
+```
 
 ### mysql
 
