@@ -176,13 +176,15 @@ module Forklift
 
       def dump(file)
         cmd = "mysqldump" 
-        cmd << " -u#{config[:username]}"
-        cmd << " -p#{config[:password]}" unless config[:password].nil?
+        cmd << " -u#{config['username']}" unless config['username'].nil?
+        cmd << " -p#{config['password']}" unless config['password'].nil?
         cmd << " --max_allowed_packet=512M"
-        cmd << " #{config[:database]}"
+        cmd << " #{config['database']}"
         cmd << " | gzip > #{file}"
-        logger.log "Dumping #{config[:database]} to #{file}"
+        forklift.logger.log "Dumping #{config['database']} to #{file}"
+        forklift.logger.debug cmd
         `#{cmd}`
+        forklift.logger.log "  > Dump complete"
       end
 
       def exec_script(path)

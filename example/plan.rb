@@ -1,3 +1,5 @@
+ #!/usr/bin/env ruby
+
 require 'rubygems'
 require 'bundler'
 Bundler.require(:default)
@@ -54,21 +56,25 @@ plan.do! {
   # Ruby transformations expect `do!(connection, forklift)` to be defined
   destination = plan.connections[:mysql][:destination]
   destination.exec!("./transformations/email_suffix.rb")
+
+  # mySQL Dump the destination
+  destination = plan.connections[:mysql][:destination]
+  destination.dump('/tmp/destination.sql.gz')
+
+  # email the logs and a summary
+  destination = plan.connections[:mysql][:destination]
+
+  email_args = {
+    :to      => "YOU@FAKE.com",
+    :from    => "Forklift",
+    :subject => "Forklift has moved your database @ #{Time.new}",
+  }
+
+  email_varialbes = {
+    :total_users_count => destination.read('select count(1) as "count" from users')[0][:count],
+    :new_users_count => destination.read('select count(1) as "count" from users where date(created_at) = date(NOW())')[0][:count],
+  }
+
+  email_template = "./template/email.erb"
+  plan.mailer.send_template(email_args, email_template, email_varialbes, plan.logger.messages) unless ENV['EMAIL'] == 'false'
 }
-
-# email the logs and a summary
-destination = plan.connections[:mysql][:destination]
-
-email_args = {
-  :to      => "YOU@FAKE.com",
-  :from    => "Forklift",
-  :subject => "Forklift has moved your database @ #{Time.new}",
-}
-
-email_varialbes = {
-  :total_users_count => destination.read('select count(1) as "count" from users')[0][:count],
-  :new_users_count => destination.read('select count(1) as "count" from users where date(created_at) = date(NOW())')[0][:count],
-}
-
-email_template = "./template/email.erb"
-plan.mailer.send_template(email_args, email_template, email_varialbes, plan.logger.messages) unless ENV['EMAIL'] == 'false'
