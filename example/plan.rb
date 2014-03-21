@@ -6,21 +6,24 @@ require 'forklift/forklift'
 
 # plan = Forklift::Plan.new
 # Or, you can pass configs
-plan = Forklift::Plan.new ({:logger => {:debug => true}})
+plan = Forklift::Plan.new ({
+  # :logger => {:debug => true}
+})
 
 plan.do! {
-  # do! is a wrapper around common setup methods
+  # do! is a wrapper around common setup methods (pidfile locking, setting up the logger, etc)
   # you don't need to use do! if you want finer control
 
   # cleanup from a previous run
   destination = plan.connections[:mysql][:destination]
-  destination.drop! 'users' if destination.tables.include? 'users'
+  destination.exec("./transformations/cleanup.sql");
 
   #  mySQL -> mySQL
   source = plan.connections[:mysql][:source]
   source.tables.each do |table|
     source.optomistic_pipe('source', table, 'destination', table)
     # will attempt to do an incramental pipe, will fall back to a full table copy
+    # by default, incramental updates happen off of the `created_at` column, but you can modify this with "matcher"
   end
 
   # Elasticsearch -> mySQL
@@ -43,25 +46,29 @@ plan.do! {
   # ... and you can write your own connections [LINK GOES HERE]
 
   # Do some SQL stranformations
+  # SQL transformations are done explicitly as they are writter
   destination = plan.connections[:mysql][:destination]
-  destination.exec("./transformations/combined_name.sql")
+  destination.exec!("./transformations/combined_name.sql")
 
   # Do some Ruby transformations
+  # Ruby transformations expect `do!(connection, forklift)` to be defined
   destination = plan.connections[:mysql][:destination]
-  destination.exec("./transformations/email_suffix.rb")
-
+  destination.exec!("./transformations/email_suffix.rb")
 }
 
 # email the logs and a summary
 destination = plan.connections[:mysql][:destination]
+
 email_args = {
-  :to      => "evan@taskrabbit.com",
+  :to      => "YOU@FAKE.com",
   :from    => "Forklift",
   :subject => "Forklift has moved your database @ #{Time.new}",
 }
+
 email_varialbes = {
   :total_users_count => destination.read('select count(1) as "count" from users')[0][:count],
   :new_users_count => destination.read('select count(1) as "count" from users where date(created_at) = date(NOW())')[0][:count],
 }
+
 email_template = "./template/email.erb"
 plan.mailer.send_template(email_args, email_template, email_varialbes, plan.logger.messages) unless ENV['EMAIL'] == 'false'

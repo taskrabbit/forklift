@@ -39,6 +39,14 @@ module Forklift
       end
 
       def exec(path)
+        begin
+          exec!(path)
+        rescue Exception => e
+          forklift.logger.log(e)
+        end
+      end
+
+      def exec!(path)
         forklift.logger.log "Running script: #{path}"
         extension = path.split(".").last 
         if(extension == "rb" || extension == "ruby")

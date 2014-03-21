@@ -40,7 +40,7 @@ module Forklift
     end
 
     def do!
-      self.logger.log "Starting a forklift ETL"
+      self.logger.log "Starting forklift"
       # you can use `plan.logger.log` in your plan for logging
       self.pid.safe_to_run?
       self.pid.store!
@@ -50,7 +50,7 @@ module Forklift
       # this will build all the connection objects (and try to connect in some cases)
       yield
       # your stuff here!
-      self.logger.log "Completed a forklift ETL"
+      self.logger.log "Completed forklift"
       self.pid.delete!
       # remove the pidfile
     end

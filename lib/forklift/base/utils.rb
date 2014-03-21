@@ -1,4 +1,4 @@
-viprequire 'yaml'
+require 'yaml'
 require 'erb'
 
 module Forklift

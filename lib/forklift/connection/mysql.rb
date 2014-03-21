@@ -123,13 +123,13 @@ module Forklift
             old_rows.each do |row|
               #TODO: These can be batch-deleted in one command
               q("delete from `#{to_db}`.`#{to_table}` where `#{primary_key}` = #{row[primary_key.to_sym]}")
-              forklift.logger.log("  ^ deleted #{old_rows.count} stale rows")
             end
+            forklift.logger.log("  ^ deleted #{old_rows.count} stale rows")
           }
         end
         q("insert into `#{to_db}`.`#{to_table}` select * from `#{from_db}`.`#{from_table}` where `#{matcher}` > \"#{latest_timestamp}\"")
         delta = Time.new.to_i - start
-        new_count = original_count - count(to_table, to_db)
+        new_count =  count(to_table, to_db) - original_count
         forklift.logger.log("  ^ created #{new_count} new rows rows in #{delta}s")
       end
 
