@@ -22,6 +22,7 @@ module Forklift
     def connect!
       files = Dir["#{config[:project_root]}/config/connections/**/*.yml"]
       files.each do |f|
+        next if f.include?('example.yml')
         name = f.split("/")[-1].split('.')[0]
         type = f.split("/")[-2]
         connections[type.to_sym] = {} if connections[type.to_sym].nil?
