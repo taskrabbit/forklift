@@ -163,7 +163,7 @@ module Forklift
         if ( last_coppied_row.nil? || last_coppied_row[matcher.to_sym].nil? )
           latest_timestamp = '1970-01-01 00:00'
         else
-          return last_coppied_row[matcher.to_sym].to_s(:db)
+          return last_coppied_row[matcher.to_sym].to_s
         end
       end
 
@@ -246,6 +246,7 @@ module Forklift
           part = "NULL"  
           if( [::String, ::Symbol].include?(v.class) ) 
             v.gsub!('"', '\"')
+            v.gsub!('\\\\\"', '\\\"')
             part = "\"#{v}\""
           elsif( [::Date, ::Time].include?(v.class) ) 
             s = v.to_s(:db)
