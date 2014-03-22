@@ -120,7 +120,7 @@ module Forklift
         original_count = count(to_table, to_db)
         latest_timestamp = self.max_timestamp(to_table, matcher, to_db)
         if(original_count > 0)
-          read("select `#{primary_key}` from `#{from_db}`.`#{from_table}` where `#{matcher}` > \"#{latest_timestamp}\""){|old_rows| 
+          read("select `#{primary_key}` from `#{from_db}`.`#{from_table}` where `#{matcher}` > \"#{latest_timestamp}\" order by `#{matcher}`"){|old_rows| 
             old_rows.each do |row|
               #TODO: These can be batch-deleted in one command
               q("delete from `#{to_db}`.`#{to_table}` where `#{primary_key}` = #{row[primary_key.to_sym]}")
@@ -128,7 +128,7 @@ module Forklift
             forklift.logger.log("  ^ deleted #{old_rows.count} stale rows")
           }
         end
-        q("insert into `#{to_db}`.`#{to_table}` select * from `#{from_db}`.`#{from_table}` where `#{matcher}` > \"#{latest_timestamp}\"")
+        q("insert into `#{to_db}`.`#{to_table}` select * from `#{from_db}`.`#{from_table}` where `#{matcher}` > \"#{latest_timestamp}\" order by `#{matcher}`")
         delta = Time.new.to_i - start
         new_count =  count(to_table, to_db) - original_count
         forklift.logger.log("  ^ created #{new_count} new rows rows in #{delta}s")
@@ -148,7 +148,7 @@ module Forklift
       end
 
       def read_since(table, since, matcher=default_matcher, database=current_database)
-        query = "select * from `#{database}`.`#{table}` where `#{matcher}` >= '#{since}'"
+        query = "select * from `#{database}`.`#{table}` where `#{matcher}` >= '#{since}' order by `#{matcher}` asc"
         self.read(query, database){|data|
           if block_given?
             yield data 
@@ -245,8 +245,8 @@ module Forklift
         values.each do |v|
           part = "NULL"  
           if( [::String, ::Symbol].include?(v.class) ) 
+            v.gsub!('\"', '\/"')
             v.gsub!('"', '\"')
-            v.gsub!('\\\\\"', '\\\"')
             part = "\"#{v}\""
           elsif( [::Date, ::Time].include?(v.class) ) 
             s = v.to_s(:db)
