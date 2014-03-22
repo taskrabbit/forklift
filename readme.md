@@ -249,12 +249,14 @@ end
 **forklift methods**
 
 - read(query, database=current_database, looping=true, limit=1000, offset=0)
+- read_since(table, since, matcher=default_matcher, database=current_database)
+  - a wrapper around `read` to get only rows since a timestamp
 - write(data, table, to_update=false, database=current_database, primary_key='id', lazy=true)
   - `lazy` will create a table if not found
 - pipe(from_table, from_db, to_table, to_db)
-- incremental_pipe(from_table, from_db, to_table, to_db, matcher='updated_at', primary_key='id')
+- incremental_pipe(from_table, from_db, to_table, to_db, matcher=default_matcher, primary_key='id')
   - `pipe` with only new data where time is greater than the latest `matcher` on the `to_db`
-- optomistic_pipe(from_db, from_table, to_db, to_table, matcher='updated_at', primary_key='id')
+- optomistic_pipe(from_db, from_table, to_db, to_table, matcher=default_matcher, primary_key='id')
   - tries to `incremental_pipe`, falling back to `pipe`
 
 **transport-specific methods**
@@ -265,6 +267,8 @@ end
   - return the DB's name
 - count(table, database=current_database)
   - count rows in table
+- max_timestamp(table, matcher=default_matcher, database=current_database)
+  - return the timestamp of the max(matcher) or 1970-01-01
 - truncate!(table, database=current_database)
 - columns(table, database=current_database)
 - dump(file)

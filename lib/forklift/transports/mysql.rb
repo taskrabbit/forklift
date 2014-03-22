@@ -20,6 +20,10 @@ module Forklift
         @forklift
       end
 
+      def default_matcher
+        'updated_at'
+      end
+
       def drop!(table, database=current_database)
         q("DROP table `#{database}`.`#{table}`");
       end
@@ -50,7 +54,7 @@ module Forklift
         end
       end
 
-      def write(data, table, to_update=false, database=current_database, primary_key='id', lazy=true)
+      def write(data, table, to_update=true, database=current_database, primary_key='id', lazy=true)
         if tables.include? table
           # all good, cary on
         elsif(lazy == true && data.length > 0)
@@ -75,7 +79,7 @@ module Forklift
         end
 
         command = "CREATE TABLE `#{database}`.`#{table}` ( "
-        command << " `#{primary_key}` int(11) NOT NULL AUTO_INCREMENT, "
+        command << " `#{primary_key}` int(11) NOT NULL AUTO_INCREMENT, " if item[primary_key.to_sym].nil?
         keys.each do |col, type|
           command << " `#{col}` #{type} DEFAULT NULL, "
         end
@@ -109,16 +113,13 @@ module Forklift
         forklift.logger.log("  ^ moved #{count(to_table, to_db)} rows in #{delta}s")
       end
 
-      def incremental_pipe(from_table, from_db, to_table, to_db, matcher='updated_at', primary_key='id')
+      def incremental_pipe(from_table, from_db, to_table, to_db, matcher=default_matcher, primary_key='id')
         start = Time.new.to_i
         forklift.logger.log("mysql incremental_pipe: `#{from_db}`.`#{from_table}` => `#{to_db}`.`#{to_table}`")
         q("create table if not exists `#{to_db}`.`#{to_table}` like `#{from_db}`.`#{from_table}`")
-        last_coppied_row = read("select max(`#{matcher}`) as \"#{matcher}\" from `#{to_db}`.`#{to_table}`")[0]
         original_count = count(to_table, to_db)
-        if ( last_coppied_row.nil? || last_coppied_row[matcher.to_sym].nil? )
-          latest_timestamp = '1970-01-01 00:00'
-        else
-          latest_timestamp = last_coppied_row[matcher.to_sym].to_s(:db)
+        latest_timestamp = self.max_timestamp(to_table, matcher, to_db)
+        if(original_count > 0)
           read("select `#{primary_key}` from `#{from_db}`.`#{from_table}` where `#{matcher}` > \"#{latest_timestamp}\""){|old_rows| 
             old_rows.each do |row|
               #TODO: These can be batch-deleted in one command
@@ -133,7 +134,7 @@ module Forklift
         forklift.logger.log("  ^ created #{new_count} new rows rows in #{delta}s")
       end
 
-      def optomistic_pipe(from_db, from_table, to_db, to_table, matcher='updated_at', primary_key='id')
+      def optomistic_pipe(from_db, from_table, to_db, to_table, matcher=default_matcher, primary_key='id')
         if can_incremental_pipe?(from_table, from_db)
           incremental_pipe(from_table, from_db, to_table, to_db, matcher, primary_key)
         else
@@ -141,9 +142,29 @@ module Forklift
         end
       end
 
-      def can_incremental_pipe?(from_table, from_db, matcher='updated_at')
+      def can_incremental_pipe?(from_table, from_db, matcher=default_matcher)
         return true if columns(from_table, from_db).include?(matcher)
         return false
+      end
+
+      def read_since(table, since, matcher=default_matcher, database=current_database)
+        query = "select * from `#{database}`.`#{table}` where `#{matcher}` >= '#{since}'"
+        self.read(query, database){|data|
+          if block_given?
+            yield data 
+          else
+            return data
+          end
+        }
+      end
+
+      def max_timestamp(table, matcher=default_matcher, database=current_database)
+        last_coppied_row = read("select max(`#{matcher}`) as \"#{matcher}\" from `#{database}`.`#{table}`")[0]
+        if ( last_coppied_row.nil? || last_coppied_row[matcher.to_sym].nil? )
+          latest_timestamp = '1970-01-01 00:00'
+        else
+          return last_coppied_row[matcher.to_sym].to_s(:db)
+        end
       end
 
       def tables
@@ -164,6 +185,14 @@ module Forklift
 
       def truncate!(table, database=current_database)
         q("truncate table `#{database}`.`#{table}`")
+      end
+
+      def truncate(table, database=current_database)
+        begin
+          self.truncate!(table, database=current_database)
+        rescue Exception => e
+          forklift.logger.debug e
+        end
       end
 
       def columns(table, database=current_database)
@@ -199,11 +228,8 @@ module Forklift
       private
 
       def q(query, options={})
-        start = Time.new.to_i
-        data = client.query(query, options)
-        delta = Time.new.to_i - start
-        forklift.logger.debug "    SQL: #{query} (#{delta}s)"
-        return data
+        forklift.logger.debug "    SQL: #{query}"
+        return client.query(query, options)
       end
 
       def safe_columns(cols)
@@ -218,10 +244,15 @@ module Forklift
         a = []
         values.each do |v|
           part = "NULL"  
-          if v.class == String
-            v.gsub!('"', "\"")
+          if( [::String, ::Symbol].include?(v.class) ) 
+            v.gsub!('"', '\"')
             part = "\"#{v}\""
-          elsif v.class == Number
+          elsif( [::Date, ::Time].include?(v.class) ) 
+            s = v.to_s(:db)
+            part = "\"#{s}\""
+          elsif( [::Fixnum].include?(v.class) ) 
+            part = v
+          elsif( [::Float].include?(v.class) ) 
             part = v.to_f
           end 
           a << part
