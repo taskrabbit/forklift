@@ -1,5 +1,5 @@
 module Forklift
-  module Helpers
+  module Patterns
 
     def self.mysql_optimistic_import(source, destination)
       source.tables.each do |table|
