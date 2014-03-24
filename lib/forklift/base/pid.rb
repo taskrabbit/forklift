@@ -11,7 +11,7 @@ module Forklift
       end
 
       def pid_dir
-        "#{forklift.config[:project_root]}/pids"
+        "#{forklift.config[:project_root]}/pid"
       end
 
       def ensure_pid_dir

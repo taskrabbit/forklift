@@ -1,11 +1,3 @@
- #!/usr/bin/env ruby
-
-require 'rubygems'
-require 'bundler'
-Bundler.require(:default)
-
-require 'forklift/forklift'
-
 # plan = Forklift::Plan.new
 # Or, you can pass configs
 plan = Forklift::Plan.new ({

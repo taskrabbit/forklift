@@ -1,4 +1,4 @@
-# Forklift
+'# Forklift
 Moving heavy databases around.
 
 ![picture](https://raw.github.com/taskrabbit/forklift/master/forklift.jpg)
@@ -79,7 +79,7 @@ Forklift expexts your project to be arranged like:
 |---/elasticsearch
 |----(DB).yml
 |-/log
-|-/pids
+|-/pid
 |-/template
 |-/transformations
 |-/connections
@@ -88,17 +88,9 @@ Forklift expexts your project to be arranged like:
 |-plan.rb
 ```
 
-Run your plan with `bundle exec plan.rb`
+Run your plan with the forklift binary: `forklift plan.rb`
 
 ```ruby
- #!/usr/bin/env ruby
-
-require 'rubygems'
-require 'bundler'
-Bundler.require(:default)
-
-require 'forklift/forklift'
-
 # plan = Forklift::Plan.new
 # Or, you can pass configs
 plan = Forklift::Plan.new ({
