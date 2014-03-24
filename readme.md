@@ -1,4 +1,4 @@
-'# Forklift
+# Forklift
 Moving heavy databases around.
 
 ![picture](https://raw.github.com/taskrabbit/forklift/master/forklift.jpg)
