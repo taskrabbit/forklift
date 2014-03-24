@@ -199,7 +199,7 @@ in the `/connections` firectory in your project, create a file that defines at l
 ```ruby
 module Forklift
   module Connection
-    class MyTransport < Forklift::Base::Connection
+    class Mixpanel < Forklift::Base::Connection
 
       def initialize(config, forklift)
         @config = config
@@ -216,9 +216,18 @@ module Forklift
 
       def read(index, query, args)
         # ... 
+        data = [] # data is an array of hashes
+        # ...
+        if block_given?
+          yield data 
+        else
+          return data
+        end
       end
 
       def write(data, table)
+        # data is an array of hashes
+        # "table" can be any argument(s) you need to know where/how to write
         # ... 
       end
 
@@ -233,7 +242,6 @@ module Forklift
     end
   end
 end
-
 ```
 
 ### mysql
