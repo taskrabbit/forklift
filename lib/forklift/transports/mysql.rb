@@ -54,15 +54,17 @@ module Forklift
         end
       end
 
-      def write(data, table, to_update=true, database=current_database, primary_key='id', lazy=true)
+      def write(data, table, to_update=true, database=current_database, primary_key='id', lazy=true, crash_on_extral_col=false)
         if tables.include? table
           # all good, cary on
         elsif(lazy == true && data.length > 0)
-          lazy_table_create(table, data.first, database, primary_key)
+          lazy_table_create(table, data, database, primary_key)
         end
 
         if data.length > 0
+          columns = columns(table, database)
           data.each do |d|
+            d = clean_to_columns(d, columns) unless crash_on_extral_col == true
             if(to_update == true && !d[primary_key.to_sym].nil?)
               q("DELETE FROM `#{database}`.`#{table}` WHERE `#{primary_key}` = #{d[primary_key.to_sym]}")
             end
@@ -72,14 +74,16 @@ module Forklift
         end
       end
 
-      def lazy_table_create(table, item, database=current_database, primary_key='id')
+      def lazy_table_create(table, data, database=current_database, primary_key='id')
         keys = {}
-        item.each do |k,v|
-          keys[k] = sql_type(v)
+        data.each do |item|
+          item.each do |k,v|
+            keys[k] = sql_type(v) if keys[k].nil?
+          end
         end
 
         command = "CREATE TABLE `#{database}`.`#{table}` ( "
-        command << " `#{primary_key}` int(11) NOT NULL AUTO_INCREMENT, " if item[primary_key.to_sym].nil?
+        command << " `#{primary_key}` int(11) NOT NULL AUTO_INCREMENT, " if ( data.first[primary_key.to_sym].nil? )
         keys.each do |col, type|
           command << " `#{col}` #{type} DEFAULT NULL, "
         end
@@ -238,6 +242,14 @@ module Forklift
           a << "`#{c}`"
         end
         return a.join(', ')
+      end
+
+      def clean_to_columns(row, columns)
+        r = {}
+        row.each do |k,v|
+          r[k] = row[k] if columns.include?(k.to_s)
+        end
+        r
       end
 
       def safe_values(values)
