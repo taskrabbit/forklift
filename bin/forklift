@@ -11,7 +11,7 @@ end
 
 def generate
   p = Dir.pwd
-  
+
   Dir.mkdir "#{p}/config"
   Dir.mkdir "#{p}/config/connections"
   Dir.mkdir "#{p}/config/connections/mysql"
@@ -29,7 +29,7 @@ def generate
 end
 
 def template(source, destination)
-  t = "#{File.expand_path(File.dirname(__FILE__))}/template"
+  t = "#{File.expand_path(File.dirname(__FILE__))}/../template"
   FileUtils.copy("#{t}/#{source}", destination)
   puts "Example plan generated"
 end
