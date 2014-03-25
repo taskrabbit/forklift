@@ -172,11 +172,11 @@ module Forklift
       end
 
       def tables
-        tables = []
+        t = []
         client.query("show tables").each do |row|
-          tables << row.values[0]
+          t << row.values[0]
         end
-        tables
+        t
       end
 
       def current_database
