@@ -61,7 +61,7 @@ module Forklift
         def initialize(hash)
           hash.each do |k,v|
             v = v.gsub("'", " ") if v.class == String
-            eval("@#{k} = '#{v}'")
+            instance_variable_set("@#{k}", v)
           end
         end
 
