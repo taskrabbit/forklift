@@ -70,22 +70,21 @@ Cons:
 Forklift expexts your project to be arranged like:
 
 ```bash
-|-forklift.rb
-|-/config
-|--email.yml
-|--/connections
-|---/mysql
-|----(DB).yml
-|---/elasticsearch
-|----(DB).yml
-|-/log
-|-/pid
-|-/template
-|-/transformations
-|-/connections
-|-Gemfile
-|-Gemfile.lock
-|-plan.rb
+├── forklift.rb
+├── config/
+|   ├── email.yml
+├── connections/
+|   ├── mysql/
+|       ├── (DB).yml
+|   ├── elasticsearch/
+|       ├── (DB).yml
+├── log/
+├── pid/
+├── template/
+├── transformations/
+├── Gemfile
+├── Gemfile.lock
+├── plan.rb
 ```
 
 Run your plan with the forklift binary: `forklift plan.rb`
