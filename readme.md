@@ -5,7 +5,7 @@ Moving heavy databases around.
 
 ## What?
 
-[Forklift](https://github.com/taskrabbit/forklift) is a ruby gem that makes it easy for you to move your data around.  Forklift can be an integral part of your datawarehouse pipeline or a backup too.  Forklift can collect and collapse data from multiple sources or accross a source.  In forklift's first version, it was only a mySQL tool.  Now, you can create [transports]() to deal with the data of your choice.
+[Forklift](https://github.com/taskrabbit/forklift) is a ruby gem that makes it easy for you to move your data around.  Forklift can be an integral part of your datawarehouse pipeline or a backup too.  Forklift can collect and collapse data from multiple sources or accross a source.  In forklift's first version, it was only a MySQL tool.  Now, you can create [transports]() to deal with the data of your choice.
 
 ## What does TaskRabbit use this for?
 
@@ -105,7 +105,7 @@ plan.do! {
   destination = plan.connections[:mysql][:destination]
   destination.exec("./transformations/cleanup.sql");
 
-  #  mySQL -> mySQL
+  #  MySQL -> MySQL
   source = plan.connections[:mysql][:source]
   source.tables.each do |table|
     source.optomistic_pipe('source', table, 'destination', table)
@@ -113,7 +113,7 @@ plan.do! {
     # by default, incramental updates happen off of the `created_at` column, but you can modify this with "matcher"
   end
 
-  # Elasticsearch -> mySQL
+  # Elasticsearch -> MySQL
   source = plan.connections[:elasticsearch][:source]
   destination = plan.connections[:mysql][:destination]
   table = 'es_import'
@@ -122,7 +122,7 @@ plan.do! {
   destination.truncate!(table) if destination.tables.include? table
   source.read(index, query) {|data| destination.write(data, table) }
 
-  # mySQL -> Elasticsearch
+  # MySQL -> Elasticsearch
   source = plan.connections[:mysql][:source]
   destination = plan.connections[:elasticsearch][:source]
   table = 'users'
@@ -142,7 +142,7 @@ plan.do! {
   destination = plan.connections[:mysql][:destination]
   destination.exec!("./transformations/email_suffix.rb")
 
-  # mySQL Dump the destination
+  # MySQL Dump the destination
   destination = plan.connections[:mysql][:destination]
   destination.dump('/tmp/destination.sql.gz')
 
