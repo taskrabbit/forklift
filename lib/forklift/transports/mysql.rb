@@ -229,12 +229,12 @@ module Forklift
         end
       end
 
-      private
-
       def q(query, options={})
         forklift.logger.debug "    SQL: #{query}"
         return client.query(query, options)
       end
+
+      private
 
       def safe_columns(cols)
         a = []
