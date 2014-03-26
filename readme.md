@@ -51,7 +51,7 @@ end
 working.exec!("./transformations.sql")
 
 working.tables.each do |table|
-  working.optomistic_pipe(working.database, table, destination.database, table)
+  working.optimistic_pipe(working.database, table, destination.database, table)
 end
 ```
 
@@ -108,7 +108,7 @@ plan.do! {
   #  MySQL -> MySQL
   source = plan.connections[:mysql][:source]
   source.tables.each do |table|
-    source.optomistic_pipe('source', table, 'destination', table)
+    source.optimistic_pipe('source', table, 'destination', table)
     # will attempt to do an incramental pipe, will fall back to a full table copy
     # by default, incramental updates happen off of the `created_at` column, but you can modify this with "matcher"
   end
@@ -257,7 +257,7 @@ end
 - pipe(from_table, from_db, to_table, to_db)
 - incremental_pipe(from_table, from_db, to_table, to_db, matcher=default_matcher, primary_key='id')
   - `pipe` with only new data where time is greater than the latest `matcher` on the `to_db`
-- optomistic_pipe(from_db, from_table, to_db, to_table, matcher=default_matcher, primary_key='id')
+- optimistic_pipe(from_db, from_table, to_db, to_table, matcher=default_matcher, primary_key='id')
   - tries to `incremental_pipe`, falling back to `pipe`
 
 **transport-specific methods**

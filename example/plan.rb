@@ -15,7 +15,7 @@ plan.do! {
   #  mySQL -> mySQL
   source = plan.connections[:mysql][:source]
   source.tables.each do |table|
-    source.optomistic_pipe('source', table, 'destination', table)
+    source.optimistic_pipe('source', table, 'destination', table)
     # will attempt to do an incramental pipe, will fall back to a full table copy
     # by default, incramental updates happen off of the `created_at` column, but you can modify this with "matcher"
   end

@@ -138,7 +138,7 @@ module Forklift
         forklift.logger.log("  ^ created #{new_count} new rows rows in #{delta}s")
       end
 
-      def optomistic_pipe(from_db, from_table, to_db, to_table, matcher=default_matcher, primary_key='id')
+      def optimistic_pipe(from_db, from_table, to_db, to_table, matcher=default_matcher, primary_key='id')
         if can_incremental_pipe?(from_table, from_db)
           incremental_pipe(from_table, from_db, to_table, to_db, matcher, primary_key)
         else
