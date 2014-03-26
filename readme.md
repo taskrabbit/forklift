@@ -187,7 +187,7 @@ end
 
 ## Transports
 
-Transports are how you interact with your data.  Every transport defines a `read` and `write` method which handle arrays of data object.  Transports optionaly define `pipe` methods which a shortcuts to copy data within a transport (IE: `insert into #{to_db}.#{to_table} select * from #{from_db}.#{from_table}` for mysql).   A trasport may also define other helers (like how to create a mysql dump).
+Transports are how you interact with your data.  Every transport defines a `read` and `write` method which handle arrays of data objects.  Transports optionaly define `pipe` methods which a shortcuts to copy data within a transport (IE: `insert into #{to_db}.#{to_table} select * from #{from_db}.#{from_table}` for mysql).   A trasport may also define other helers (like how to create a mysql dump).
 
 A config file for each connection is to live in `./config/connections/#{transport}/` and will be loaded at boot.
 
