@@ -28,12 +28,12 @@ end
 destination.exec!("./transformations.sql");
 ```
 
-Pros: 
+Pros:
 
 - faster
 - requires less space for final storage
 
-Cons: 
+Cons:
 
 - leaves final databse in "incomplete" and "inconsistant" state for longer
 
@@ -55,12 +55,12 @@ working.tables.each do |table|
 end
 ```
 
-Pros: 
+Pros:
 
 - auditable
 - minimizes inconsistant state of fonal database
 
-Cons: 
+Cons:
 
 - slow
 - requires 2x space of final working set
@@ -215,11 +215,11 @@ module Forklift
       end
 
       def read(index, query, args)
-        # ... 
+        # ...
         data = [] # data is an array of hashes
         # ...
         if block_given?
-          yield data 
+          yield data
         else
           return data
         end
@@ -228,7 +228,7 @@ module Forklift
       def write(data, table)
         # data is an array of hashes
         # "table" can be any argument(s) you need to know where/how to write
-        # ... 
+        # ...
       end
 
       def pipe(from_table, from_db, to_table, to_db)
@@ -290,7 +290,7 @@ end
 
 Forklift allows you to create both Ruby transformations and script transformations
 
-- It is up to the transport to define `exec_script`, and not all transports will support it.  Mysql can run `.sql` files, but there is not an equivielent for elasticsearch. 
+- It is up to the transport to define `exec_script`, and not all transports will support it.  Mysql can run `.sql` files, but there is not an equivielent for elasticsearch.
 - `.exec` runs and logs exceptions, while `.exec!` will raise on an error.  For example, `destination.exec("./transformations/cleanup.rb")` will run cleanup.rb on the destination database.
 - Script files are run as-is, but ruby transformations must define a `do!` method in thier class and are passed `def do!(connection, forklift)`
 

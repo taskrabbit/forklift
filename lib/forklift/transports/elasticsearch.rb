@@ -25,14 +25,14 @@ module Forklift
           prepared_query = query
           prepared_query[:from] = from + offset
           prepared_query[:size] = size
-          
+
           results = client.search( { index: index, body: prepared_query } )
           results["hits"]["hits"].each do |hit|
             data << hit["_source"]
           end
 
           if block_given?
-            yield data 
+            yield data
           else
             return data
           end

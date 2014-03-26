@@ -3,7 +3,7 @@ require 'rubygems'
 module Forklift
 
   lib = File.expand_path(File.dirname(__FILE__))
-  
+
   require "#{lib}/base/utils.rb"
   require "#{lib}/base/pid.rb"
   require "#{lib}/base/logger.rb"

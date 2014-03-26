@@ -44,13 +44,13 @@ module Forklift
           end
 
           if block_given?
-            yield data 
+            yield data
           else
             return data
           end
-          
+
           offset = offset + limit
-          looping = false if data.length == 0 
+          looping = false if data.length == 0
         end
       end
 
@@ -124,7 +124,7 @@ module Forklift
         original_count = count(to_table, to_db)
         latest_timestamp = self.max_timestamp(to_table, matcher, to_db)
         if(original_count > 0)
-          read("select `#{primary_key}` from `#{from_db}`.`#{from_table}` where `#{matcher}` > \"#{latest_timestamp}\" order by `#{matcher}`"){|old_rows| 
+          read("select `#{primary_key}` from `#{from_db}`.`#{from_table}` where `#{matcher}` > \"#{latest_timestamp}\" order by `#{matcher}`"){|old_rows|
             old_rows.each do |row|
               #TODO: These can be batch-deleted in one command
               q("delete from `#{to_db}`.`#{to_table}` where `#{primary_key}` = #{row[primary_key.to_sym]}")
@@ -155,7 +155,7 @@ module Forklift
         query = "select * from `#{database}`.`#{table}` where `#{matcher}` >= '#{since}' order by `#{matcher}` asc"
         self.read(query, database){|data|
           if block_given?
-            yield data 
+            yield data
           else
             return data
           end
@@ -208,7 +208,7 @@ module Forklift
       end
 
       def dump(file)
-        cmd = "mysqldump" 
+        cmd = "mysqldump"
         cmd << " -u#{config['username']}" unless config['username'].nil?
         cmd << " -p#{config['password']}" unless config['password'].nil?
         cmd << " --max_allowed_packet=512M"
@@ -255,19 +255,19 @@ module Forklift
       def safe_values(values)
         a = []
         values.each do |v|
-          part = "NULL"  
-          if( [::String, ::Symbol].include?(v.class) ) 
+          part = "NULL"
+          if( [::String, ::Symbol].include?(v.class) )
             v.gsub!('\"', '\/"')
             v.gsub!('"', '\"')
             part = "\"#{v}\""
-          elsif( [::Date, ::Time].include?(v.class) ) 
+          elsif( [::Date, ::Time].include?(v.class) )
             s = v.to_s(:db)
             part = "\"#{s}\""
-          elsif( [::Fixnum].include?(v.class) ) 
+          elsif( [::Fixnum].include?(v.class) )
             part = v
-          elsif( [::Float].include?(v.class) ) 
+          elsif( [::Float].include?(v.class) )
             part = v.to_f
-          end 
+          end
           a << part
         end
         return a.join(', ')

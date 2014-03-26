@@ -2,9 +2,9 @@ class EmailSuffix
 
   def do!(connection, forklift)
     forklift.logger.log "collecting email suffixes..."
-    
+
     suffixes = {}
-    connection.read("select email from users"){|data| 
+    connection.read("select email from users"){|data|
       data.each do |row|
         part = row[:email].split('@').last
         suffixes[part] = 0 if suffixes[part].nil?
