@@ -108,8 +108,8 @@ plan.do! {
   source = plan.connections[:mysql][:source]
   source.tables.each do |table|
     source.optimistic_pipe('source', table, 'destination', table)
-    # will attempt to do an incramental pipe, will fall back to a full table copy
-    # by default, incramental updates happen off of the `created_at` column, but you can modify this with "matcher"
+    # will attempt to do an incremental pipe, will fall back to a full table copy
+    # by default, incremental updates happen off of the `created_at` column, but you can modify this with "matcher"
   end
 
   # Elasticsearch -> MySQL
