@@ -22,7 +22,7 @@ source      = plan.connections[:mysql][:source]
 destination = plan.connections[:mysql][:destination]
 
 source.tables.each do |table|
-  source.read(table, query) {|data| working.write(data, table) }
+  source.read(table, query) { |data| working.write(data, table) }
 end
 
 destination.exec!("./transformations.sql");
@@ -45,7 +45,7 @@ working     = plan.connections[:mysql][:working]
 destination = plan.connections[:mysql][:destination]
 
 source.tables.each do |table|
-  source.read(table, query) {|data| working.write(data, table) }
+  source.read(table, query) { |data| working.write(data, table) }
 end
 
 working.exec!("./transformations.sql");
@@ -120,7 +120,7 @@ plan.do! {
   index = 'aaa'
   query = { :query => { :match_all => {} } } # pagination will happen automatically
   destination.truncate!(table) if destination.tables.include? table
-  source.read(index, query) {|data| destination.write(data, table) }
+  source.read(index, query) { |data| destination.write(data, table) }
 
   # MySQL -> Elasticsearch
   source = plan.connections[:mysql][:source]
@@ -128,7 +128,7 @@ plan.do! {
   table = 'users'
   index = 'users'
   query = "select * from users" # pagination will happen automatically
-  source.read(query) {|data| destination.write(data, table, true, 'user') }
+  source.read(query) { |data| destination.write(data, table, true, 'user') }
 
   # ... and you can write your own connections [LINK GOES HERE]
 
