@@ -2,6 +2,7 @@ module Forklift
   module Patterns
 
     def self.mysql_optimistic_import(source, destination)
+      #TODO: allow passing in of matcher and primary_key
       source.tables.each do |table|
         if( source.columns(table).include?(source.default_matcher) && destination.tables.include?(table) )
           since = destination.max_timestamp(table)
