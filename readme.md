@@ -187,13 +187,13 @@ end
 
 ## Transports
 
-Transports are how you interact with your data.  Every transport defines a `read` and `write` method which handle arrays of data objects.  Transports optionaly define `pipe` methods which a shortcuts to copy data within a transport (IE: `insert into #{to_db}.#{to_table} select * from #{from_db}.#{from_table}` for mysql).   A trasport may also define other helers (like how to create a mysql dump).
+Transports are how you interact with your data.  Every transport defines `read` and `write` methods which handle arrays of data objects.  Transports optinally define a `pipe` method which is a shortcut to copy data within a transport (eg `insert into #{to_db}.#{to_table}; select * from #{from_db}.#{from_table}` for MySQL). A trasport may also define other helpers like how to create a MySQL dump).
 
-A config file for each connection is to live in `./config/connections/#{transport}/` and will be loaded at boot.
+Each transport should have a config file in `./config/connections/#{transport}/`. It will be loaded at boot.
 
 ### Creating your own transport
 
-in the `/connections` firectory in your project, create a file that defines at least the following:
+In the `/connections` directory in your project, create a file that defines at least the following:
 
 ```ruby
 module Forklift
