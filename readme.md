@@ -132,7 +132,7 @@ plan.do! {
   # ... and you can write your own connections [LINK GOES HERE]
 
   # Do some SQL transformations
-  # SQL transformations are done explicitly as they are writter
+  # SQL transformations are done exactly as they are written
   destination = plan.connections[:mysql][:destination]
   destination.exec!("./transformations/combined_name.sql")
 
