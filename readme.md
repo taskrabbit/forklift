@@ -58,7 +58,7 @@ end
 Pros:
 
 - auditable
-- minimizes inconsistent state of fonal database
+- minimizes inconsistent state of final database
 
 Cons:
 
