@@ -48,7 +48,7 @@ source.tables.each do |table|
   source.read(table, query) { |data| working.write(data, table) }
 end
 
-working.exec!("./transformations.sql");
+working.exec!("./transformations.sql")
 
 working.tables.each do |table|
   working.optomistic_pipe(working.database, table, destination.database, table)
