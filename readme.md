@@ -35,7 +35,7 @@ Pros:
 
 Cons:
 
-- leaves final databse in "incomplete" and "inconsistant" state for longer
+- leaves final databse in "incomplete" and "inconsistent" state for longer
 
 ### ETL (Extract -> Transform -> Load)
 
@@ -58,7 +58,7 @@ end
 Pros:
 
 - auditable
-- minimizes inconsistant state of fonal database
+- minimizes inconsistent state of fonal database
 
 Cons:
 
