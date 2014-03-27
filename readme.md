@@ -67,7 +67,7 @@ Cons:
 
 ## Example Annotated Plan
 
-Forklift expexts your project to be arranged like:
+Forklift expects your project to be arranged like:
 
 ```bash
 ├── forklift.rb
