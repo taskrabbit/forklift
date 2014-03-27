@@ -1,5 +1,4 @@
 require 'mysql2'
-require 'awesome_print'
 
 module Forklift
   module Connection
