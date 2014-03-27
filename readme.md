@@ -274,14 +274,14 @@ end
 - dump(file)
   - mysqldump the database to `file` via gzip
 
-### elasticseatch
+### Elasticsearch
 
-**forklift methods**
+#### Forklift methods
 
 - read(index, query, looping=true, from=0, size=1000)
 - write(data, index, update=false, type='forklift', primary_key=:id)
 
-**transport-specific methods**
+#### Transport-specific methods
 
 - delete_index(index)
 
