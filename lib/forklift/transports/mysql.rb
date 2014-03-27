@@ -69,7 +69,7 @@ module Forklift
             end
             q("INSERT INTO `#{database}`.`#{table}` (#{safe_columns(d.keys)}) VALUES (#{safe_values(d.values)});")
           end
-          forklift.logger.log "write #{data.length} rows to `#{database}`.`#{table}`"
+          forklift.logger.log "wrote #{data.length} rows to `#{database}`.`#{table}`"
         end
       end
 
@@ -162,11 +162,11 @@ module Forklift
       end
 
       def max_timestamp(table, matcher=default_matcher, database=current_database)
-        last_coppied_row = read("select max(`#{matcher}`) as \"#{matcher}\" from `#{database}`.`#{table}`")[0]
-        if ( last_coppied_row.nil? || last_coppied_row[matcher.to_sym].nil? )
+        last_copied_row = read("select max(`#{matcher}`) as \"#{matcher}\" from `#{database}`.`#{table}`")[0]
+        if ( last_copied_row.nil? || last_copied_row[matcher.to_sym].nil? )
           latest_timestamp = '1970-01-01 00:00'
         else
-          return last_coppied_row[matcher.to_sym].to_s
+          return last_copied_row[matcher.to_sym].to_s
         end
       end
 
