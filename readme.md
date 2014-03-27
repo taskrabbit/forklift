@@ -243,28 +243,28 @@ module Forklift
 end
 ```
 
-### mysql
+### MySQL
 
-**forklift methods**
+#### Forklift methods
 
 - read(query, database=current_database, looping=true, limit=1000, offset=0)
 - read_since(table, since, matcher=default_matcher, database=current_database)
   - a wrapper around `read` to get only rows since a timestamp
 - write(data, table, to_update=false, database=current_database, primary_key='id', lazy=true, crash_on_extral_col=true)
   - `lazy` will create a table if not found
-  = `crash_on_extral_col` will sanitize input to only contain the cols in the table
+  - `crash_on_extral_col` will sanitize input to only contain the cols in the table
 - pipe(from_table, from_db, to_table, to_db)
 - incremental_pipe(from_table, from_db, to_table, to_db, matcher=default_matcher, primary_key='id')
   - `pipe` with only new data where time is greater than the latest `matcher` on the `to_db`
 - optimistic_pipe(from_db, from_table, to_db, to_table, matcher=default_matcher, primary_key='id')
   - tries to `incremental_pipe`, falling back to `pipe`
 
-**transport-specific methods**
+#### Transport-specific methods
 
 - tables
   - list connection's database tables
 - current_database
-  - return the DB's name
+  - return the database's name
 - count(table, database=current_database)
   - count rows in table
 - max_timestamp(table, matcher=default_matcher, database=current_database)
