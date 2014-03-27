@@ -15,9 +15,9 @@ plan.do! {
   #  mySQL -> mySQL
   source = plan.connections[:mysql][:source]
   source.tables.each do |table|
-    source.optomistic_pipe('source', table, 'destination', table)
-    # will attempt to do an incramental pipe, will fall back to a full table copy
-    # by default, incramental updates happen off of the `created_at` column, but you can modify this with "matcher"
+    source.optimistic_pipe('source', table, 'destination', table)
+    # will attempt to do an incremental pipe, will fall back to a full table copy
+    # by default, incremental updates happen off of the `created_at` column, but you can modify this with "matcher"
   end
 
   # Elasticsearch -> mySQL
@@ -39,8 +39,8 @@ plan.do! {
 
   # ... and you can write your own connections [LINK GOES HERE]
 
-  # Do some SQL stranformations
-  # SQL transformations are done explicitly as they are writter
+  # Do some SQL transformations
+  # SQL transformations are done exactly as they are written
   destination = plan.connections[:mysql][:destination]
   destination.exec!("./transformations/combined_name.sql")
 
@@ -62,11 +62,11 @@ plan.do! {
     :subject => "Forklift has moved your database @ #{Time.new}",
   }
 
-  email_varialbes = {
+  email_variables = {
     :total_users_count => destination.read('select count(1) as "count" from users')[0][:count],
     :new_users_count => destination.read('select count(1) as "count" from users where date(created_at) = date(NOW())')[0][:count],
   }
 
   email_template = "./template/email.erb"
-  plan.mailer.send_template(email_args, email_template, email_varialbes, plan.logger.messages) unless ENV['EMAIL'] == 'false'
+  plan.mailer.send_template(email_args, email_template, email_variables, plan.logger.messages) unless ENV['EMAIL'] == 'false'
 }

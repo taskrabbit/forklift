@@ -5,7 +5,7 @@ Moving heavy databases around.
 
 ## What?
 
-[Forklift](https://github.com/taskrabbit/forklift) is a ruby gem that makes it easy for you to move your data around.  Forklift can be an integral part of your datawarehouse pipeline or a backup too.  Forklift can collect and collapse data from multiple sources or accross a source.  In forklift's first version, it was only a mySQL tool.  Now, you can create [transports]() to deal with the data of your choice.
+[Forklift](https://github.com/taskrabbit/forklift) is a ruby gem that makes it easy for you to move your data around.  Forklift can be an integral part of your datawarehouse pipeline or a backup too.  Forklift can collect and collapse data from multiple sources or accross a source.  In forklift's first version, it was only a MySQL tool.  Now, you can create [transports]() to deal with the data of your choice.
 
 ## What does TaskRabbit use this for?
 
@@ -22,7 +22,7 @@ source      = plan.connections[:mysql][:source]
 destination = plan.connections[:mysql][:destination]
 
 source.tables.each do |table|
-  source.read(table, query) {|data| working.write(data, table) }
+  source.read(table, query) { |data| working.write(data, table) }
 end
 
 destination.exec!("./transformations.sql");
@@ -35,7 +35,7 @@ Pros:
 
 Cons:
 
-- leaves final databse in "incomplete" and "inconsistant" state for longer
+- leaves final databse in "incomplete" and "inconsistent" state for longer
 
 ### ETL (Extract -> Transform -> Load)
 
@@ -45,20 +45,20 @@ working     = plan.connections[:mysql][:working]
 destination = plan.connections[:mysql][:destination]
 
 source.tables.each do |table|
-  source.read(table, query) {|data| working.write(data, table) }
+  source.read(table, query) { |data| working.write(data, table) }
 end
 
-working.exec!("./transformations.sql");
+working.exec!("./transformations.sql")
 
 working.tables.each do |table|
-  working.optomistic_pipe(working.database, table, destination.database, table)
+  working.optimistic_pipe(working.database, table, destination.database, table)
 end
 ```
 
 Pros:
 
 - auditable
-- minimizes inconsistant state of fonal database
+- minimizes inconsistent state of final database
 
 Cons:
 
@@ -70,22 +70,21 @@ Cons:
 Forklift expexts your project to be arranged like:
 
 ```bash
-|-forklift.rb
-|-/config
-|--email.yml
-|--/connections
-|---/mysql
-|----(DB).yml
-|---/elasticsearch
-|----(DB).yml
-|-/log
-|-/pid
-|-/template
-|-/transformations
-|-/connections
-|-Gemfile
-|-Gemfile.lock
-|-plan.rb
+├── forklift.rb
+├── config/
+|   ├── email.yml
+├── connections/
+|   ├── mysql/
+|       ├── (DB).yml
+|   ├── elasticsearch/
+|       ├── (DB).yml
+├── log/
+├── pid/
+├── template/
+├── transformations/
+├── Gemfile
+├── Gemfile.lock
+├── plan.rb
 ```
 
 Run your plan with the forklift binary: `forklift plan.rb`
@@ -105,35 +104,35 @@ plan.do! {
   destination = plan.connections[:mysql][:destination]
   destination.exec("./transformations/cleanup.sql");
 
-  #  mySQL -> mySQL
+  #  MySQL -> MySQL
   source = plan.connections[:mysql][:source]
   source.tables.each do |table|
-    source.optomistic_pipe('source', table, 'destination', table)
-    # will attempt to do an incramental pipe, will fall back to a full table copy
-    # by default, incramental updates happen off of the `created_at` column, but you can modify this with "matcher"
+    source.optimistic_pipe('source', table, 'destination', table)
+    # will attempt to do an incremental pipe, will fall back to a full table copy
+    # by default, incremental updates happen off of the `created_at` column, but you can modify this with "matcher"
   end
 
-  # Elasticsearch -> mySQL
+  # Elasticsearch -> MySQL
   source = plan.connections[:elasticsearch][:source]
   destination = plan.connections[:mysql][:destination]
   table = 'es_import'
   index = 'aaa'
   query = { :query => { :match_all => {} } } # pagination will happen automatically
   destination.truncate!(table) if destination.tables.include? table
-  source.read(index, query) {|data| destination.write(data, table) }
+  source.read(index, query) { |data| destination.write(data, table) }
 
-  # mySQL -> Elasticsearch
+  # MySQL -> Elasticsearch
   source = plan.connections[:mysql][:source]
   destination = plan.connections[:elasticsearch][:source]
   table = 'users'
   index = 'users'
   query = "select * from users" # pagination will happen automatically
-  source.read(query) {|data| destination.write(data, table, true, 'user') }
+  source.read(query) { |data| destination.write(data, table, true, 'user') }
 
   # ... and you can write your own connections [LINK GOES HERE]
 
-  # Do some SQL stranformations
-  # SQL transformations are done explicitly as they are writter
+  # Do some SQL transformations
+  # SQL transformations are done exactly as they are written
   destination = plan.connections[:mysql][:destination]
   destination.exec!("./transformations/combined_name.sql")
 
@@ -142,7 +141,7 @@ plan.do! {
   destination = plan.connections[:mysql][:destination]
   destination.exec!("./transformations/email_suffix.rb")
 
-  # mySQL Dump the destination
+  # MySQL Dump the destination
   destination = plan.connections[:mysql][:destination]
   destination.dump('/tmp/destination.sql.gz')
 
@@ -155,13 +154,13 @@ plan.do! {
     :subject => "Forklift has moved your database @ #{Time.new}",
   }
 
-  email_varialbes = {
+  email_variables = {
     :total_users_count => destination.read('select count(1) as "count" from users')[0][:count],
     :new_users_count => destination.read('select count(1) as "count" from users where date(created_at) = date(NOW())')[0][:count],
   }
 
   email_template = "./template/email.erb"
-  plan.mailer.send_template(email_args, email_template, email_varialbes, plan.logger.messages) unless ENV['EMAIL'] == 'false'
+  plan.mailer.send_template(email_args, email_template, email_variables, plan.logger.messages) unless ENV['EMAIL'] == 'false'
 }
 ```
 
@@ -188,13 +187,13 @@ end
 
 ## Transports
 
-Transports are how you interact with your data.  Every transport defines a `read` and `write` method which handle arrays of data object.  Transports optionaly define `pipe` methods which a shortcuts to copy data within a transport (IE: `insert into #{to_db}.#{to_table} select * from #{from_db}.#{from_table}` for mysql).   A trasport may also define other helers (like how to create a mysql dump).
+Transports are how you interact with your data.  Every transport defines `read` and `write` methods which handle arrays of data objects.  Transports optinally define a `pipe` method which is a shortcut to copy data within a transport (eg `insert into #{to_db}.#{to_table}; select * from #{from_db}.#{from_table}` for MySQL). A trasport may also define other helpers like how to create a MySQL dump).
 
-A config file for each connection is to live in `./config/connections/#{transport}/` and will be loaded at boot.
+Each transport should have a config file in `./config/connections/#{transport}/`. It will be loaded at boot.
 
 ### Creating your own transport
 
-in the `/connections` firectory in your project, create a file that defines at least the following:
+In the `/connections` directory in your project, create a file that defines at least the following:
 
 ```ruby
 module Forklift
@@ -244,28 +243,28 @@ module Forklift
 end
 ```
 
-### mysql
+### MySQL
 
-**forklift methods**
+#### Forklift methods
 
 - read(query, database=current_database, looping=true, limit=1000, offset=0)
 - read_since(table, since, matcher=default_matcher, database=current_database)
   - a wrapper around `read` to get only rows since a timestamp
 - write(data, table, to_update=false, database=current_database, primary_key='id', lazy=true, crash_on_extral_col=true)
   - `lazy` will create a table if not found
-  = `crash_on_extral_col` will sanitize input to only contain the cols in the table
+  - `crash_on_extral_col` will sanitize input to only contain the cols in the table
 - pipe(from_table, from_db, to_table, to_db)
 - incremental_pipe(from_table, from_db, to_table, to_db, matcher=default_matcher, primary_key='id')
   - `pipe` with only new data where time is greater than the latest `matcher` on the `to_db`
-- optomistic_pipe(from_db, from_table, to_db, to_table, matcher=default_matcher, primary_key='id')
+- optimistic_pipe(from_db, from_table, to_db, to_table, matcher=default_matcher, primary_key='id')
   - tries to `incremental_pipe`, falling back to `pipe`
 
-**transport-specific methods**
+#### Transport-specific methods
 
 - tables
   - list connection's database tables
 - current_database
-  - return the DB's name
+  - return the database's name
 - count(table, database=current_database)
   - count rows in table
 - max_timestamp(table, matcher=default_matcher, database=current_database)
@@ -275,24 +274,24 @@ end
 - dump(file)
   - mysqldump the database to `file` via gzip
 
-### elasticseatch
+### Elasticsearch
 
-**forklift methods**
+#### Forklift methods
 
 - read(index, query, looping=true, from=0, size=1000)
 - write(data, index, update=false, type='forklift', primary_key=:id)
 
-**transport-specific methods**
+#### Transport-specific methods
 
 - delete_index(index)
 
 ## Transformations
 
-Forklift allows you to create both Ruby transformations and script transformations
+Forklift allows you to create both Ruby transformations and script transformations.
 
-- It is up to the transport to define `exec_script`, and not all transports will support it.  Mysql can run `.sql` files, but there is not an equivielent for elasticsearch.
+- It is up to the transport to define `exec_script`, and not all transports will support it.  Mysql can run `.sql` files, but there is not an equivalent for elasticsearch.
 - `.exec` runs and logs exceptions, while `.exec!` will raise on an error.  For example, `destination.exec("./transformations/cleanup.rb")` will run cleanup.rb on the destination database.
-- Script files are run as-is, but ruby transformations must define a `do!` method in thier class and are passed `def do!(connection, forklift)`
+- Script files are run as-is, but ruby transformations must define a `do!` method in their class and are passed `def do!(connection, forklift)`
 
 ```ruby
 # Example transformation to count users
@@ -317,18 +316,17 @@ email_args = {
   :subject => "Forklift has moved your database @ #{Time.new}",
 }
 
-email_varialbes = {
+email_variables = {
   :total_users_count => destination.read('select count(1) as "count" from users')[0][:count],
   :new_users_count => destination.read('select count(1) as "count" from users where date(created_at) = date(NOW())')[0][:count],
 }
 
 email_template = "./template/email.erb"
-plan.mailer.send_template(email_args, email_template, email_varialbes, plan.logger.messages)
+plan.mailer.send_template(email_args, email_template, email_variables, plan.logger.messages)
 ```
 
 ## Options & Notes
 - email_options is a hash consumed by the [Pony mail gem](https://github.com/benprew/pony)
 - Forklift's logger is [Lumberjack](https://github.com/bdurand/lumberjack) with a wrapper to also echo the log lines to stdout and save them to an array to be accessed later by the email system.
-
 - The mysql connections hash will be passed directly to a [mysql2](https://github.com/brianmario/mysql2) connection.
 - The elasticsearch connections hash will be passed directly to a [elasticsearch](https://github.com/elasticsearch/elasticsearch-ruby) connection.
