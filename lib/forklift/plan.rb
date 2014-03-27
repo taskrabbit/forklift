@@ -36,7 +36,7 @@ module Forklift
         rescue Exception => e
           logger.fatal "cannot create a class type of #{loader} from #{f} | #{e}"
           raise e
-        end        
+        end
       end
     end
 

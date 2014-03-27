@@ -16,7 +16,7 @@ module Forklift
         @messages ||= []
       end
 
-      def logger 
+      def logger
         log_dir = "#{forklift.config[:project_root]}/log"
         @logger ||= ::Lumberjack::Logger.new("#{log_dir}/forklift.log", :buffer_size => 0)
       end
@@ -35,7 +35,7 @@ module Forklift
       end
 
       def emphatically(message)
-        log "" if message.length > 0 
+        log "" if message.length > 0
         log "*** #{message} ***"
         log ""
       end

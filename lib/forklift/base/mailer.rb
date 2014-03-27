@@ -39,24 +39,24 @@ module Forklift
         [:to, :from, :subject, :body].each do |i|
           params[i] = args[i] unless args[i].nil?
         end
-        if attachment_lines.length > 0 
+        if attachment_lines.length > 0
           params[:attachments] = {"log.txt" => attachment_lines.join("\r\n")}
         end
         deliver(params)
       end
 
-      private 
+      private
 
       def deliver(params)
         forklift.logger.log("Sending Email")
         if params[:html_body].nil?
-          params[:html_body] = params[:body] 
-          params.delete(:body) 
+          params[:html_body] = params[:body]
+          params.delete(:body)
         end
         params[:via_options] = via_options
         Pony.mail(params)
       end
-      
+
       class ERBBinding
         def initialize(hash)
           hash.each do |k,v|

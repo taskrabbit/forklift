@@ -48,7 +48,7 @@ module Forklift
 
       def exec!(path)
         forklift.logger.log "Running script: #{path}"
-        extension = path.split(".").last 
+        extension = path.split(".").last
         if(extension == "rb" || extension == "ruby")
           exec_ruby(path)
         else
