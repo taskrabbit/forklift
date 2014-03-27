@@ -326,6 +326,7 @@ plan.mailer.send_template(email_args, email_template, email_variables, plan.logg
 ```
 
 ## Options & Notes
+- Thanks to [@rahilsondhi](https://github.com/rahilsondhi) from [internmatch](http://www.internmatch.com/) for all his help
 - email_options is a hash consumed by the [Pony mail gem](https://github.com/benprew/pony)
 - Forklift's logger is [Lumberjack](https://github.com/bdurand/lumberjack) with a wrapper to also echo the log lines to stdout and save them to an array to be accessed later by the email system.
 - The mysql connections hash will be passed directly to a [mysql2](https://github.com/brianmario/mysql2) connection.
