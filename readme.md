@@ -287,11 +287,11 @@ end
 
 ## Transformations
 
-Forklift allows you to create both Ruby transformations and script transformations
+Forklift allows you to create both Ruby transformations and script transformations.
 
-- It is up to the transport to define `exec_script`, and not all transports will support it.  Mysql can run `.sql` files, but there is not an equivielent for elasticsearch.
+- It is up to the transport to define `exec_script`, and not all transports will support it.  Mysql can run `.sql` files, but there is not an equivalent for elasticsearch.
 - `.exec` runs and logs exceptions, while `.exec!` will raise on an error.  For example, `destination.exec("./transformations/cleanup.rb")` will run cleanup.rb on the destination database.
-- Script files are run as-is, but ruby transformations must define a `do!` method in thier class and are passed `def do!(connection, forklift)`
+- Script files are run as-is, but ruby transformations must define a `do!` method in their class and are passed `def do!(connection, forklift)`
 
 ```ruby
 # Example transformation to count users
@@ -328,6 +328,5 @@ plan.mailer.send_template(email_args, email_template, email_variables, plan.logg
 ## Options & Notes
 - email_options is a hash consumed by the [Pony mail gem](https://github.com/benprew/pony)
 - Forklift's logger is [Lumberjack](https://github.com/bdurand/lumberjack) with a wrapper to also echo the log lines to stdout and save them to an array to be accessed later by the email system.
-
 - The mysql connections hash will be passed directly to a [mysql2](https://github.com/brianmario/mysql2) connection.
 - The elasticsearch connections hash will be passed directly to a [elasticsearch](https://github.com/elasticsearch/elasticsearch-ruby) connection.
