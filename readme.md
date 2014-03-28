@@ -168,19 +168,22 @@ plan.do! {
 
 ```ruby
 def do!
-  self.logger.log "Starting forklift"
   # you can use `plan.logger.log` in your plan for logging
+  self.logger.log "Starting forklift"
+
+  # use a pidfile to ensure that only one instance of forklift is running at a time; store the file if OK
   self.pid.safe_to_run?
   self.pid.store!
-  # use a pidfile to ensure that only one instance of forklift is running at a time; store the file if OK
+
+  # this will load all connections in /config/connections/#{type}/#{name}.yml into the plan.connections hash
+  # and build all the connection objects (and try to connect in some cases)
   self.connect!
-  # this will load all connections in /config/connections/#{type}/#{name}.yml into plan.connections {}
-  # this will build all the connection objects (and try to connect in some cases)
-  yield
-  # your stuff here!
+
+  yield # your stuff here!
+
+  # remove the pidfile
   self.logger.log "Completed forklift"
   self.pid.delete!
-  # remove the pidfile
 end
 
 ```
