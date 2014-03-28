@@ -162,8 +162,7 @@ module Forklift
       end
 
       def can_incremental_pipe?(from_db, from_table, matcher=default_matcher)
-        return true if columns(from_table, from_db).include?(matcher)
-        return false
+        columns(from_table, from_db).include?(matcher)
       end
 
       def read_since(table, since, matcher=default_matcher, database=current_database)
