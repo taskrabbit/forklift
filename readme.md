@@ -13,9 +13,9 @@ At TaskRabbit, the website you see at [www.taskrabbit.com](https://www.taskrabbi
 
 We replicate all of our databases into one server in our office, and then use Forklift to extract the data we want into a common place.  This gives us the option to both look at live data and to have a more accessible transformed set which we create on a rolling basis. Our "Forklift Loop" also git-pulls to check for any new transformations before each run.
 
-## Suggested Paterns
+## Suggested Patterns
 
-### In-Place Modificaiton
+### In-Place Modification
 
 ```ruby
 source      = plan.connections[:mysql][:source]
@@ -65,12 +65,26 @@ Cons:
 - slow
 - requires 2x space of final working set
 
-## Example Annotated Plan
+## Set up
 
+Make a new directory with a `Gemfile` like this:
+```ruby
+source 'http://rubygems.org'
+gem 'forklift'
+```
+
+Then `bundle`
+
+Use the generator by doing `bundle exec forklift --generate`
+
+Make your `plan.rb` using the examples below.
+
+Run your plan `bundle exec forklift plan.rb`
+
+### Directory structure
 Forklift expects your project to be arranged like:
 
 ```bash
-├── forklift.rb
 ├── config/
 |   ├── email.yml
 ├── connections/
@@ -87,100 +101,151 @@ Forklift expects your project to be arranged like:
 ├── plan.rb
 ```
 
-Run your plan with the forklift binary: `forklift plan.rb`
+### Tips
+- Your databases must exist. Forklift will not create them for you.
+- Ensure your databases have the right encoding (eg utf8) or you will get errors like `#<Mysql2::Error: Incorrect string value: '\xEF\xBF\xBDFal...' for column 'YOURCOLUMN’ at row 1>`
+- If testing locally, mailcatcher (https://github.com/sj26/mailcatcher) is a helpful gem to test your email sending
+
+## Example plans
+
+### Simple extract and load (no transformations)
+
+If you have multiple databases and want to consolidate into one, this plan
+should suffice.
 
 ```ruby
-# plan = Forklift::Plan.new
-# Or, you can pass configs
-plan = Forklift::Plan.new ({
-  # :logger => {:debug => true}
-})
+plan = Forklift::Plan.new
 
-plan.do! {
-  # do! is a wrapper around common setup methods (pidfile locking, setting up the logger, etc)
-  # you don't need to use do! if you want finer control
+plan.do! do
+  # ==> Connections
+  service1 = plan.connections[:mysql][:service1]
+  service2 = plan.connections[:mysql][:service2]
+  analytics_working = plan.connections[:mysql][:analytics_working]
+  analytics = plan.connections[:mysql][:analytics]
 
-  # cleanup from a previous run
-  destination = plan.connections[:mysql][:destination]
-  destination.exec("./transformations/cleanup.sql");
-
-  #  MySQL -> MySQL
-  source = plan.connections[:mysql][:source]
-  source.tables.each do |table|
-    source.optimistic_pipe('source', table, 'destination', table)
-    # will attempt to do an incremental pipe, will fall back to a full table copy
-    # by default, incremental updates happen off of the `created_at` column, but you can modify this with "matcher"
+  # ==> Extract
+  # Load data from your services into your working database
+  # If you want every table: service1.tables.each do |table|
+  %w(users organizations).each do |table|
+    service1.read("select * from `#{table}`") { |data| analytics_working.write(data, table) }
   end
 
-  # Elasticsearch -> MySQL
-  source = plan.connections[:elasticsearch][:source]
-  destination = plan.connections[:mysql][:destination]
-  table = 'es_import'
-  index = 'aaa'
-  query = { :query => { :match_all => {} } } # pagination will happen automatically
-  destination.truncate!(table) if destination.tables.include? table
-  source.read(index, query) { |data| destination.write(data, table) }
+  %w(orders line_items).each do |table|
+    service2.read("select * from `#{table}`") { |data| analytics_working.write(data, table) }
+  end
 
-  # MySQL -> Elasticsearch
-  source = plan.connections[:mysql][:source]
-  destination = plan.connections[:elasticsearch][:source]
-  table = 'users'
-  index = 'users'
-  query = "select * from users" # pagination will happen automatically
-  source.read(query) { |data| destination.write(data, table, true, 'user') }
+  # ==> Load
+  # Load data from the working database to the final database
+  analytics_working.tables.each do |table|
+    # will attempt to do an incremental pipe, will fall back to a full table copy
+    # by default, incremental updates happen off of the `updated_at` column, but you can modify this by setting the `matcher` argument
+    # analytics_working.optimistic_pipe(analytics_working.current_database, table, analytics.current_database, table, 'another_timestamp_column')
+    # If you want a full pipe instead of incremental, then just use `pipe` instead of `optimistic_pipe`
+    analytics_working.optimistic_pipe(analytics_working.current_database, table, analytics.current_database, table)
+  end
+end
+```
 
-  # ... and you can write your own connections [LINK GOES HERE]
+### ETL (Extract -> Transform -> Load)
+TODO - improve this section with better examples
+```ruby
+# Do some SQL transformations
+# SQL transformations are done exactly as they are written
+destination = plan.connections[:mysql][:destination]
+destination.exec!("./transformations/combined_name.sql")
 
-  # Do some SQL transformations
-  # SQL transformations are done exactly as they are written
-  destination = plan.connections[:mysql][:destination]
-  destination.exec!("./transformations/combined_name.sql")
+# Do some Ruby transformations
+# Ruby transformations expect `do!(connection, forklift)` to be defined
+destination = plan.connections[:mysql][:destination]
+destination.exec!("./transformations/email_suffix.rb")
 
-  # Do some Ruby transformations
-  # Ruby transformations expect `do!(connection, forklift)` to be defined
-  destination = plan.connections[:mysql][:destination]
-  destination.exec!("./transformations/email_suffix.rb")
+# mySQL Dump the destination
+destination = plan.connections[:mysql][:destination]
+destination.dump('/tmp/destination.sql.gz')
+```
 
-  # MySQL Dump the destination
-  destination = plan.connections[:mysql][:destination]
-  destination.dump('/tmp/destination.sql.gz')
+### Elasticsearch to MySQL
+```ruby
+source = plan.connections[:elasticsearch][:source]
+destination = plan.connections[:mysql][:destination]
+table = 'es_import'
+index = 'aaa'
+query = { :query => { :match_all => {} } } # pagination will happen automatically
+destination.truncate!(table) if destination.tables.include? table
+source.read(index, query) {|data| destination.write(data, table) }
+```
 
-  # email the logs and a summary
-  destination = plan.connections[:mysql][:destination]
+### MySQL to Elasticsearch
+```ruby
+source = plan.connections[:mysql][:source]
+destination = plan.connections[:elasticsearch][:source]
+table = 'users'
+index = 'users'
+query = "select * from users" # pagination will happen automatically
+source.read(query) {|data| destination.write(data, table, true, 'user') }
+```
 
-  email_args = {
-    :to      => "YOU@FAKE.com",
-    :from    => "Forklift",
-    :subject => "Forklift has moved your database @ #{Time.new}",
-  }
-
-  email_variables = {
-    :total_users_count => destination.read('select count(1) as "count" from users')[0][:count],
-    :new_users_count => destination.read('select count(1) as "count" from users where date(created_at) = date(NOW())')[0][:count],
-  }
-
-  email_template = "./template/email.erb"
-  plan.mailer.send_template(email_args, email_template, email_variables, plan.logger.messages) unless ENV['EMAIL'] == 'false'
+### Email notifications when forklift finishes
+Put this at the end of your plan but inside the `do!` block.
+```ruby
+# ==> Email
+# Let your team know the outcome. Attaches the log.
+email_args = {
+  to: "team@yourcompany.com",
+  from: "Forklift",
+  subject: "Forklift has moved your database @ #{Time.new}",
+  body: "So much data!"
 }
+plan.mailer.send(email_args, plan.logger.messages)
+```
+
+You can get fancy by using a template and erb:
+```ruby
+# ==> Email
+# Let your team know the outcome. Attaches the log.
+email_args = {
+  to: "team@yourcompany.com",
+  from: "Forklift",
+  subject: "Forklift has moved your database @ #{Time.new}"
+}
+email_variables = {
+  total_users_count: service1.read('select count(1) as "count" from users')[0][:count]
+}
+email_template = "./template/email.erb"
+plan.mailer.send_template(email_args, email_template, email_variables, plan.logger.messages)
+```
+
+Then in `template/email.erb`:
+```erb
+<h1>Your forklift email</h1>
+
+<ul>
+  <li><strong>Total Users</strong>: <%= @total_users_count %></li>
+</ul>
 ```
 
 ## Workflow
 
 ```ruby
+# do! is a wrapper around common setup methods (pidfile locking, setting up the logger, etc)
+# you don't need to use do! if you want finer control
 def do!
-  self.logger.log "Starting forklift"
   # you can use `plan.logger.log` in your plan for logging
+  self.logger.log "Starting forklift"
+
+  # use a pidfile to ensure that only one instance of forklift is running at a time; store the file if OK
   self.pid.safe_to_run?
   self.pid.store!
-  # use a pidfile to ensure that only one instance of forklift is running at a time; store the file if OK
+
+  # this will load all connections in /config/connections/#{type}/#{name}.yml into the plan.connections hash
+  # and build all the connection objects (and try to connect in some cases)
   self.connect!
-  # this will load all connections in /config/connections/#{type}/#{name}.yml into plan.connections {}
-  # this will build all the connection objects (and try to connect in some cases)
-  yield
-  # your stuff here!
+
+  yield # your stuff here!
+
+  # remove the pidfile
   self.logger.log "Completed forklift"
   self.pid.delete!
-  # remove the pidfile
 end
 
 ```
@@ -304,25 +369,6 @@ class CountUsers
     forklift.logger.log "found #{count} users"
   end
 end
-```
-## Emails
-
-Forklift provides basic support for ERB-templated emails which can be sent at the end of every forklift run.  Want to notify folks automatically about how many new users we got yesterday?  Forklift can help you out.
-
-```ruby
-email_args = {
-  :to      => "YOU@FAKE.com",
-  :from    => "Forklift",
-  :subject => "Forklift has moved your database @ #{Time.new}",
-}
-
-email_variables = {
-  :total_users_count => destination.read('select count(1) as "count" from users')[0][:count],
-  :new_users_count => destination.read('select count(1) as "count" from users where date(created_at) = date(NOW())')[0][:count],
-}
-
-email_template = "./template/email.erb"
-plan.mailer.send_template(email_args, email_template, email_variables, plan.logger.messages)
 ```
 
 ## Options & Notes
