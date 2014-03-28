@@ -21,6 +21,7 @@ def generate
   Dir.mkdir "#{p}/transformations"
   Dir.mkdir "#{p}/transports"
 
+  template('.gitignore',      "#{p}/.gitignore")
   template('source.yml',      "#{p}/config/connections/mysql/source.yml")
   template('destination.yml', "#{p}/config/connections/mysql/destination.yml")
   template('email.yml',       "#{p}/config/email.yml")
