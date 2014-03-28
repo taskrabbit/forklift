@@ -120,21 +120,37 @@ module Forklift
         start = Time.new.to_i
         forklift.logger.log("mysql incremental_pipe: `#{from_db}`.`#{from_table}` => `#{to_db}`.`#{to_table}`")
         q("create table if not exists `#{to_db}`.`#{to_table}` like `#{from_db}`.`#{from_table}`")
+
+        # Count the number of rows in to_table
         original_count = count(to_table, to_db)
-        latest_timestamp = self.max_timestamp(to_table, matcher, to_db)
-        if(original_count > 0)
-          read("select `#{primary_key}` from `#{from_db}`.`#{from_table}` where `#{matcher}` > \"#{latest_timestamp}\" order by `#{matcher}`"){|old_rows|
-            old_rows.each do |row|
-              #TODO: These can be batch-deleted in one command
-              q("delete from `#{to_db}`.`#{to_table}` where `#{primary_key}` = #{row[primary_key.to_sym]}")
+
+        # Find the latest/max/newest timestamp from the final table
+        # in order to determine the last copied row.
+        latest_timestamp = max_timestamp(to_table, matcher, to_db)
+
+        # If to_table has existing rows, ensure none of them are "stale."
+        # A stale row in to_table means a previously copied row was
+        # updated in from_table, so let's delete it from the to_table
+        # so we can get a fresh copy of that row.
+        if original_count > 0
+          # Get the ids of rows in from_table that are newer than the newest row in to_table.
+          # Some of these rows could either be a) stale or b) new.
+          read("select `#{primary_key}` from `#{from_db}`.`#{from_table}` where `#{matcher}` > \"#{latest_timestamp}\" order by `#{matcher}`") do |stale_rows|
+            if stale_rows.length > 0
+              # Delete these ids from to_table.
+              # If the ids are stale, then they'll be deleted. If they're new, they won't exist, and nothing will happen.
+              stale_ids = stale_rows.map { |row| row[primary_key.to_sym] }.join(',')
+              q("delete from `#{to_db}`.`#{to_table}` where `#{primary_key}` in (#{stale_ids})")
+              forklift.logger.log("  ^ deleted up to #{stale_rows.length} stale rows from `#{to_db}`.`#{to_table}`")
             end
-            forklift.logger.log("  ^ deleted #{old_rows.count} stale rows")
-          }
+          end
         end
+
+        # Do the insert into to_table
         q("insert into `#{to_db}`.`#{to_table}` select * from `#{from_db}`.`#{from_table}` where `#{matcher}` > \"#{latest_timestamp}\" order by `#{matcher}`")
         delta = Time.new.to_i - start
-        new_count =  count(to_table, to_db) - original_count
-        forklift.logger.log("  ^ created #{new_count} new rows rows in #{delta}s")
+        new_count = count(to_table, to_db) - original_count
+        forklift.logger.log("  ^ created #{new_count} new rows in #{delta}s")
       end
 
       def optimistic_pipe(from_db, from_table, to_db, to_table, matcher=default_matcher, primary_key='id')
