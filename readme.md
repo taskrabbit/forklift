@@ -123,6 +123,7 @@ plan.do! do
     # will attempt to do an incremental pipe, will fall back to a full table copy
     # by default, incremental updates happen off of the `updated_at` column, but you can modify this by setting the `matcher` argument
     # analytics_working.optimistic_pipe(analytics_working.current_database, table, analytics.current_database, table, 'another_timestamp_column')
+    # If you want a full pipe instead of incremental, then just use `pipe` instead of `optimistic_pipe`
     analytics_working.optimistic_pipe(analytics_working.current_database, table, analytics.current_database, table)
   end
 end
