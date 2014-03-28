@@ -106,7 +106,7 @@ module Forklift
         return "text"         # catchall
       end
 
-      def pipe(from_table, from_db, to_table, to_db)
+      def pipe(from_db, from_table, to_db, to_table)
         start = Time.new.to_i
         forklift.logger.log("mysql pipe: `#{from_db}`.`#{from_table}` => `#{to_db}`.`#{to_table}`")
         q("drop table if exists `#{to_db}`.`#{to_table}`")
@@ -116,7 +116,7 @@ module Forklift
         forklift.logger.log("  ^ moved #{count(to_table, to_db)} rows in #{delta}s")
       end
 
-      def incremental_pipe(from_table, from_db, to_table, to_db, matcher=default_matcher, primary_key='id')
+      def incremental_pipe(from_db, from_table, to_db, to_table, matcher=default_matcher, primary_key='id')
         start = Time.new.to_i
         forklift.logger.log("mysql incremental_pipe: `#{from_db}`.`#{from_table}` => `#{to_db}`.`#{to_table}`")
         q("create table if not exists `#{to_db}`.`#{to_table}` like `#{from_db}`.`#{from_table}`")
@@ -154,14 +154,14 @@ module Forklift
       end
 
       def optimistic_pipe(from_db, from_table, to_db, to_table, matcher=default_matcher, primary_key='id')
-        if can_incremental_pipe?(from_table, from_db)
-          incremental_pipe(from_table, from_db, to_table, to_db, matcher, primary_key)
+        if can_incremental_pipe?(from_db, from_table)
+          incremental_pipe(from_db, from_table, to_db, to_table, matcher, primary_key)
         else
-          pipe(from_table, from_db, to_table, to_db)
+          pipe(from_db, from_table, to_db, to_table)
         end
       end
 
-      def can_incremental_pipe?(from_table, from_db, matcher=default_matcher)
+      def can_incremental_pipe?(from_db, from_table, matcher=default_matcher)
         return true if columns(from_table, from_db).include?(matcher)
         return false
       end
