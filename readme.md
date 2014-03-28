@@ -253,8 +253,8 @@ end
 - write(data, table, to_update=false, database=current_database, primary_key='id', lazy=true, crash_on_extral_col=true)
   - `lazy` will create a table if not found
   - `crash_on_extral_col` will sanitize input to only contain the cols in the table
-- pipe(from_table, from_db, to_table, to_db)
-- incremental_pipe(from_table, from_db, to_table, to_db, matcher=default_matcher, primary_key='id')
+- pipe(from_db, from_table, to_db, to_table)
+- incremental_pipe(from_db, from_table, to_db, to_table, matcher=default_matcher, primary_key='id')
   - `pipe` with only new data where time is greater than the latest `matcher` on the `to_db`
 - optimistic_pipe(from_db, from_table, to_db, to_table, matcher=default_matcher, primary_key='id')
   - tries to `incremental_pipe`, falling back to `pipe`
@@ -326,7 +326,7 @@ plan.mailer.send_template(email_args, email_template, email_variables, plan.logg
 ```
 
 ## Options & Notes
-- Thanks to [@rahilsondhi](https://github.com/rahilsondhi) from [internmatch](http://www.internmatch.com/) for all his help
+- Thanks to [@rahilsondhi](https://github.com/rahilsondhi) from [InternMatch](http://www.internmatch.com/) for all his help
 - email_options is a hash consumed by the [Pony mail gem](https://github.com/benprew/pony)
 - Forklift's logger is [Lumberjack](https://github.com/bdurand/lumberjack) with a wrapper to also echo the log lines to stdout and save them to an array to be accessed later by the email system.
 - The mysql connections hash will be passed directly to a [mysql2](https://github.com/brianmario/mysql2) connection.
