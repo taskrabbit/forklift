@@ -13,7 +13,7 @@ At TaskRabbit, the website you see at [www.taskrabbit.com](https://www.taskrabbi
 
 We replicate all of our databases into one server in our office, and then use Forklift to extract the data we want into a common place.  This gives us the option to both look at live data and to have a more accessible transformed set which we create on a rolling basis. Our "Forklift Loop" also git-pulls to check for any new transformations before each run.
 
-## Suggested Paterns
+## Suggested Patterns
 
 ### In-Place Modification
 
