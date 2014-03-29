@@ -15,7 +15,7 @@ We replicate all of our databases into one server in our office, and then use Fo
 
 ## Suggested Paterns
 
-### In-Place Modificaiton
+### In-Place Modification
 
 ```ruby
 source      = plan.connections[:mysql][:source]
