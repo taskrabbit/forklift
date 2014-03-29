@@ -65,8 +65,23 @@ Cons:
 - slow
 - requires 2x space of final working set
 
-## Directory structure and set up
+## Set up
 
+Make a new directory with a `Gemfile` like this:
+```ruby
+source 'http://rubygems.org'
+gem 'forklift'
+```
+
+Then `bundle`
+
+Use the generator by doing `bundle exec forklift --generate`
+
+Make your `plan.rb` using the examples below.
+
+Run your plan `bundle exec forklift plan.rb`
+
+### Directory structure
 Forklift expects your project to be arranged like:
 
 ```bash
@@ -86,19 +101,10 @@ Forklift expects your project to be arranged like:
 ├── plan.rb
 ```
 
-Make a new directory with a Gemfile like this:
-```ruby
-source 'http://rubygems.org'
-gem 'forklift'
-```
-
-Then `bundle`
-
-Use the generator by doing `bundle exec forklift --generate`
-
-Make your plan using the examples below.
-
-Run your plan `bundle exec forklift plan.rb`
+### Tips
+- Your databases must exist. Forklift will not create them for you.
+- Ensure your databases have the right encoding (eg utf8) or you will get errors like `#<Mysql2::Error: Incorrect string value: '\xEF\xBF\xBDFal...' for column 'YOURCOLUMN’ at row 1>`
+- If testing locally, mailcatcher (https://github.com/sj26/mailcatcher) is a helpful gem to test your email sending
 
 ## Example plans
 
