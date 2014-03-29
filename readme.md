@@ -89,7 +89,7 @@ Forklift expects your project to be arranged like:
 Make a new directory with a Gemfile like this:
 ```ruby
 source 'http://rubygems.org'
-gem 'forklift', path: '/Users/rahil/Sites/random/forklift'
+gem 'forklift'
 ```
 
 Then `bundle`
