@@ -65,12 +65,11 @@ Cons:
 - slow
 - requires 2x space of final working set
 
-## Directory structure
+## Directory structure and set up
 
 Forklift expects your project to be arranged like:
 
 ```bash
-├── forklift.rb
 ├── config/
 |   ├── email.yml
 ├── connections/
@@ -87,7 +86,19 @@ Forklift expects your project to be arranged like:
 ├── plan.rb
 ```
 
-Run your plan: `bundle exec forklift plan.rb`
+Make a new directory with a Gemfile like this:
+```ruby
+source 'http://rubygems.org'
+gem 'forklift', path: '/Users/rahil/Sites/random/forklift'
+```
+
+Then `bundle`
+
+Use the generator by doing `bundle exec forklift --generate`
+
+Make your plan using the examples below.
+
+Run your plan `bundle exec forklift plan.rb`
 
 ## Example plans
 

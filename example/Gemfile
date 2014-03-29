@@ -1,4 +1,4 @@
-source 'https://rubygems.org'
-
-gem 'forklift', :path => '../'
-gem 'awesome_print'
+source 'http://rubygems.org'
+gem 'forklift'
+# gem 'pry'
+# gem 'byebug'
