@@ -130,7 +130,43 @@ end
 ```
 
 ### ETL (Extract -> Transform -> Load)
-TODO
+TODO - improve this section with better examples
+```ruby
+# Do some SQL transformations
+# SQL transformations are done exactly as they are written
+destination = plan.connections[:mysql][:destination]
+destination.exec!("./transformations/combined_name.sql")
+
+# Do some Ruby transformations
+# Ruby transformations expect `do!(connection, forklift)` to be defined
+destination = plan.connections[:mysql][:destination]
+destination.exec!("./transformations/email_suffix.rb")
+
+# mySQL Dump the destination
+destination = plan.connections[:mysql][:destination]
+destination.dump('/tmp/destination.sql.gz')
+```
+
+### Elasticsearch to MySQL
+```ruby
+source = plan.connections[:elasticsearch][:source]
+destination = plan.connections[:mysql][:destination]
+table = 'es_import'
+index = 'aaa'
+query = { :query => { :match_all => {} } } # pagination will happen automatically
+destination.truncate!(table) if destination.tables.include? table
+source.read(index, query) {|data| destination.write(data, table) }
+```
+
+### MySQL to Elasticsearch
+```ruby
+source = plan.connections[:mysql][:source]
+destination = plan.connections[:elasticsearch][:source]
+table = 'users'
+index = 'users'
+query = "select * from users" # pagination will happen automatically
+source.read(query) {|data| destination.write(data, table, true, 'user') }
+```
 
 ### Email notifications when forklift finishes
 Put this at the end of your plan but inside the `do!` block.
