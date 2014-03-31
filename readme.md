@@ -186,6 +186,7 @@ source.read(query) {|data| destination.write(data, table, true, 'user') }
 ```
 
 ### Email notifications when forklift finishes
+#### Setup
 Put this at the end of your plan but inside the `do!` block.
 ```ruby
 # ==> Email
@@ -199,6 +200,7 @@ email_args = {
 plan.mailer.send(email_args, plan.logger.messages)
 ```
 
+#### ERB templates
 You can get fancy by using a template and erb:
 ```ruby
 # ==> Email
@@ -222,6 +224,51 @@ Then in `template/email.erb`:
 <ul>
   <li><strong>Total Users</strong>: <%= @total_users_count %></li>
 </ul>
+```
+
+#### Config
+When you run `forklift --generate`, we create `config/email.yml` for you:
+
+```yml
+# Configuration is passed to Pony (https://github.com/benprew/pony)
+
+# ==> SMTP
+# If testing locally, mailcatcher (https://github.com/sj26/mailcatcher) is a helpful gem
+via: smtp
+via_options:
+  address: localhost
+  port: 1025
+  # user_name: user
+  # password: password
+  # authentication: :plain # :plain, :login, :cram_md5, no auth by default
+  # domain: "localhost.localdomain" # the HELO domain provided by the client to the server
+
+# ==> Sendmail
+# via: sendmail
+# via_options:
+#   location: /usr/sbin/sendmail
+#   arguments: '-t -i'
+```
+
+This file supports ERB so you can do things like switch credentials based on
+what environment you're in:
+
+```erb
+<% if ENV['ENVIRONMENT'] == 'production' %>
+  # SMTP_ADDRESS=smtp.sendgrid.net SMTP_PORT=587 SMTP_USERNAME=username SMTP_PASSWORD=password ENVIRONMENT=production bundle exec forklift plan.rb
+  via: smtp
+  via_options:
+    address: <%= ENV['SMTP_ADDRESS'] %>
+    port: <%= ENV['SMTP_PORT'] %>
+    user_name: <%= ENV['SMTP_USERNAME'] %>
+    password: <%= ENV['SMTP_PASSWORD'] %>
+<% else %>
+  # bundle exec forklift plan.rb
+  via: smtp
+  via_options:
+    address: localhost
+    port: 1025
+<% end %>
 ```
 
 ## Workflow
