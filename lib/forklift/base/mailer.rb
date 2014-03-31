@@ -9,9 +9,12 @@ module Forklift
         @forklift = forklift
       end
 
-      def via_options
+      # Public: Pull out the settings from config/email.yml.
+      #
+      # Returns a Hash with all symbolized keys.
+      def config
         config_file = "#{forklift.config[:project_root]}/config/email.yml"
-        mail_config = forklift.utils.load_yml(config_file)
+        @config ||= forklift.utils.load_yml(config_file).deep_symbolize_keys
       end
 
       def forklift
@@ -47,13 +50,17 @@ module Forklift
 
       private
 
+      # Private: Actually deliver the message using Pony.
+      #
+      # Returns the raw email from Pony.
       def deliver(params)
-        forklift.logger.log("Sending Email")
+        forklift.logger.log("Sending email via #{config[:via]}")
         if params[:html_body].nil?
           params[:html_body] = params[:body]
           params.delete(:body)
         end
-        params[:via_options] = via_options
+        params[:via] = config[:via]
+        params[:via_options] = config[:via_options]
         Pony.mail(params)
       end
 
