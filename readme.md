@@ -13,58 +13,6 @@ At TaskRabbit, the website you see at [www.taskrabbit.com](https://www.taskrabbi
 
 We replicate all of our databases into one server in our office, and then use Forklift to extract the data we want into a common place.  This gives us the option to both look at live data and to have a more accessible transformed set which we create on a rolling basis. Our "Forklift Loop" also git-pulls to check for any new transformations before each run.
 
-## Suggested Patterns
-
-### In-Place Modification
-
-```ruby
-source      = plan.connections[:mysql][:source]
-destination = plan.connections[:mysql][:destination]
-
-source.tables.each do |table|
-  source.read(table, query) { |data| working.write(data, table) }
-end
-
-destination.exec!("./transformations.sql");
-```
-
-Pros:
-
-- faster
-- requires less space for final storage
-
-Cons:
-
-- leaves final databse in "incomplete" and "inconsistent" state for longer
-
-### ETL (Extract -> Transform -> Load)
-
-```ruby
-source      = plan.connections[:mysql][:source]
-working     = plan.connections[:mysql][:working]
-destination = plan.connections[:mysql][:destination]
-
-source.tables.each do |table|
-  source.read(table, query) { |data| working.write(data, table) }
-end
-
-working.exec!("./transformations.sql")
-
-working.tables.each do |table|
-  working.optimistic_pipe(working.database, table, destination.database, table)
-end
-```
-
-Pros:
-
-- auditable
-- minimizes inconsistent state of final database
-
-Cons:
-
-- slow
-- requires 2x space of final working set
-
 ## Set up
 
 Make a new directory with a `Gemfile` like this:
