@@ -20,8 +20,8 @@ describe 'basics' do
     end
 
     it 'seeded the elasticsearch db' do
-      client = SpecClient.elasticsearch('forklift_test_source')
-      results = client.search({ index: 'forklift_test_source' , body: { :query => { :match_all => {} } } })
+      client = SpecClient.elasticsearch('forklift_test')
+      results = client.search({ index: 'forklift_test' , body: { :query => { :match_all => {} } } })
       expect(results['hits']['total']).to eql 5
     end
   end

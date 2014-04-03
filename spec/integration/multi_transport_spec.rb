@@ -9,13 +9,13 @@ describe 'multiple trasport types' do
 
   describe 'elasticsearch => mysql' do  
     it 'can load in a full query' do
+      table = 'es_import'
+      index = 'forklift_test'
+      query = { :query => { :match_all => {} } }
       plan = SpecPlan.new
       plan.do! {
-        source = plan.connections[:elasticsearch][:forklift_test_source]
+        source = plan.connections[:elasticsearch][:forklift_test]
         destination = plan.connections[:mysql][:forklift_test_destination]
-        table = 'es_import'
-        index = 'forklift_test_source'
-        query = { :query => { :match_all => {} } }
         source.read(index, query) {|data| destination.write(data, table) }
       }
 
@@ -25,13 +25,13 @@ describe 'multiple trasport types' do
     end
 
     it 'can load in a partial query' do
+      table = 'es_import'
+      index = 'forklift_test'
+      query = { :query => { :match_all => {} }, :sort => [{ :id => {:order => "asc" } }] }
       plan = SpecPlan.new
       plan.do! {
-        source = plan.connections[:elasticsearch][:forklift_test_source]
+        source = plan.connections[:elasticsearch][:forklift_test]
         destination = plan.connections[:mysql][:forklift_test_destination]
-        table = 'es_import'
-        index = 'forklift_test_source'
-        query = { :query => { :match_all => {} }, :sort => [{ :id => {:order => "asc" } }] }
         source.read(index, query, false, 0, 3) {|data| destination.write(data, table) }
       }
 
@@ -45,13 +45,13 @@ describe 'multiple trasport types' do
     end
 
     it 'can detect data types' do
+      table = 'es_import'
+      index = 'forklift_test'
+      query = { :query => { :match_all => {} } }
       plan = SpecPlan.new
       plan.do! {
-        source = plan.connections[:elasticsearch][:forklift_test_source]
+        source = plan.connections[:elasticsearch][:forklift_test]
         destination = plan.connections[:mysql][:forklift_test_destination]
-        table = 'es_import'
-        index = 'forklift_test_source'
-        query = { :query => { :match_all => {} } }
         source.read(index, query) {|data| 
           clean_data = []
           data.each do |row|
@@ -70,8 +70,43 @@ describe 'multiple trasport types' do
   end
 
   describe 'mysql => elasticsearch' do  
-    it 'can load in a full table'
-    it 'can load in only updated rows'
+
+    after(:each) do
+      es = SpecClient.elasticsearch('forklift_test')
+      es.indices.delete({ :index => 'users' }) if es.indices.exists({ :index => 'users' })
+    end
+
+    it 'can load in a full table' do
+      table = 'users'
+      index = 'users'
+      plan = SpecPlan.new
+      plan.do! {
+        source = plan.connections[:mysql][:forklift_test_source_a]
+        destination = plan.connections[:elasticsearch][:forklift_test]
+        source.read("select * from #{table}") {|data| destination.write(data, index) }
+      }
+
+      destination = SpecClient.elasticsearch('forklift_test')
+      count = destination.count({ :index => index })["count"]
+      expect(count).to eql 5
+    end
+    
+    it 'can load in only some rows' do
+      table = 'users'
+      index = 'users'
+      plan = SpecPlan.new
+      plan.do! {
+        source = plan.connections[:mysql][:forklift_test_source_a]
+        destination = plan.connections[:elasticsearch][:forklift_test]
+        source.read("select * from #{table}", source.current_database, false, 3, 0) {|data| 
+          destination.write(data, index) 
+        }
+      }
+
+      destination = SpecClient.elasticsearch('forklift_test')
+      count = destination.count({ :index => index })["count"]
+      expect(count).to eql 3
+    end
   end
 
 end

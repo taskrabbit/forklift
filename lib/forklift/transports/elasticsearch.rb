@@ -57,6 +57,7 @@ module Forklift
           object[:id] = d[primary_key] if ( !d[primary_key].nil? && update == true )
           client.index object
         end
+        client.indices.refresh({ :index => index })
       end
 
       def delete_index(index)
