@@ -102,6 +102,7 @@ module Forklift
         return "float"        if v.class == Float
         return "date"         if v.class == Date
         return "datetime"     if v.class == Time
+        return "datetime"     if v.class == DateTime
         return "varchar(255)" if v.class == Symbol
         return "tinyint(1)"   if v.class == TrueClass
         return "tinyint(1)"   if v.class == FalseClass
