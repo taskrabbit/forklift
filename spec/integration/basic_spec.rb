@@ -8,7 +8,7 @@ describe 'basics' do
     client.query("show tables").each do |row|
       tables << row.values[0]
     end
-    expect(tables.count).to eql 4
+    expect(tables.count).to eql 3
   end
 
 end
