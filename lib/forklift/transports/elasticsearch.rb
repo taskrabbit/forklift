@@ -20,7 +20,9 @@ module Forklift
 
       def read(index, query, looping=true, from=0, size=1000)
         offset = 0
-        while (looping == true)
+        loop_count = 0
+
+        while (looping == true || loop_count == 0)
           data = []
           prepared_query = query
           prepared_query[:from] = from + offset
@@ -39,10 +41,13 @@ module Forklift
 
           looping = false if results["hits"]["hits"].length == 0
           offset = offset + size
+          loop_count = loop_count + 1
         end
       end
 
       def write(data, index, update=false, type='forklift', primary_key=:id)
+        data.map{|l| forklift.utils.symbolize_keys(l) }
+
         data.each do |d|
           object = {
             :index => index,
@@ -52,6 +57,7 @@ module Forklift
           object[:id] = d[primary_key] if ( !d[primary_key].nil? && update == true )
           client.index object
         end
+        client.indices.refresh({ :index => index })
       end
 
       def delete_index(index)

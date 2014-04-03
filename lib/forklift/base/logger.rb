@@ -23,7 +23,7 @@ module Forklift
 
       def log(message, severity="info")
         timed_message = "[Forklift @ #{Time.now}] #{message}"
-        puts timed_message
+        puts timed_message unless forklift.config[:logger][:stdout] != true
         logger.send(severity.to_sym, message) unless logger.nil?
         messages << timed_message
       end

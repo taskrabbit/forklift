@@ -65,7 +65,8 @@ module Forklift
       return {
         :project_root => Dir.pwd,
         :logger => {
-          :debug => false
+          :stdout => true,
+          :debug => false,
         },
       }
     end
