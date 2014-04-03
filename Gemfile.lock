@@ -43,6 +43,7 @@ GEM
     polyglot (0.3.4)
     pony (1.8)
       mail (>= 2.0)
+    rake (10.2.1)
     rspec (2.14.1)
       rspec-core (~> 2.14.0)
       rspec-expectations (~> 2.14.0)
@@ -64,4 +65,5 @@ PLATFORMS
 DEPENDENCIES
   awesome_print
   forklift!
+  rake
   rspec
