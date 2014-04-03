@@ -18,17 +18,8 @@ Dir["#{APP_DIR}/spec/support/**/*.rb"].each {|f| require f}
 RSpec.configure do |config|
 
   config.before(:all) do
-    SpecSeeds.setup
+    SpecSeeds.setup_mysql
+    SpecSeeds.setup_elasticsearch
   end
-
-  # config.around(:each) do |example|
-  #   IndexHelper.create_all
-  #   example.run
-  #   IndexHelper.delete_all
-  # end
-
-  # config.after(:each) do
-  #   Timecop.return
-  # end
 
 end

@@ -28,10 +28,11 @@ module Forklift
       end
 
       def read(query, database=current_database, looping=true, limit=1000, offset=0)
+        loop_count = 0
         # TODO: Detect limit/offset already present in query
         q("USE `#{database}`")
 
-        while looping == true
+        while ( looping == true || loop_count == 0 )
           data = []
           prepared_query = query
           if prepared_query.downcase.include?("select") && !prepared_query.downcase.include?("limit")
@@ -50,10 +51,13 @@ module Forklift
 
           offset = offset + limit
           looping = false if data.length == 0
+          loop_count = loop_count + 1
         end
       end
 
       def write(data, table, to_update=true, database=current_database, primary_key='id', lazy=true, crash_on_extral_col=false)
+        data.map{|l| forklift.utils.symbolize_keys(l) }
+
         if tables.include? table
           # all good, cary on
         elsif(lazy == true && data.length > 0)

@@ -10,7 +10,8 @@ class SpecClient
   def self.mysql(name)
     file = File.join(File.dirname(__FILE__), '..', 'config', 'connections', 'mysql', "#{name}.yml")
     config = self.load_config(file)
-    db = file.split("/").last.gsub('.yml', '')
+    db = config[:database]
+    config.delete(:database)
     connection = ::Mysql2::Client.new(config)
     begin 
       connection.query("use `#{db}`")

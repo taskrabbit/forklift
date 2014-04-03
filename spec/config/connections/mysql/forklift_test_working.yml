@@ -1,5 +1,6 @@
 :encoding: utf8
 :username: root
+:database: forklift_test_working
 :password:
 :host: 127.0.0.1
 :port: 3306

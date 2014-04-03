@@ -2,24 +2,15 @@ require 'json'
 
 class SpecSeeds
 
-  def self.setup
+  def self.setup_mysql
     mysql_connections         = []
-    elasticsearch_connections = []
     mysql_databases           = []
-    elasticsearch_databases   = []
 
     files = Dir["#{File.dirname(__FILE__)}/../config/connections/mysql/*.yml"]
     files.each do |f|
       name = f.split('/').last.gsub('.yml','')
       mysql_connections << ::SpecClient.mysql(name)
       mysql_databases << name
-    end
-
-    files = Dir["#{File.dirname(__FILE__)}/../config/connections/elasticsearch/*.yml"]
-    files.each do |f|
-      name = f.split('/').last.gsub('.yml','')
-      elasticsearch_connections << ::SpecClient.elasticsearch(name)
-      elasticsearch_databases << name
     end
 
     i = 0
@@ -38,6 +29,18 @@ class SpecSeeds
       end
 
       i = i + 1
+    end
+  end
+
+  def self.setup_elasticsearch
+    elasticsearch_connections = []
+    elasticsearch_databases   = []
+
+    files = Dir["#{File.dirname(__FILE__)}/../config/connections/elasticsearch/*.yml"]
+    files.each do |f|
+      name = f.split('/').last.gsub('.yml','')
+      elasticsearch_connections << ::SpecClient.elasticsearch(name)
+      elasticsearch_databases << name
     end
 
     i = 0
@@ -61,7 +64,6 @@ class SpecSeeds
       end
       i = i + 1
     end
-
   end
 
 end
