@@ -55,8 +55,8 @@ class SpecSeeds
           object = {
             :index => index,
             :body  => line,
-            :type  => 'seed',
-            :id    => line[:id]
+            :type  => 'forklift',
+            :id    => line['id']
           }
           conn.index object # assumes ES is setup to allow index creation on write
         end
