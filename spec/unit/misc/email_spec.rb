@@ -18,7 +18,7 @@ describe 'misc forklift core' do
           :total_users_count => 10,
           :new_users_count => 5,
         }
-        email_template = "#{File.dirname(__FILE__)}/../template/spec_email_template.erb"
+        email_template = "#{File.dirname(__FILE__)}/../../template/spec_email_template.erb"
         @email = plan.mailer.send_template(email_args, email_template, email_variables).first
       }
       
@@ -32,26 +32,6 @@ describe 'misc forklift core' do
     it "can send mail with an attachment" do 
       pending("how to test email attachments?")
     end
-  end
-
-  describe 'pidfile' do
-    it "can create a pidfile and will remove it when the plan is over" do
-      plan = SpecPlan.new
-      pid = "#{File.dirname(__FILE__)}/../pid/pidfile"
-      expect(File.exists?(pid)).to eql false
-      plan.do! {
-        expect(File.exists?(pid)).to eql true
-        expect(File.read(pid).to_i).to eql Process.pid
-      }
-      expect(File.exists?(pid)).to eql false
-    end
-
-    it "will not run with an existing pidfile" do 
-      plan = SpecPlan.new
-      plan.pid.store!
-      expect { plan.do! }.to raise_error SystemExit
-      plan.pid.delete!
-    end 
   end
 
 end
