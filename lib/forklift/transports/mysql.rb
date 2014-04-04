@@ -169,10 +169,10 @@ module Forklift
 
       def dump(file)
         cmd = "mysqldump"
-        cmd << " -u#{config['username']}" unless config['username'].nil?
-        cmd << " -p#{config['password']}" unless config['password'].nil?
+        cmd << " -u#{config[:username]}" unless config[:username].nil?
+        cmd << " -p#{config[:password]}" unless config[:password].nil?
         cmd << " --max_allowed_packet=512M"
-        cmd << " #{config['database']}"
+        cmd << " #{config[:database]}"
         cmd << " | gzip > #{file}"
         forklift.logger.log "Dumping #{config['database']} to #{file}"
         forklift.logger.debug cmd

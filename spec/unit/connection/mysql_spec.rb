@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'zlib'
 
 describe Forklift::Connection::Mysql do
 
@@ -63,7 +64,6 @@ describe Forklift::Connection::Mysql do
       table = "sales"
       plan.do! {
         source = plan.connections[:mysql][:forklift_test_source_a]
-        # ap source.columns(table)
         expect(source.columns(table)).to include 'id' 
         expect(source.columns(table)).to include 'user_id' 
         expect(source.columns(table)).to include 'product_id' 
@@ -71,6 +71,23 @@ describe Forklift::Connection::Mysql do
       }
     end
 
+    it "can create a mysqldump" do
+      dump = "/tmp/destination.sql.gz"
+      plan = SpecPlan.new
+      plan.do! {
+        source = plan.connections[:mysql][:forklift_test_source_a]
+        source.dump(dump)
+      }
+
+      expect(File.exists?(dump)).to eql true
+      contents = Zlib::GzipReader.new(StringIO.new(File.read(dump))).read  
+      expect(contents).to include "(1,'evan@example.com','Evan','T','2014-04-03 11:40:12','2014-04-03 11:39:28')"
+    end
+
+  end
+
+  describe "mysql type assignment" do
+    #     it "can corretly assign mysql data types from ruby"
   end
 
   describe "#safe_values" do

@@ -70,8 +70,5 @@ describe 'mysql' do
   
   it "can lazy-create a table with primary keys provided"
   it "can lazy-create a table without primary keys provided"
-
-  it "can corretly assign mysql data types from ruby"
-
-  it "can create a mysqldump"
+  
 end
