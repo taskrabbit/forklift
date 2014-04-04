@@ -1,5 +1,6 @@
 # Forklift
 Moving heavy databases around.
+[![Build Status](https://secure.travis-ci.org/taskrabbit/forklift.png?branch=master)](http://travis-ci.org/taskrabbit/forklift)
 
 ![picture](https://raw.github.com/taskrabbit/forklift/master/forklift.jpg)
 
