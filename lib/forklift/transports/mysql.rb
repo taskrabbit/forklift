@@ -217,6 +217,7 @@ module Forklift
         values.each do |v|
           part = "NULL"
           if( [::String, ::Symbol].include?(v.class) )
+            v.gsub!('\\') { '\\\\' }
             v.gsub!('\"', '\/"')
             v.gsub!('"', '\"')
             part = "\"#{v}\""
@@ -230,7 +231,7 @@ module Forklift
           end
           a << part
         end
-        return a.join(', ').gsub('\"', '\\\\\"')
+        return a.join(', ')
       end
 
       #/private

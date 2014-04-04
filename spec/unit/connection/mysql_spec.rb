@@ -96,7 +96,7 @@ describe Forklift::Connection::Mysql do
 
     it "escapes two trailing backslashes" do
       values = ["foo\\\\"]
-      subject.send(:safe_values, values).should == "\"foo\\\\\\\""
+      subject.send(:safe_values, values).should == "\"foo\\\\\\\\\""
     end
   end
 end
