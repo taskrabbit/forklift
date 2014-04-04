@@ -86,10 +86,6 @@ describe Forklift::Connection::Mysql do
 
   end
 
-  describe "mysql type assignment" do
-    #     it "can corretly assign mysql data types from ruby"
-  end
-
   describe "#safe_values" do
     subject { described_class.new({}, {}) }
 
