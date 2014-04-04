@@ -88,9 +88,9 @@ plan.do! do
   analytics_working.tables.each do |table|
     # will attempt to do an incremental pipe, will fall back to a full table copy
     # by default, incremental updates happen off of the `updated_at` column, but you can modify this by setting the `matcher` argument
-    # analytics_working.optimistic_pipe(analytics_working.current_database, table, analytics.current_database, table, 'another_timestamp_column')
     # If you want a full pipe instead of incremental, then just use `pipe` instead of `optimistic_pipe`
-    analytics_working.optimistic_pipe(analytics_working.current_database, table, analytics.current_database, table)
+    # The `pipe pattern` works within the same database.  To copy across databases, try the `mysql_optimistic_import` method
+    Forklift::Patterns::Mysql.optimistic_pipe(analytics_working.current_database, table, analytics.current_database, table)
   end
 end
 ```
@@ -248,9 +248,11 @@ end
 
 ## Transports
 
-Transports are how you interact with your data.  Every transport defines `read` and `write` methods which handle arrays of data objects.  Transports optinally define a `pipe` method which is a shortcut to copy data within a transport (eg `insert into #{to_db}.#{to_table}; select * from #{from_db}.#{from_table}` for MySQL). A trasport may also define other helpers like how to create a MySQL dump).
+Transports are how you interact with your data.  Every transport defines `read` and `write` methods which handle arrays of data objects (and helper methods required).  
 
 Each transport should have a config file in `./config/connections/#{transport}/`. It will be loaded at boot.
+
+Transports optinally define a methods which are a shortcut to copy data within a transport, like the mysql `pipe` methods (eg `insert into #{to_db}.#{to_table}; select * from #{from_db}.#{from_table}` for MySQL). A trasport may also define other helpers like how to create a MySQL dump).  These should be defined in `/patterns/#{type}.rb` within the `Forklift::Patterns::#{type}` namespace.
 
 ### Creating your own transport
 
@@ -314,11 +316,6 @@ end
 - write(data, table, to_update=false, database=current_database, primary_key='id', lazy=true, crash_on_extral_col=true)
   - `lazy` will create a table if not found
   - `crash_on_extral_col` will sanitize input to only contain the cols in the table
-- pipe(from_db, from_table, to_db, to_table)
-- incremental_pipe(from_db, from_table, to_db, to_table, matcher=default_matcher, primary_key='id')
-  - `pipe` with only new data where time is greater than the latest `matcher` on the `to_db`
-- optimistic_pipe(from_db, from_table, to_db, to_table, matcher=default_matcher, primary_key='id')
-  - tries to `incremental_pipe`, falling back to `pipe`
 
 #### Transport-specific methods
 
@@ -334,6 +331,17 @@ end
 - columns(table, database=current_database)
 - dump(file)
   - mysqldump the database to `file` via gzip
+
+#### Patterns
+
+- pipe(from_db, from_table, to_db, to_table)
+- incremental_pipe(from_db, from_table, to_db, to_table, matcher=default_matcher, primary_key='id')
+  - `pipe` with only new data where time is greater than the latest `matcher` on the `to_db`
+- optimistic_pipe(from_db, from_table, to_db, to_table, matcher=default_matcher, primary_key='id')
+  - tries to `incremental_pipe`, falling back to `pipe`
+- mysql_optimistic_import(source, destination)
+  - tries to do an incramental table copy, falls back to a full table copy
+  - this differs from `pipe`, as all data is loaded into forklift, rather than relying on mysql transfer methods
 
 ### Elasticsearch
 
