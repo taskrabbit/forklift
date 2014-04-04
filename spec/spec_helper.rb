@@ -12,12 +12,15 @@ APP_DIR ||= File.expand_path('../../', __FILE__)
 require 'forklift/forklift'
 require 'awesome_print'
 require 'rspec'
+require 'fileutils'
 
 Dir["#{APP_DIR}/spec/support/**/*.rb"].each {|f| require f}
 
 RSpec.configure do |config|
 
   config.before(:all) do
+    piddir = "#{File.dirname(__FILE__)}/pid"
+    FileUtils.rmdir(piddir) if File.exists?(piddir)
     SpecSeeds.setup_mysql
     SpecSeeds.setup_elasticsearch
   end

@@ -56,7 +56,7 @@ module Forklift
       end
 
       def write(data, table, to_update=true, database=current_database, primary_key='id', lazy=true, crash_on_extral_col=false)
-        data.map{|l| forklift.utils.symbolize_keys(l) }
+        data.map{|l| l.symbolize_keys! }
 
         if tables.include? table
           # all good, cary on

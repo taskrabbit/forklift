@@ -33,6 +33,8 @@ module Forklift
             data << hit["_source"]
           end
 
+          data.map{|l| l.symbolize_keys! }
+
           if block_given?
             yield data
           else
@@ -46,7 +48,7 @@ module Forklift
       end
 
       def write(data, index, update=false, type='forklift', primary_key=:id)
-        data.map{|l| forklift.utils.symbolize_keys(l) }
+        data.map{|l| l.symbolize_keys! }
 
         data.each do |d|
           object = {

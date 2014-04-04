@@ -55,7 +55,7 @@ describe 'multiple trasport types' do
         source.read(index, query) {|data| 
           clean_data = []
           data.each do |row|
-            row['viewed_at'] = Time.at(row['viewed_at'])
+            row[:viewed_at] = Time.at(row[:viewed_at])
             clean_data << row
           end
           destination.write(clean_data, table) 
