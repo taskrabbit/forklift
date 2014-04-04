@@ -289,7 +289,7 @@ module Forklift
           end
           a << part
         end
-        return a.join(', ')
+        return a.join(', ').gsub('\"', '\\\\\"')
       end
 
       #/private
