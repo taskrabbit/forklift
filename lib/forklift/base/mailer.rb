@@ -29,7 +29,7 @@ module Forklift
         }
       end
 
-      def send_template(args, template_file, variables, attachment_lines)
+      def send_template(args, template_file, variables, attachment_lines=[])
         renderer = ERB.new(File.read(template_file))
         binder = ERBBinding.new(variables)
         body = renderer.result(binder.get_binding)

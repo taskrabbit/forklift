@@ -1,0 +1,4 @@
+via: sendmail
+via_options:
+  location: /usr/sbin/sendmail
+  arguments: '-t -i'
