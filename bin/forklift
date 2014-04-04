@@ -20,6 +20,7 @@ def generate
   Dir.mkdir "#{p}/template"
   Dir.mkdir "#{p}/transformations"
   Dir.mkdir "#{p}/transports"
+  Dir.mkdir "#{p}/patterns"
 
   template('source.yml',      "#{p}/config/connections/mysql/source.yml")
   template('destination.yml', "#{p}/config/connections/mysql/destination.yml")

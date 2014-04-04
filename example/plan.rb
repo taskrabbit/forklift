@@ -14,8 +14,9 @@ plan.do! {
 
   #  mySQL -> mySQL
   source = plan.connections[:mysql][:source]
+  destination = plan.connections[:mysql][:destination]
   source.tables.each do |table|
-    source.optimistic_pipe('source', table, 'destination', table)
+    Forklift::Patterns::Mysql.optimistic_pipe(source, table, destination, table)
     # will attempt to do an incremental pipe, will fall back to a full table copy
     # by default, incremental updates happen off of the `created_at` column, but you can modify this with "matcher"
   end

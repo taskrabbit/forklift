@@ -10,10 +10,10 @@ module Forklift
   require "#{lib}/base/mailer.rb"
   require "#{lib}/base/connection.rb"
 
-  require "#{lib}/patterns.rb"
-
   Dir["#{lib}/transports/*.rb"].each {|file| require file }
+  Dir["#{lib}/patterns/*.rb"].each {|file| require file }
   Dir["#{Dir.pwd}/transports/*.rb"].each {|file| require file } if File.directory?("#{Dir.pwd}/transports")
+  Dir["#{Dir.pwd}/patterns/*.rb"].each {|file| require file } if File.directory?("#{Dir.pwd}/patterns")
 
   require "#{lib}/plan.rb"
 end
