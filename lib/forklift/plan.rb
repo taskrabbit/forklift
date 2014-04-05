@@ -10,9 +10,11 @@ module Forklift
       @logger      = Forklift::Base::Logger.new(self)
       @mailer      = Forklift::Base::Mailer.new(self)
       @connections = {}
+      @steps       = {}
     end
 
     def connections; @connections end
+    def steps;       @steps       end
     def config;      @config      end
     def logger;      @logger      end
     def mailer;      @mailer      end
@@ -40,6 +42,56 @@ module Forklift
       end
     end
 
+    def step(*args, &block)
+      name = args[0].to_sym
+      self.steps[name] = {
+        :ran => false,
+        :to_run => false,
+        :block => block
+      }
+    end
+
+    def do_step!(name)
+      name = name.to_sym
+      if self.steps[name].nil?
+        self.logger.log "[error] step `#{name}` not found"
+      else
+        step = self.steps[name]
+        if step[:ran] == true
+          self.logger.log "step `#{name}` already ran"
+        elsif step[:to_run] == false
+          self.logger.log "skipping step `#{name}`"
+        else
+          self.logger.log "*** step: #{name} ***"
+          step[:block].call
+          step[:ran] = true
+        end
+      end
+    end
+
+    def activate_steps
+      # all steps are run by default
+      # step names are passed as ARGV
+      # `forklift plan.rb` runs everything and `forklift plan.rb send_email` only sends the email
+      if ARGV.length < 2
+        self.steps.each do |k,v|
+          self.steps[k][:to_run] = true
+        end
+      else
+        i = 1
+        while i < ARGV.length
+          name = ARGV[i].to_sym
+          unless self.steps[name].nil?
+            self.steps[name][:to_run] = true
+          else
+            self.logger.log "[error] step `#{name}` not found"
+            exit(1)
+          end
+          i = i + 1
+        end
+      end
+    end
+
     def do!
       # you can use `plan.logger.log` in your plan for logging
       self.logger.log "Starting forklift"
@@ -53,6 +105,11 @@ module Forklift
       self.connect!
 
       yield # your stuff here!
+
+      self.activate_steps
+      self.steps.each do |k, v|
+        do_step!(k)
+      end
 
       # remove the pidfile
       self.logger.log "Completed forklift"
