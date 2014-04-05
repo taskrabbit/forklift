@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    forklift (1.0.3)
+    forklift (1.0.4)
       activesupport
       elasticsearch
       lumberjack
@@ -29,7 +29,7 @@ GEM
     elasticsearch-transport (1.0.1)
       faraday
       multi_json
-    email_spec (1.4.0)
+    email_spec (1.5.0)
       launchy (~> 2.1)
       mail (~> 2.2)
     faraday (0.9.0)
@@ -49,7 +49,7 @@ GEM
     polyglot (0.3.4)
     pony (1.8)
       mail (>= 2.0)
-    rake (10.2.1)
+    rake (10.2.2)
     rspec (2.14.1)
       rspec-core (~> 2.14.0)
       rspec-expectations (~> 2.14.0)

@@ -24,5 +24,4 @@ Gem::Specification.new do |s|
   s.add_dependency "elasticsearch"
   s.add_dependency "pony"
   s.add_dependency "lumberjack"
-  # s.add_dependency "terminal-table"
 end
