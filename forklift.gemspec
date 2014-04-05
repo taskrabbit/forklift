@@ -9,8 +9,9 @@ Gem::Specification.new do |s|
   s.authors     = ["Evan Tahler"]
   s.email       = ["evan@taskrabbit.com"]
   s.homepage    = "https://github.com/taskrabbit/forklift"
-  s.summary     = %q{Moving big databases around}
-  s.description = %q{Moving big databases around}
+  s.summary     = %q{Forklift: Moving big databases around. A ruby ETL tool.}
+  s.description = %q{A collection of ETL tools and paterns for mysql and elasticsearch.}
+  s.license     = "MIT"
 
   s.rubyforge_project = "forklift"
 
@@ -19,9 +20,9 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  s.add_dependency "activesupport"
-  s.add_dependency "mysql2"
-  s.add_dependency "elasticsearch"
-  s.add_dependency "pony"
-  s.add_dependency "lumberjack"
+  s.add_dependency "activesupport", '~> 3.0', ">= 3.0.0"
+  s.add_dependency "mysql2",        '~> 0.0', ">= 0.0.1"
+  s.add_dependency "elasticsearch", '~> 1.0', ">= 1.0.0"
+  s.add_dependency "pony",          '~> 1.0', ">= 1.0.0"
+  s.add_dependency "lumberjack",    '~> 1.0', ">= 1.0.0"
 end
