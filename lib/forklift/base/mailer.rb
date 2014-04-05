@@ -1,5 +1,6 @@
 require 'pony'
 require 'erb'
+require 'active_support/core_ext/hash/keys'
 
 module Forklift
   module Base
