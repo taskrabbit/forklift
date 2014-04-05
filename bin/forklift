@@ -38,6 +38,10 @@ end
 
 def run_plan
   file = "#{Dir.pwd}/#{ARGV[0]}"
+  if ARGV[0].nil? 
+    puts "[error] Please provide a plan.rb as the first argument"
+    exit(1)
+  end
   Dir.chdir File.expand_path(File.dirname(ARGV[0]))
   begin
     require 'bundler'

@@ -60,7 +60,7 @@ module Forklift
           params[:html_body] = params[:body]
           params.delete(:body)
         end
-        params[:via] = config[:via]
+        params[:via] = config[:via].to_sym
         params[:via_options] = config[:via_options]
         Pony.mail(params)
       end
