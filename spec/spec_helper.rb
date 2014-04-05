@@ -14,6 +14,8 @@ require 'awesome_print'
 require 'rspec'
 require 'fileutils'
 
+ENV["FORKLIFT_RUN_ALL_STEPS"] = 'true'
+
 Dir["#{APP_DIR}/spec/support/**/*.rb"].each {|f| require f}
 
 RSpec.configure do |config|

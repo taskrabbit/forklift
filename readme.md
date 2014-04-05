@@ -24,11 +24,12 @@ gem 'forklift'
 
 Then `bundle`
 
-Use the generator by doing `bundle exec forklift --generate`
+Use the generator by doing `(bundle exec) forklift --generate`
 
 Make your `plan.rb` using the examples below.
 
-Run your plan `bundle exec forklift plan.rb`
+Run your plan `forklift plan.rb`
+You can run specific parts of your plan like `forklift plan.rb step1 step5`
 
 ### Directory structure
 Forklift expects your project to be arranged like:
@@ -44,18 +45,19 @@ Forklift expects your project to be arranged like:
 ├── log/
 ├── pid/
 ├── template/
+├── patterns/
 ├── transformations/
 ├── Gemfile
 ├── Gemfile.lock
 ├── plan.rb
 ```
 
-### Tips
-- Your databases must exist. Forklift will not create them for you.
-- Ensure your databases have the right encoding (eg utf8) or you will get errors like `#<Mysql2::Error: Incorrect string value: '\xEF\xBF\xBDFal...' for column 'YOURCOLUMN’ at row 1>`
-- If testing locally, mailcatcher (https://github.com/sj26/mailcatcher) is a helpful gem to test your email sending
+To enable a foklift connection, all you need to do is place the yml config file for it within `/config/connections/(type)/(name).yml`
+File you place withing `/patterns/` or `connections/(type)/` will be loaded automatically.
 
 ## Example plans
+
+Visit the [`/example`]() directory to see a whole forklift project.
 
 ### Simple extract and load (no transformations)
 
@@ -75,6 +77,7 @@ plan.do! do
   # ==> Extract
   # Load data from your services into your working database
   # If you want every table: service1.tables.each do |table|
+  # Data will be extracted in 1000 row collections
   %w(users organizations).each do |table|
     service1.read("select * from `#{table}`") { |data| analytics_working.write(data, table) }
   end
@@ -95,48 +98,57 @@ plan.do! do
 end
 ```
 
-### ETL (Extract -> Transform -> Load)
-TODO - improve this section with better examples
+### Simple mySQL ETL
 ```ruby
-# Do some SQL transformations
-# SQL transformations are done exactly as they are written
-destination = plan.connections[:mysql][:destination]
-destination.exec!("./transformations/combined_name.sql")
+plan = Forklift::Plan.new
+plan.do! do
+  # Do some SQL transformations
+  # SQL transformations are done exactly as they are written
+  destination = plan.connections[:mysql][:destination]
+  destination.exec!("./transformations/combined_name.sql")
 
-# Do some Ruby transformations
-# Ruby transformations expect `do!(connection, forklift)` to be defined
-destination = plan.connections[:mysql][:destination]
-destination.exec!("./transformations/email_suffix.rb")
+  # Do some Ruby transformations
+  # Ruby transformations expect `do!(connection, forklift)` to be defined
+  destination = plan.connections[:mysql][:destination]
+  destination.exec!("./transformations/email_suffix.rb")
 
-# mySQL Dump the destination
-destination = plan.connections[:mysql][:destination]
-destination.dump('/tmp/destination.sql.gz')
+  # mySQL Dump the destination
+  destination = plan.connections[:mysql][:destination]
+  destination.dump('/tmp/destination.sql.gz')
+end
 ```
 
 ### Elasticsearch to MySQL
 ```ruby
-source = plan.connections[:elasticsearch][:source]
-destination = plan.connections[:mysql][:destination]
-table = 'es_import'
-index = 'aaa'
-query = { :query => { :match_all => {} } } # pagination will happen automatically
-destination.truncate!(table) if destination.tables.include? table
-source.read(index, query) {|data| destination.write(data, table) }
+plan = Forklift::Plan.new
+plan.do! do
+  source = plan.connections[:elasticsearch][:source]
+  destination = plan.connections[:mysql][:destination]
+  table = 'es_import'
+  index = 'aaa'
+  query = { :query => { :match_all => {} } } # pagination will happen automatically
+  destination.truncate!(table) if destination.tables.include? table
+  source.read(index, query) {|data| destination.write(data, table) }
+end
 ```
 
 ### MySQL to Elasticsearch
 ```ruby
-source = plan.connections[:mysql][:source]
-destination = plan.connections[:elasticsearch][:source]
-table = 'users'
-index = 'users'
-query = "select * from users" # pagination will happen automatically
-source.read(query) {|data| destination.write(data, table, true, 'user') }
+plan = Forklift::Plan.new
+plan.do! do
+  source = plan.connections[:mysql][:source]
+  destination = plan.connections[:elasticsearch][:source]
+  table = 'users'
+  index = 'users'
+  query = "select * from users" # pagination will happen automatically
+  source.read(query) {|data| destination.write(data, table, true, 'user') }
+end
 ```
 
-### Email notifications when forklift finishes
+### Forklift Emails
+
 #### Setup
-Put this at the end of your plan but inside the `do!` block.
+Put this at the end of your plan inside the `do!` block.
 ```ruby
 # ==> Email
 # Let your team know the outcome. Attaches the log.
@@ -150,7 +162,7 @@ plan.mailer.send(email_args, plan.logger.messages)
 ```
 
 #### ERB templates
-You can get fancy by using a template and erb:
+You can get fancy by using an ERB template for your email and SQL variables:
 ```ruby
 # ==> Email
 # Let your team know the outcome. Attaches the log.
@@ -199,27 +211,6 @@ via_options:
 #   arguments: '-t -i'
 ```
 
-This file supports ERB so you can do things like switch credentials based on
-what environment you're in:
-
-```erb
-<% if ENV['ENVIRONMENT'] == 'production' %>
-  # SMTP_ADDRESS=smtp.sendgrid.net SMTP_PORT=587 SMTP_USERNAME=username SMTP_PASSWORD=password ENVIRONMENT=production bundle exec forklift plan.rb
-  via: smtp
-  via_options:
-    address: <%= ENV['SMTP_ADDRESS'] %>
-    port: <%= ENV['SMTP_PORT'] %>
-    user_name: <%= ENV['SMTP_USERNAME'] %>
-    password: <%= ENV['SMTP_PASSWORD'] %>
-<% else %>
-  # bundle exec forklift plan.rb
-  via: smtp
-  via_options:
-    address: localhost
-    port: 1025
-<% end %>
-```
-
 ## Workflow
 
 ```ruby
@@ -245,6 +236,36 @@ def do!
 end
 
 ```
+
+### Steps
+
+You can optionally devide up your forklift plan into steps:
+```ruby
+plan = Forklift::Plan.new
+plan.do! do
+
+  plan.step('Mysql Import'){
+    source = plan.connections[:mysql][:source]
+    destination = plan.connections[:mysql][:destination]
+    source.tables.each do |table|
+      Forklift::Patterns::Mysql.optimistic_pipe(source, table, destination, table)
+    end
+  }
+
+  plan.step('Elasticsearch Import'){
+    source = plan.connections[:elasticsearch][:source]
+    destination = plan.connections[:mysql][:destination]
+    table = 'es_import'
+    index = 'aaa'
+    query = { :query => { :match_all => {} } } # pagination will happen automatically
+    destination.truncate!(table) if destination.tables.include? table
+    source.read(index, query) {|data| destination.write(data, table) }
+  }
+
+end  
+```
+
+When you use steps, you can run your whole plan, or just part if it with command line arguments.  For example, `forklift plan.rb "Elasticsearch Import"` would just run that one portion of the plan.  Note that any parts of your plan not within a step will be run each time. 
 
 ## Transports
 
@@ -381,6 +402,9 @@ end
 - Forklift's logger is [Lumberjack](https://github.com/bdurand/lumberjack) with a wrapper to also echo the log lines to stdout and save them to an array to be accessed later by the email system.
 - The mysql connections hash will be passed directly to a [mysql2](https://github.com/brianmario/mysql2) connection.
 - The elasticsearch connections hash will be passed directly to a [elasticsearch](https://github.com/elasticsearch/elasticsearch-ruby) connection.
+- Your databases must exist. Forklift will not create them for you.
+- Ensure your databases have the right encoding (eg utf8) or you will get errors like `#<Mysql2::Error: Incorrect string value: '\xEF\xBF\xBDFal...' for column 'YOURCOLUMN’ at row 1>`
+- If testing locally, mailcatcher (https://github.com/sj26/mailcatcher) is a helpful gem to test your email sending
 
 ## Contributing and Testing
 To run this test suite, you will need access to both a mysql and elasticsearch database. Test configurations are saved in `/spec/config/connections`.
