@@ -69,18 +69,22 @@ module Forklift
       end
     end
 
+    def argv
+      ARGV
+    end
+
     def activate_steps
       # all steps are run by default
       # step names are passed as ARGV
       # `forklift plan.rb` runs everything and `forklift plan.rb send_email` only sends the email
-      if ARGV.length < 2 || ENV['FORKLIFT_RUN_ALL_STEPS'] == 'true'
+      if argv.length < 2 || ENV['FORKLIFT_RUN_ALL_STEPS'] == 'true'
         self.steps.each do |k,v|
           self.steps[k][:to_run] = true
         end
       else
         i = 1
-        while i < ARGV.length
-          name = ARGV[i].to_sym
+        while i < argv.length
+          name = argv[i].to_sym
           unless self.steps[name].nil?
             self.steps[name][:to_run] = true
           else
