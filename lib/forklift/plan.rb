@@ -73,7 +73,7 @@ module Forklift
       # all steps are run by default
       # step names are passed as ARGV
       # `forklift plan.rb` runs everything and `forklift plan.rb send_email` only sends the email
-      if ARGV.length < 2
+      if ARGV.length < 2 || ENV["RUN_ALL_STEPS_TEST_FLAG"] == 'true'
         self.steps.each do |k,v|
           self.steps[k][:to_run] = true
         end
