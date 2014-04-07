@@ -56,7 +56,7 @@ module Forklift
       def self.optimistic_pipe(source, from_table, destination, to_table, matcher=source.default_matcher, primary_key='id')
         from_db = source.current_database 
         to_db = destination.current_database 
-        if self.can_incremental_pipe?(from_db, from_table)
+        if self.can_incremental_pipe?(source, from_table)
           incremental_pipe(source, from_table, destination, to_table, matcher, primary_key)
         else
           pipe(source, from_table, destination, to_table)
