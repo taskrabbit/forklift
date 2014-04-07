@@ -1,0 +1,61 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'fileutils'
+
+begin
+  require 'forklift/forklift'
+rescue LoadError
+  require "#{File.expand_path(File.dirname(__FILE__))}/../lib/forklift/forklift.rb"
+end
+
+def generate
+  p = Dir.pwd
+
+  Dir.mkdir "#{p}/config"
+  Dir.mkdir "#{p}/config/connections"
+  Dir.mkdir "#{p}/config/connections/mysql"
+  Dir.mkdir "#{p}/log"
+  Dir.mkdir "#{p}/pid"
+  Dir.mkdir "#{p}/template"
+  Dir.mkdir "#{p}/transformations"
+  Dir.mkdir "#{p}/transports"
+  Dir.mkdir "#{p}/patterns"
+
+  template('source.yml',      "#{p}/config/connections/mysql/source.yml")
+  template('destination.yml', "#{p}/config/connections/mysql/destination.yml")
+  template('email.yml',       "#{p}/config/email.yml")
+  template('email.erb',       "#{p}/template/email.erb")
+  template('plan.rb',         "#{p}/plan.rb")
+end
+
+def template(source, destination)
+  t = "#{File.expand_path(File.dirname(__FILE__))}/../template"
+  FileUtils.copy("#{t}/#{source}", destination)
+  puts "Example plan generated"
+end
+
+
+def run_plan
+  file = "#{Dir.pwd}/#{ARGV[0]}"
+  if ARGV[0].nil? 
+    puts "[error] Please provide a plan.rb as the first argument"
+    exit(1)
+  end
+  Dir.chdir File.expand_path(File.dirname(ARGV[0]))
+  begin
+    require 'bundler'
+    Bundler.require(:default)
+  rescue Exception => e
+    puts "cannot load bundler: #{e}"
+  end
+  require file
+end
+
+############
+
+if ['--generate', '-generate'].include?(ARGV[0])
+  generate
+else
+  run_plan
+end

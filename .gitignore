@@ -1,6 +1,7 @@
 .DS_Store
+*.gem
 */.DS_Store
-pids
+pid
 log
 config/databases.yml
 config/email.yml

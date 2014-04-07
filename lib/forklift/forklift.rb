@@ -3,21 +3,17 @@ require 'rubygems'
 module Forklift
 
   lib = File.expand_path(File.dirname(__FILE__))
-  
-  [
-    'utils', 
-    'argv', 
-    'config', 
-    'logger', 
-    'connection', 
-    'dump', 
-    'check_evaluator', 
-    'email', 
-    'pid_file', 
-    'plan', 
-    'transformation',
-    'before_after'
-  ].each do |file|
-    require "#{lib}/models/#{file}"
-  end
+
+  require "#{lib}/base/utils.rb"
+  require "#{lib}/base/pid.rb"
+  require "#{lib}/base/logger.rb"
+  require "#{lib}/base/mailer.rb"
+  require "#{lib}/base/connection.rb"
+
+  Dir["#{lib}/transports/*.rb"].each {|file| require file }
+  Dir["#{lib}/patterns/*.rb"].each {|file| require file }
+  Dir["#{Dir.pwd}/transports/*.rb"].each {|file| require file } if File.directory?("#{Dir.pwd}/transports")
+  Dir["#{Dir.pwd}/patterns/*.rb"].each {|file| require file } if File.directory?("#{Dir.pwd}/patterns")
+
+  require "#{lib}/plan.rb"
 end
