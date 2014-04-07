@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   s.description = %q{A collection of ETL tools and patterns for mysql and elasticsearch.}
   s.license     = "MIT"
 
-  s.rubyforge_project = "forklift"
+  s.rubyforge_project = "forklift_etl"
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")

@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-# Specify your gem's dependencies in waistband.gemspec
+# Specify your gem's dependencies in gemspec
 gemspec
 
 gem 'rake'
