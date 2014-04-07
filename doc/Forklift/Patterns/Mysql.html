@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+
+<title>class Forklift::Patterns::Mysql - RDoc Documentation</title>
+
+<link type="text/css" media="screen" href="../../rdoc.css" rel="stylesheet">
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "../../";
+</script>
+
+<script type="text/javascript" charset="utf-8" src="../../js/jquery.js"></script>
+<script type="text/javascript" charset="utf-8" src="../../js/navigation.js"></script>
+<script type="text/javascript" charset="utf-8" src="../../js/search_index.js"></script>
+<script type="text/javascript" charset="utf-8" src="../../js/search.js"></script>
+<script type="text/javascript" charset="utf-8" src="../../js/searcher.js"></script>
+<script type="text/javascript" charset="utf-8" src="../../js/darkfish.js"></script>
+
+
+<body id="top" class="class">
+<nav id="metadata">
+  <nav id="home-section" class="section">
+  <h3 class="section-header">
+    <a href="../../index.html">Home</a>
+    <a href="../../table_of_contents.html#classes">Classes</a>
+    <a href="../../table_of_contents.html#methods">Methods</a>
+  </h3>
+</nav>
+
+
+  <nav id="search-section" class="section project-section" class="initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <h3 class="section-header">
+      <input type="text" name="search" placeholder="Search" id="search-field"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </h3>
+  </form>
+
+  <ul id="search-results" class="initially-hidden"></ul>
+</nav>
+
+
+  <div id="file-metadata">
+    <nav id="file-list-section" class="section">
+  <h3 class="section-header">Defined In</h3>
+  <ul>
+    <li>lib/forklift/patterns/mysql_patterns.rb
+  </ul>
+</nav>
+
+    
+  </div>
+
+  <div id="class-metadata">
+    
+    <nav id="parent-class-section" class="section">
+  <h3 class="section-header">Parent</h3>
+  
+  <p class="link"><a href="../../Object.html">Object</a>
+  
+</nav>
+
+    
+    <!-- Method Quickref -->
+<nav id="method-list-section" class="section">
+  <h3 class="section-header">Methods</h3>
+
+  <ul class="link-list">
+    
+    <li><a href="#method-c-can_incremental_pipe-3F">::can_incremental_pipe?</a>
+    
+    <li><a href="#method-c-incremental_pipe">::incremental_pipe</a>
+    
+    <li><a href="#method-c-mysql_optimistic_import">::mysql_optimistic_import</a>
+    
+    <li><a href="#method-c-optimistic_pipe">::optimistic_pipe</a>
+    
+    <li><a href="#method-c-pipe">::pipe</a>
+    
+  </ul>
+</nav>
+
+  </div>
+
+  <div id="project-metadata">
+    <nav id="fileindex-section" class="section project-section">
+  <h3 class="section-header">Pages</h3>
+
+  <ul>
+  
+    <li class="file"><a href="../../Gemfile.html">Gemfile</a>
+  
+    <li class="file"><a href="../../Rakefile.html">Rakefile</a>
+  
+    <li class="file"><a href="../../example/Gemfile.html">Gemfile</a>
+  
+    <li class="file"><a href="../../spec/pid/pidfile.html">pidfile</a>
+  
+  </ul>
+</nav>
+
+    <nav id="classindex-section" class="section project-section">
+  <h3 class="section-header">Class and Module Index</h3>
+
+  <ul class="link-list">
+  
+    <li><a href="../../Forklift.html">Forklift</a>
+  
+    <li><a href="../../Forklift/Base.html">Forklift::Base</a>
+  
+    <li><a href="../../Forklift/Base/Connection.html">Forklift::Base::Connection</a>
+  
+    <li><a href="../../Forklift/Base/Logger.html">Forklift::Base::Logger</a>
+  
+    <li><a href="../../Forklift/Base/Mailer.html">Forklift::Base::Mailer</a>
+  
+    <li><a href="../../Forklift/Base/Mailer/ERBBinding.html">Forklift::Base::Mailer::ERBBinding</a>
+  
+    <li><a href="../../Forklift/Base/Pid.html">Forklift::Base::Pid</a>
+  
+    <li><a href="../../Forklift/Base/Utils.html">Forklift::Base::Utils</a>
+  
+    <li><a href="../../Forklift/Connection.html">Forklift::Connection</a>
+  
+    <li><a href="../../Forklift/Connection/Elasticsearch.html">Forklift::Connection::Elasticsearch</a>
+  
+    <li><a href="../../Forklift/Connection/Mysql.html">Forklift::Connection::Mysql</a>
+  
+    <li><a href="../../Forklift/Patterns.html">Forklift::Patterns</a>
+  
+    <li><a href="../../Forklift/Patterns/Elasticsearch.html">Forklift::Patterns::Elasticsearch</a>
+  
+    <li><a href="../../Forklift/Patterns/Mysql.html">Forklift::Patterns::Mysql</a>
+  
+    <li><a href="../../Forklift/Plan.html">Forklift::Plan</a>
+  
+    <li><a href="../../EmailSuffix.html">EmailSuffix</a>
+  
+    <li><a href="../../Object.html">Object</a>
+  
+    <li><a href="../../SpecClient.html">SpecClient</a>
+  
+    <li><a href="../../SpecPlan.html">SpecPlan</a>
+  
+    <li><a href="../../SpecSeeds.html">SpecSeeds</a>
+  
+  </ul>
+</nav>
+
+  </div>
+</nav>
+
+<div id="documentation">
+  <h1 class="class">class Forklift::Patterns::Mysql</h1>
+
+  <div id="description" class="description">
+    
+  </div><!-- description -->
+
+  
+  
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+
+    
+
+    <!-- Methods -->
+    
+     <section id="public-class-5Buntitled-5D-method-details" class="method-section section">
+      <h3 class="section-header">Public Class Methods</h3>
+
+    
+      <div id="method-c-can_incremental_pipe-3F" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">can_incremental_pipe?</span><span
+            class="method-args">(conn, table, matcher=conn.default_matcher)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+
+          
+          <div class="method-source-code" id="can_incremental_pipe-3F-source">
+            <pre><span class="ruby-comment"># File lib/forklift/patterns/mysql_patterns.rb, line 66</span>
+<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">can_incremental_pipe?</span>(<span class="ruby-identifier">conn</span>, <span class="ruby-identifier">table</span>, <span class="ruby-identifier">matcher</span>=<span class="ruby-identifier">conn</span>.<span class="ruby-identifier">default_matcher</span>)
+  <span class="ruby-identifier">conn</span>.<span class="ruby-identifier">columns</span>(<span class="ruby-identifier">table</span>, <span class="ruby-identifier">conn</span>.<span class="ruby-identifier">current_database</span>).<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">matcher</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- can_incremental_pipe-3F-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- can_incremental_pipe-3F-method -->
+
+    
+      <div id="method-c-incremental_pipe" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">incremental_pipe</span><span
+            class="method-args">(source, from_table, destination, to_table, matcher=source.default_matcher, primary_key='id')</span>
+          <span class="method-click-advice">click to toggle source</span>
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+
+          
+          <div class="method-source-code" id="incremental_pipe-source">
+            <pre><span class="ruby-comment"># File lib/forklift/patterns/mysql_patterns.rb, line 17</span>
+<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">incremental_pipe</span>(<span class="ruby-identifier">source</span>, <span class="ruby-identifier">from_table</span>, <span class="ruby-identifier">destination</span>, <span class="ruby-identifier">to_table</span>, <span class="ruby-identifier">matcher</span>=<span class="ruby-identifier">source</span>.<span class="ruby-identifier">default_matcher</span>, <span class="ruby-identifier">primary_key</span>=<span class="ruby-string">'id'</span>)
+  <span class="ruby-identifier">start</span> = <span class="ruby-constant">Time</span>.<span class="ruby-identifier">new</span>.<span class="ruby-identifier">to_i</span>
+  <span class="ruby-identifier">from_db</span> = <span class="ruby-identifier">source</span>.<span class="ruby-identifier">current_database</span> 
+  <span class="ruby-identifier">to_db</span> = <span class="ruby-identifier">destination</span>.<span class="ruby-identifier">current_database</span> 
+  <span class="ruby-identifier">source</span>.<span class="ruby-identifier">forklift</span>.<span class="ruby-identifier">logger</span>.<span class="ruby-identifier">log</span>(<span class="ruby-node">&quot;mysql incremental_pipe: `#{from_db}`.`#{from_table}` =&gt; `#{to_db}`.`#{to_table}`&quot;</span>)
+  <span class="ruby-identifier">source</span>.<span class="ruby-identifier">q</span>(<span class="ruby-node">&quot;create table if not exists `#{to_db}`.`#{to_table}` like `#{from_db}`.`#{from_table}`&quot;</span>)
+
+  <span class="ruby-comment"># Count the number of rows in to_table</span>
+  <span class="ruby-identifier">original_count</span> = <span class="ruby-identifier">source</span>.<span class="ruby-identifier">count</span>(<span class="ruby-identifier">to_table</span>, <span class="ruby-identifier">to_db</span>)
+
+  <span class="ruby-comment"># Find the latest/max/newest timestamp from the final table</span>
+  <span class="ruby-comment"># in order to determine the last copied row.</span>
+  <span class="ruby-identifier">latest_timestamp</span> = <span class="ruby-identifier">source</span>.<span class="ruby-identifier">max_timestamp</span>(<span class="ruby-identifier">to_table</span>, <span class="ruby-identifier">matcher</span>, <span class="ruby-identifier">to_db</span>)
+
+  <span class="ruby-comment"># If to_table has existing rows, ensure none of them are &quot;stale.&quot;</span>
+  <span class="ruby-comment"># A stale row in to_table means a previously copied row was</span>
+  <span class="ruby-comment"># updated in from_table, so let's delete it from the to_table</span>
+  <span class="ruby-comment"># so we can get a fresh copy of that row.</span>
+  <span class="ruby-keyword">if</span> <span class="ruby-identifier">original_count</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">0</span>
+    <span class="ruby-comment"># Get the ids of rows in from_table that are newer than the newest row in to_table.</span>
+    <span class="ruby-comment"># Some of these rows could either be a) stale or b) new.</span>
+    <span class="ruby-identifier">source</span>.<span class="ruby-identifier">read</span>(<span class="ruby-node">&quot;select `#{primary_key}` from `#{from_db}`.`#{from_table}` where `#{matcher}` &gt; \&quot;#{latest_timestamp}\&quot; order by `#{matcher}`&quot;</span>) <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">stale_rows</span><span class="ruby-operator">|</span>
+      <span class="ruby-keyword">if</span> <span class="ruby-identifier">stale_rows</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">0</span>
+        <span class="ruby-comment"># Delete these ids from to_table.</span>
+        <span class="ruby-comment"># If the ids are stale, then they'll be deleted. If they're new, they won't exist, and nothing will happen.</span>
+        <span class="ruby-identifier">stale_ids</span> = <span class="ruby-identifier">stale_rows</span>.<span class="ruby-identifier">map</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">row</span><span class="ruby-operator">|</span> <span class="ruby-identifier">row</span>[<span class="ruby-identifier">primary_key</span>.<span class="ruby-identifier">to_sym</span>] }.<span class="ruby-identifier">join</span>(<span class="ruby-string">','</span>)
+        <span class="ruby-identifier">source</span>.<span class="ruby-identifier">q</span>(<span class="ruby-node">&quot;delete from `#{to_db}`.`#{to_table}` where `#{primary_key}` in (#{stale_ids})&quot;</span>)
+        <span class="ruby-identifier">source</span>.<span class="ruby-identifier">forklift</span>.<span class="ruby-identifier">logger</span>.<span class="ruby-identifier">log</span>(<span class="ruby-node">&quot;  ^ deleted up to #{stale_rows.length} stale rows from `#{to_db}`.`#{to_table}`&quot;</span>)
+      <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-comment"># Do the insert into to_table</span>
+  <span class="ruby-identifier">destination</span>.<span class="ruby-identifier">q</span>(<span class="ruby-node">&quot;insert into `#{to_db}`.`#{to_table}` select * from `#{from_db}`.`#{from_table}` where `#{matcher}` &gt; \&quot;#{latest_timestamp}\&quot; order by `#{matcher}`&quot;</span>)
+  <span class="ruby-identifier">delta</span> = <span class="ruby-constant">Time</span>.<span class="ruby-identifier">new</span>.<span class="ruby-identifier">to_i</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">start</span>
+  <span class="ruby-identifier">new_count</span> = <span class="ruby-identifier">destination</span>.<span class="ruby-identifier">count</span>(<span class="ruby-identifier">to_table</span>, <span class="ruby-identifier">to_db</span>) <span class="ruby-operator">-</span> <span class="ruby-identifier">original_count</span>
+  <span class="ruby-identifier">source</span>.<span class="ruby-identifier">forklift</span>.<span class="ruby-identifier">logger</span>.<span class="ruby-identifier">log</span>(<span class="ruby-node">&quot;  ^ created #{new_count} new rows in #{delta}s&quot;</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- incremental_pipe-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- incremental_pipe-method -->
+
+    
+      <div id="method-c-mysql_optimistic_import" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">mysql_optimistic_import</span><span
+            class="method-args">(source, destination)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>When you are copying data to and from mysql  An implamentation of “pipe”
+for remote databases</p>
+          
+
+          
+          <div class="method-source-code" id="mysql_optimistic_import-source">
+            <pre><span class="ruby-comment"># File lib/forklift/patterns/mysql_patterns.rb, line 72</span>
+<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">mysql_optimistic_import</span>(<span class="ruby-identifier">source</span>, <span class="ruby-identifier">destination</span>)
+  <span class="ruby-comment">#TODO: allow passing in of matcher and primary_key</span>
+  <span class="ruby-identifier">source</span>.<span class="ruby-identifier">tables</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">table</span><span class="ruby-operator">|</span>
+    <span class="ruby-keyword">if</span>( <span class="ruby-identifier">source</span>.<span class="ruby-identifier">columns</span>(<span class="ruby-identifier">table</span>).<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">source</span>.<span class="ruby-identifier">default_matcher</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">destination</span>.<span class="ruby-identifier">tables</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">table</span>) )
+      <span class="ruby-identifier">since</span> = <span class="ruby-identifier">destination</span>.<span class="ruby-identifier">max_timestamp</span>(<span class="ruby-identifier">table</span>)
+      <span class="ruby-identifier">source</span>.<span class="ruby-identifier">read_since</span>(<span class="ruby-identifier">table</span>, <span class="ruby-identifier">since</span>){ <span class="ruby-operator">|</span><span class="ruby-identifier">data</span><span class="ruby-operator">|</span> <span class="ruby-identifier">destination</span>.<span class="ruby-identifier">write</span>(<span class="ruby-identifier">data</span>, <span class="ruby-identifier">table</span>) }
+    <span class="ruby-keyword">else</span>
+      <span class="ruby-identifier">destination</span>.<span class="ruby-identifier">truncate</span> <span class="ruby-identifier">table</span>
+      <span class="ruby-identifier">source</span>.<span class="ruby-identifier">read</span>(<span class="ruby-node">&quot;select * from #{table}&quot;</span>){ <span class="ruby-operator">|</span><span class="ruby-identifier">data</span><span class="ruby-operator">|</span> <span class="ruby-identifier">destination</span>.<span class="ruby-identifier">write</span>(<span class="ruby-identifier">data</span>, <span class="ruby-identifier">table</span>) }
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- mysql_optimistic_import-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- mysql_optimistic_import-method -->
+
+    
+      <div id="method-c-optimistic_pipe" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">optimistic_pipe</span><span
+            class="method-args">(source, from_table, destination, to_table, matcher=source.default_matcher, primary_key='id')</span>
+          <span class="method-click-advice">click to toggle source</span>
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+
+          
+          <div class="method-source-code" id="optimistic_pipe-source">
+            <pre><span class="ruby-comment"># File lib/forklift/patterns/mysql_patterns.rb, line 56</span>
+<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">optimistic_pipe</span>(<span class="ruby-identifier">source</span>, <span class="ruby-identifier">from_table</span>, <span class="ruby-identifier">destination</span>, <span class="ruby-identifier">to_table</span>, <span class="ruby-identifier">matcher</span>=<span class="ruby-identifier">source</span>.<span class="ruby-identifier">default_matcher</span>, <span class="ruby-identifier">primary_key</span>=<span class="ruby-string">'id'</span>)
+  <span class="ruby-identifier">from_db</span> = <span class="ruby-identifier">source</span>.<span class="ruby-identifier">current_database</span> 
+  <span class="ruby-identifier">to_db</span> = <span class="ruby-identifier">destination</span>.<span class="ruby-identifier">current_database</span> 
+  <span class="ruby-keyword">if</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">can_incremental_pipe?</span>(<span class="ruby-identifier">from_db</span>, <span class="ruby-identifier">from_table</span>)
+    <span class="ruby-identifier">incremental_pipe</span>(<span class="ruby-identifier">from_db</span>, <span class="ruby-identifier">from_table</span>, <span class="ruby-identifier">to_db</span>, <span class="ruby-identifier">to_table</span>, <span class="ruby-identifier">matcher</span>, <span class="ruby-identifier">primary_key</span>)
+  <span class="ruby-keyword">else</span>
+    <span class="ruby-identifier">pipe</span>(<span class="ruby-identifier">from_db</span>, <span class="ruby-identifier">from_table</span>, <span class="ruby-identifier">to_db</span>, <span class="ruby-identifier">to_table</span>)
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- optimistic_pipe-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- optimistic_pipe-method -->
+
+    
+      <div id="method-c-pipe" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">pipe</span><span
+            class="method-args">(source, from_table, destination, to_table)</span>
+          <span class="method-click-advice">click to toggle source</span>
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+
+          
+          <div class="method-source-code" id="pipe-source">
+            <pre><span class="ruby-comment"># File lib/forklift/patterns/mysql_patterns.rb, line 5</span>
+<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">pipe</span>(<span class="ruby-identifier">source</span>, <span class="ruby-identifier">from_table</span>, <span class="ruby-identifier">destination</span>, <span class="ruby-identifier">to_table</span>)
+  <span class="ruby-identifier">start</span> = <span class="ruby-constant">Time</span>.<span class="ruby-identifier">new</span>.<span class="ruby-identifier">to_i</span>
+  <span class="ruby-identifier">from_db</span> = <span class="ruby-identifier">source</span>.<span class="ruby-identifier">current_database</span> 
+  <span class="ruby-identifier">to_db</span> = <span class="ruby-identifier">destination</span>.<span class="ruby-identifier">current_database</span> 
+  <span class="ruby-identifier">source</span>.<span class="ruby-identifier">forklift</span>.<span class="ruby-identifier">logger</span>.<span class="ruby-identifier">log</span>(<span class="ruby-node">&quot;mysql pipe: `#{from_db}`.`#{from_table}` =&gt; `#{to_db}`.`#{to_table}`&quot;</span>)
+  <span class="ruby-identifier">source</span>.<span class="ruby-identifier">q</span>(<span class="ruby-node">&quot;drop table if exists `#{to_db}`.`#{to_table}`&quot;</span>)
+  <span class="ruby-identifier">source</span>.<span class="ruby-identifier">q</span>(<span class="ruby-node">&quot;create table `#{to_db}`.`#{to_table}` like `#{from_db}`.`#{from_table}`&quot;</span>)
+  <span class="ruby-identifier">source</span>.<span class="ruby-identifier">q</span>(<span class="ruby-node">&quot;insert into `#{to_db}`.`#{to_table}` select * from `#{from_db}`.`#{from_table}`&quot;</span>)
+  <span class="ruby-identifier">delta</span> = <span class="ruby-constant">Time</span>.<span class="ruby-identifier">new</span>.<span class="ruby-identifier">to_i</span> <span class="ruby-operator">-</span> <span class="ruby-identifier">start</span>
+  <span class="ruby-identifier">source</span>.<span class="ruby-identifier">forklift</span>.<span class="ruby-identifier">logger</span>.<span class="ruby-identifier">log</span>(<span class="ruby-node">&quot;  ^ moved #{destination.count(to_table, to_db)} rows in #{delta}s&quot;</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- pipe-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- pipe-method -->
+
+    
+    </section><!-- public-class-method-details -->
+  
+  </section><!-- 5Buntitled-5D -->
+
+</div><!-- documentation -->
+
+
+<footer id="validator-badges">
+  <p><a href="http://validator.w3.org/check/referer">[Validate]</a>
+  <p>Generated by <a href="https://github.com/rdoc/rdoc">RDoc</a> 3.12.2.
+  <p>Generated with the <a href="http://deveiate.org/projects/Darkfish-Rdoc/">Darkfish Rdoc Generator</a> 3.
+</footer>
+
