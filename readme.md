@@ -1,5 +1,5 @@
 # Forklift ETL
-Moving heavy databases around.
+Moving heavy databases around. [![Gem Version](https://badge.fury.io/rb/forklift_etl.svg)](http://badge.fury.io/rb/forklift_etl)
 [![Build Status](https://secure.travis-ci.org/taskrabbit/forklift.png?branch=master)](http://travis-ci.org/taskrabbit/forklift)
 
 ![picture](https://raw.github.com/taskrabbit/forklift/master/forklift.jpg)
