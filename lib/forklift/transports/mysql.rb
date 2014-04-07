@@ -77,11 +77,11 @@ module Forklift
         end
       end
 
-      def lazy_table_create(table, data, database=current_database, primary_key='id')
+      def lazy_table_create(table, data, database=current_database, primary_key='id', matcher=default_matcher)
         keys = {}
         data.each do |item|
           item.each do |k,v|
-            keys[k] = sql_type(v) if keys[k].nil?
+            keys[k] = sql_type(v) if ( keys[k].nil? )
           end
         end
 
@@ -91,6 +91,7 @@ module Forklift
           command << " `#{col}` #{type} DEFAULT NULL, "
         end
         command << " PRIMARY KEY (`#{primary_key}`) "
+        command << " , KEY `#{matcher}` (`#{matcher}`) " if keys.include?(matcher.to_sym)
         command << " ) "
 
         q(command)
