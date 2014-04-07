@@ -1,4 +1,4 @@
-# Forklift
+# Forklift ETL
 Moving heavy databases around.
 [![Build Status](https://secure.travis-ci.org/taskrabbit/forklift.png?branch=master)](http://travis-ci.org/taskrabbit/forklift)
 
@@ -19,7 +19,7 @@ We replicate all of our databases into one server in our office, and then use Fo
 Make a new directory with a `Gemfile` like this:
 ```ruby
 source 'http://rubygems.org'
-gem 'forklift'
+gem 'forklift_etl'
 ```
 
 Then `bundle`

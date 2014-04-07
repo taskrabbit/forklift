@@ -4,13 +4,13 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'forklift/version'
 
 Gem::Specification.new do |s|
-  s.name        = "forklift"
+  s.name        = "forklift_etl"
   s.version     = Forklift::VERSION
   s.authors     = ["Evan Tahler"]
   s.email       = ["evan@taskrabbit.com"]
   s.homepage    = "https://github.com/taskrabbit/forklift"
   s.summary     = %q{Forklift: Moving big databases around. A ruby ETL tool.}
-  s.description = %q{A collection of ETL tools and paterns for mysql and elasticsearch.}
+  s.description = %q{A collection of ETL tools and patterns for mysql and elasticsearch.}
   s.license     = "MIT"
 
   s.rubyforge_project = "forklift"

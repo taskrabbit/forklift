@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    forklift (1.0.7)
+    forklift_etl (1.0.7)
       activesupport (~> 4.0, >= 4.0.0)
       elasticsearch (~> 1.0, >= 1.0.0)
       lumberjack (~> 1.0, >= 1.0.0)
@@ -71,6 +71,6 @@ PLATFORMS
 DEPENDENCIES
   awesome_print
   email_spec
-  forklift!
+  forklift_etl!
   rake
   rspec
