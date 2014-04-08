@@ -6,13 +6,7 @@ Moving heavy databases around. [![Gem Version](https://badge.fury.io/rb/forklift
 
 ## What?
 
-[Forklift](https://github.com/taskrabbit/forklift) is a ruby gem that makes it easy for you to move your data around.  Forklift can be an integral part of your datawarehouse pipeline or a backup too.  Forklift can collect and collapse data from multiple sources or accross a source.  In forklift's first version, it was only a MySQL tool.  Now, you can create [transports]() to deal with the data of your choice.
-
-## What does TaskRabbit use this for?
-
-At TaskRabbit, the website you see at [www.taskrabbit.com](https://www.taskrabbit.com) is actually made up of many [smaller rails applications](http://en.wikipedia.org/wiki/Service-oriented_architecture).  When analyzing our site, we need to collect all of this data into one place so we can easily join across it.
-
-We replicate all of our databases into one server in our office, and then use Forklift to extract the data we want into a common place.  This gives us the option to both look at live data and to have a more accessible transformed set which we create on a rolling basis. Our "Forklift Loop" also git-pulls to check for any new transformations before each run.
+[Forklift](https://github.com/taskrabbit/forklift) is a ruby gem that makes it easy for you to move your data around.  Forklift can be an integral part of your datawarehouse pipeline or a backup tool.  Forklift can collect and collapse data from multiple sources or across a single source.  In forklift's first version, it was only a MySQL tool but now, you can create transports to deal with the data of your choice.
 
 ## Set up
 
@@ -53,11 +47,13 @@ Forklift expects your project to be arranged like:
 ```
 
 To enable a foklift connection, all you need to do is place the yml config file for it within `/config/connections/(type)/(name).yml`
-File you place withing `/patterns/` or `connections/(type)/` will be loaded automatically.
+Files you place within `/patterns/` or `connections/(type)/` will be loaded automatically.
 
-## Example plans
+## Examples 
 
-Visit the [`/example`]() directory to see a whole forklift project.
+### Example Project
+
+Visit the [`/example`](https://github.com/taskrabbit/forklift/tree/master/example) directory to see a whole forklift project.
 
 ### Simple extract and load (no transformations)
 
@@ -145,7 +141,7 @@ plan.do! do
 end
 ```
 
-### Forklift Emails
+## Forklift Emails
 
 #### Setup
 Put this at the end of your plan inside the `do!` block.
@@ -239,7 +235,7 @@ end
 
 ### Steps
 
-You can optionally devide up your forklift plan into steps:
+You can optionally divide up your forklift plan into steps:
 ```ruby
 plan = Forklift::Plan.new
 plan.do! do
@@ -265,15 +261,15 @@ plan.do! do
 end  
 ```
 
-When you use steps, you can run your whole plan, or just part if it with command line arguments.  For example, `forklift plan.rb "Elasticsearch Import"` would just run that one portion of the plan.  Note that any parts of your plan not within a step will be run each time. 
+When you use steps, you can run your whole plan, or just part if it with command line arguments.  For example, `forklift plan.rb "Elasticsearch Import"` would just run that single portion of the plan.  Note that any parts of your plan not within a step will be run each time. 
 
 ## Transports
 
-Transports are how you interact with your data.  Every transport defines `read` and `write` methods which handle arrays of data objects (and helper methods required).  
+Transports are how you interact with your data.  Every transport defines `read` and `write` methods which handle arrays of data objects (and the helper methods required).  
 
 Each transport should have a config file in `./config/connections/#{transport}/`. It will be loaded at boot.
 
-Transports optinally define a methods which are a shortcut to copy data within a transport, like the mysql `pipe` methods (eg `insert into #{to_db}.#{to_table}; select * from #{from_db}.#{from_table}` for MySQL). A trasport may also define other helpers like how to create a MySQL dump).  These should be defined in `/patterns/#{type}.rb` within the `Forklift::Patterns::#{type}` namespace.
+Transports optionally define helper methods which are a shortcut to copy data *within* a transport, like the mysql `pipe` methods (i.e.: `insert into #{to_db}.#{to_table}; select * from #{from_db}.#{from_table})`. A transport may also define other helpers (like how to create a MySQL dump).  These should be defined in `/patterns/#{type}.rb` within the `Forklift::Patterns::#{type}` namespace.
 
 ### Creating your own transport
 
