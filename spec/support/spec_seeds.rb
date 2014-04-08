@@ -1,4 +1,5 @@
 require 'json'
+require 'fileutils'
 
 class SpecSeeds
 
@@ -64,6 +65,15 @@ class SpecSeeds
       end
       i = i + 1
     end
+  end
+
+  def self.setup_csv
+    seed        = File.join(File.dirname(__FILE__), '..', 'support', 'dumps', 'csv', "source.csv")
+    source      = '/tmp/source.csv'
+    destination = '/tmp/destination.csv'
+    FileUtils.rm(source, {:force => true})
+    FileUtils.rm(destination, {:force => true})
+    FileUtils.copy(seed, source)
   end
 
 end
