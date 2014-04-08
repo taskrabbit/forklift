@@ -36,6 +36,8 @@ Forklift expects your project to be arranged like:
 |       ├── (DB).yml
 |   ├── elasticsearch/
 |       ├── (DB).yml
+|   ├── csv/
+|       ├── (file).yml
 ├── log/
 ├── pid/
 ├── template/
@@ -370,6 +372,13 @@ end
 #### Transport-specific methods
 
 - delete_index(index)
+
+### Csv
+
+#### Forklift methods
+
+- read(size)
+- write(data, append=true)
 
 ## Transformations
 

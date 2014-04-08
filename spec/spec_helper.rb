@@ -25,6 +25,7 @@ RSpec.configure do |config|
     FileUtils.rmdir(piddir) if File.exists?(piddir)
     SpecSeeds.setup_mysql
     SpecSeeds.setup_elasticsearch
+    SpecSeeds.setup_csv
   end
 
 end
