@@ -37,7 +37,7 @@ describe 'mysql' do
   it "can write new data" do
     table = "users"
     data = [
-      {:email => 'other@example.com', :first_name => 'other', :last_name => 'n', :created_at => Time.new.to_s(:sql), :updated_at => Time.new.to_s(:sql)}
+      {:email => 'other@example.com', :first_name => 'other', :last_name => 'n', :created_at => Time.new.to_s(:db), :updated_at => Time.new.to_s(:db)}
     ]
     plan = SpecPlan.new
     plan.do! {
@@ -53,7 +53,7 @@ describe 'mysql' do
   it "can update existing data" do 
     table = "users"
     data = [
-      {:id => 1, :email => 'evan@example.com', :first_name => 'New Name', :last_name => 'T', :created_at => Time.new.to_s(:sql), :updated_at => Time.new.to_s(:sql)}
+      {:id => 1, :email => 'evan@example.com', :first_name => 'New Name', :last_name => 'T', :created_at => Time.new.to_s(:db), :updated_at => Time.new.to_s(:db)}
     ]
     plan = SpecPlan.new
     plan.do! {
@@ -94,7 +94,7 @@ describe 'mysql' do
         cols << row["Field"]
         case row["Field"]
         when "id" 
-          expect(row["Type"]).to eql "int(11)"
+          expect(row["Type"]).to eql "bigint(20)"
         when "thing" 
           expect(row["Type"]).to eql "text"
         when "updated_at" 

@@ -99,7 +99,7 @@ module Forklift
       end
 
       def sql_type(v)
-        return "int(11)"      if v.class == Fixnum
+        return "bigint(20)"   if v.class == Fixnum
         return "float"        if v.class == Float
         return "date"         if v.class == Date
         return "datetime"     if v.class == Time
@@ -222,7 +222,7 @@ module Forklift
             v.gsub!('\"', '\/"')
             v.gsub!('"', '\"')
             part = "\"#{v}\""
-          elsif( [::Date, ::Time].include?(v.class) )
+          elsif( [::Date, ::Time, ::DateTime].include?(v.class) )
             s = v.to_s(:db)
             part = "\"#{s}\""
           elsif( [::Fixnum].include?(v.class) )
