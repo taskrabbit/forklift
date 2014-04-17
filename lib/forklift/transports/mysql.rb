@@ -128,7 +128,7 @@ module Forklift
         if ( last_copied_row.nil? || last_copied_row[matcher.to_sym].nil? )
           latest_timestamp = '1970-01-01 00:00'
         else
-          return last_copied_row[matcher.to_sym].to_s
+          return last_copied_row[matcher.to_sym].to_s(:db)
         end
       end
 
