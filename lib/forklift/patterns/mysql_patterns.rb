@@ -63,7 +63,7 @@ module Forklift
         end
       end
 
-      def self.can_incremental_pipe?(source, from_table, destination, to_table, matcher=conn.default_matcher)
+      def self.can_incremental_pipe?(source, from_table, destination, to_table, matcher=source.default_matcher)
         a = source.columns(from_table, source.current_database).include?(matcher)
         b = destination.columns(to_table, destination.current_database).include?(matcher)
         return (a && b)

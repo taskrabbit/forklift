@@ -48,9 +48,9 @@ describe 'mysql patterns' do
     plan = SpecPlan.new
     plan.do! {
       source = plan.connections[:mysql][:forklift_test_source_a]
-      expect(Forklift::Patterns::Mysql.can_incremental_pipe?(source, 'users')).to eql true
-      expect(Forklift::Patterns::Mysql.can_incremental_pipe?(source, 'sales')).to eql false
-      expect(Forklift::Patterns::Mysql.can_incremental_pipe?(source, 'products')).to eql true
+      expect(Forklift::Patterns::Mysql.can_incremental_pipe?(source, 'users', source, 'users')).to eql true
+      expect(Forklift::Patterns::Mysql.can_incremental_pipe?(source, 'sales', source, 'sales')).to eql false
+      expect(Forklift::Patterns::Mysql.can_incremental_pipe?(source, 'products', source, 'products')).to eql true
     }
   end
 
