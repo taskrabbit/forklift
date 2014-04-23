@@ -56,27 +56,29 @@ module Forklift
       def self.optimistic_pipe(source, from_table, destination, to_table, matcher=source.default_matcher, primary_key='id')
         from_db = source.current_database 
         to_db = destination.current_database 
-        if self.can_incremental_pipe?(source, from_table)
+        if self.can_incremental_pipe?(source, from_table, destination, to_table, matcher)
           incremental_pipe(source, from_table, destination, to_table, matcher, primary_key)
         else
           pipe(source, from_table, destination, to_table)
         end
       end
 
-      def self.can_incremental_pipe?(conn, table, matcher=conn.default_matcher)
-        conn.columns(table, conn.current_database).include?(matcher)
+      def self.can_incremental_pipe?(source, from_table, destination, to_table, matcher=conn.default_matcher)
+        a = source.columns(from_table, source.current_database).include?(matcher)
+        b = destination.columns(to_table, destination.current_database).include?(matcher)
+        return (a && b)
       end
 
       ## When you are copying data to and from mysql 
-      ## An implamentation of "pipe" for remote databases
-      def self.mysql_optimistic_import(source, destination)
-        #TODO: allow passing in of matcher and primary_key
+      ## An implementation of "pipe" for remote databases
+      def self.mysql_optimistic_import(source, destination, matcher=source.default_matcher)
         source.tables.each do |table|
-          if( source.columns(table).include?(source.default_matcher) && destination.tables.include?(table) )
+          if( source.columns(table).include?(matcher) && destination.tables.include?(table) && destination.columns(table).include?(matcher) )
             since = destination.max_timestamp(table)
             source.read_since(table, since){ |data| destination.write(data, table) }
           else
-            destination.truncate table
+            # destination.truncate table
+            destination.drop! table if destination.tables.include?(table)
             source.read("select * from #{table}"){ |data| destination.write(data, table) }
           end
         end
