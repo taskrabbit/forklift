@@ -64,11 +64,11 @@ module Forklift
       end
 
       def self.can_incremental_pipe?(source, from_table, destination, to_table, matcher=source.default_matcher)
-        a = source.tables.include?(from_table)
-        b = source.columns(from_table, source.current_database).include?(matcher)
-        c = destination.tables.include?(to_table)
-        d = destination.columns(to_table, destination.current_database).include?(matcher)
-        return (a && b && c && d)
+        return false unless source.tables.include?(from_table)
+        return false unless source.columns(from_table, source.current_database).include?(matcher)
+        return false unless destination.tables.include?(to_table)
+        return false unless destination.columns(to_table, destination.current_database).include?(matcher)
+        true
       end
 
       ## When you are copying data to and from mysql 
