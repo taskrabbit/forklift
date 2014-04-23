@@ -1,8 +1,8 @@
-require 'rubygems'
+require 'forklift/version'
 
 module Forklift
 
-  lib = File.expand_path(File.dirname(__FILE__))
+  lib = File.join(File.expand_path(File.dirname(__FILE__)), 'forklift')
 
   require "#{lib}/base/utils.rb"
   require "#{lib}/base/pid.rb"

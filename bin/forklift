@@ -4,9 +4,9 @@ require 'rubygems'
 require 'fileutils'
 
 begin
-  require 'forklift/forklift'
+  require 'forklift'
 rescue LoadError
-  require "#{File.expand_path(File.dirname(__FILE__))}/../lib/forklift/forklift.rb"
+  require "#{File.expand_path(File.dirname(__FILE__))}/../lib/forklift.rb"
 end
 
 def generate

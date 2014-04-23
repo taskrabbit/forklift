@@ -9,7 +9,7 @@ $LOAD_PATH.unshift(File.dirname(__FILE__))
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 APP_DIR ||= File.expand_path('../../', __FILE__)
 
-require 'forklift/forklift'
+require 'forklift'
 require 'awesome_print'
 require 'rspec'
 require 'fileutils'
