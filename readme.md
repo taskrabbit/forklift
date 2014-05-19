@@ -265,6 +265,29 @@ end
 
 When you use steps, you can run your whole plan, or just part if it with command line arguments.  For example, `forklift plan.rb "Elasticsearch Import"` would just run that single portion of the plan.  Note that any parts of your plan not within a step will be run each time. 
 
+### Error Handling
+
+By default, exceptions within your plan will raise and crash your application.  However, you can pass an optional `error_handler` lambda to your step about how to handle the error.  the `error_handler` will be passed (`step_name`,`exception`).  If you don't re-raise within your error handler, your plan will continue to excecute.  For example:
+
+```ruby
+
+error_handler = lambda { |name, exception|
+  if exception.class =~ /connection/
+    # I can't connect, I should halt
+    raise e
+  elsif exception.class =~ /SoftError/
+    # this type of error is OK
+  else
+    raise e
+  end
+}
+
+plan.step('a_complex_step', error_handler){
+  # ...
+}
+
+```
+
 ## Transports
 
 Transports are how you interact with your data.  Every transport defines `read` and `write` methods which handle arrays of data objects (and the helper methods required).  
