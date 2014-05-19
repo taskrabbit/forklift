@@ -1,4 +1,5 @@
 require 'mysql2'
+require 'open3'
 
 module Forklift
   module Connection
@@ -182,8 +183,15 @@ module Forklift
         cmd << " | gzip > #{file}"
         forklift.logger.log "Dumping #{config['database']} to #{file}"
         forklift.logger.debug cmd
-        `#{cmd}`
-        forklift.logger.log "  > Dump complete"
+        
+        stdin, stdout, stderr = Open3.popen3(cmd)
+        stdout = stdout.readlines
+        stderr = stderr.readlines
+        if stderr.length > 0
+          raise "  > Dump error: #{stderr.join(" ")}"
+        else
+          forklift.logger.log "  > Dump complete"
+        end
       end
 
       def exec_script(path)
