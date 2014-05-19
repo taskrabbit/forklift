@@ -37,17 +37,25 @@ module Forklift
           logger.debug "loaded a #{type.camelcase} connection from #{f}"
         rescue Exception => e
           logger.fatal "cannot create a class type of #{loader} from #{f} | #{e}"
-          raise e
+          # raise e ## Don't raise here, but let a step fail so the error_handler can report
         end
       end
     end
 
+
+    def default_error_handler
+      return lambda {|name, e| raise e }
+    end
+
     def step(*args, &block)
-      name = args[0].to_sym
+      name          = args[0].to_sym
+      error_handler = default_error_handler
+      error_handler = args[1] unless args[1].nil?
       self.steps[name] = {
-        :ran => false,
-        :to_run => false,
-        :block => block
+        :ran           => false,
+        :to_run        => false,
+        :block         => block,
+        :error_handler => error_handler,
       }
     end
 
@@ -63,8 +71,12 @@ module Forklift
           self.logger.log "skipping step `#{name}`"
         else
           self.logger.log "*** step: #{name} ***"
-          step[:block].call
-          step[:ran] = true
+          begin
+            step[:block].call
+            step[:ran] = true
+          rescue Exception => e
+            step[:error_handler].call(name, e)
+          end
         end
       end
     end
