@@ -168,11 +168,16 @@ module Forklift
         cols
       end
 
-      def dump(file)
+      def dump(file, options=[])
+        # example options: 
+        # options.push '--max_allowed_packet=512M'
+        # options.push '--set-gtid-purged=OFF'
         cmd = "mysqldump"
         cmd << " -u#{config[:username]}" unless config[:username].nil?
         cmd << " -p#{config[:password]}" unless config[:password].nil?
-        cmd << " --max_allowed_packet=512M"
+        options.each do |o|
+          cmd << " #{o} "
+        end
         cmd << " #{config[:database]}"
         cmd << " | gzip > #{file}"
         forklift.logger.log "Dumping #{config['database']} to #{file}"
