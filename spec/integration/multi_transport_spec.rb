@@ -11,7 +11,7 @@ describe 'multiple trasport types' do
     it 'can load in a full query' do
       table = 'es_import'
       index = 'forklift_test'
-      query = { :query => { :match_all => {} } }
+      query = { query: { match_all: {} } }
       plan = SpecPlan.new
       plan.do! {
         source = plan.connections[:elasticsearch][:forklift_test]
@@ -27,7 +27,7 @@ describe 'multiple trasport types' do
     it 'can load in a partial query' do
       table = 'es_import'
       index = 'forklift_test'
-      query = { :query => { :match_all => {} }, :sort => [{ :id => {:order => "asc" } }] }
+      query = { query: { match_all: {} }, sort: [{ id: {order: "asc" } }] }
       plan = SpecPlan.new
       plan.do! {
         source = plan.connections[:elasticsearch][:forklift_test]
@@ -47,7 +47,7 @@ describe 'multiple trasport types' do
     it 'can detect data types' do
       table = 'es_import'
       index = 'forklift_test'
-      query = { :query => { :match_all => {} } }
+      query = { query: { match_all: {} } }
       plan = SpecPlan.new
       plan.do! {
         source = plan.connections[:elasticsearch][:forklift_test]
@@ -73,7 +73,7 @@ describe 'multiple trasport types' do
 
     after(:each) do
       es = SpecClient.elasticsearch('forklift_test')
-      es.indices.delete({ :index => 'users' }) if es.indices.exists({ :index => 'users' })
+      es.indices.delete({ index: 'users' }) if es.indices.exists({ index: 'users' })
     end
 
     it 'can load in a full table' do
@@ -87,7 +87,7 @@ describe 'multiple trasport types' do
       }
 
       destination = SpecClient.elasticsearch('forklift_test')
-      count = destination.count({ :index => index })["count"]
+      count = destination.count({ index: index })["count"]
       expect(count).to eql 5
     end
     
@@ -104,7 +104,7 @@ describe 'multiple trasport types' do
       }
 
       destination = SpecClient.elasticsearch('forklift_test')
-      count = destination.count({ :index => index })["count"]
+      count = destination.count({ index: index })["count"]
       expect(count).to eql 3
     end
   end

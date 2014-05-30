@@ -10,13 +10,13 @@ describe 'misc forklift core' do
       plan = SpecPlan.new
       plan.do! {
         email_args = {
-          :to      => "YOU@FAKE.com",
-          :from    => "Forklift",
-          :subject => "Forklift has moved your database",
+          to:       "YOU@FAKE.com",
+          from:     "Forklift",
+          subject:  "Forklift has moved your database",
         }
         email_variables = {
-          :total_users_count => 10,
-          :new_users_count => 5,
+          total_users_count: 10,
+          new_users_count: 5,
         }
         email_template = "#{File.dirname(__FILE__)}/../../template/spec_email_template.erb"
         @email = plan.mailer.send_template(email_args, email_template, email_variables).first

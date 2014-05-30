@@ -40,8 +40,8 @@ describe 'csv' do
   it "can write data (simple)" do
     plan = SpecPlan.new
     data = [
-      {:thing => 1, :when => Time.now},
-      {:thing => 2, :when => Time.now},
+      {thing: 1, when: Time.now},
+      {thing: 2, when: Time.now},
     ]
 
     plan.do! {
@@ -62,14 +62,14 @@ describe 'csv' do
       destination = plan.connections[:csv][:forklift_test_destination]
 
       data = [
-        {:thing => 1, :when => Time.now},
-        {:thing => 2, :when => Time.now},
+        {thing: 1, when: Time.now},
+        {thing: 2, when: Time.now},
       ]
 
       destination.write(data)
 
       data = [
-        {:thing => 3, :when => Time.now},
+        {thing: 3, when: Time.now},
       ]
 
       destination.write(data)

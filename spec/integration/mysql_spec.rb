@@ -37,7 +37,7 @@ describe 'mysql' do
   it "can write new data" do
     table = "users"
     data = [
-      {:email => 'other@example.com', :first_name => 'other', :last_name => 'n', :created_at => Time.new.to_s(:db), :updated_at => Time.new.to_s(:db)}
+      {email: 'other@example.com', first_name: 'other', last_name: 'n', created_at: Time.new.to_s(:db), updated_at: Time.new.to_s(:db)}
     ]
     plan = SpecPlan.new
     plan.do! {
@@ -53,7 +53,7 @@ describe 'mysql' do
   it "can update existing data" do 
     table = "users"
     data = [
-      {:id => 1, :email => 'evan@example.com', :first_name => 'New Name', :last_name => 'T', :created_at => Time.new.to_s(:db), :updated_at => Time.new.to_s(:db)}
+      {id: 1, email: 'evan@example.com', first_name: 'New Name', last_name: 'T', created_at: Time.new.to_s(:db), updated_at: Time.new.to_s(:db)}
     ]
     plan = SpecPlan.new
     plan.do! {
@@ -77,9 +77,9 @@ describe 'mysql' do
     
     it "can lazy-create a table with primary keys provided" do 
       data = [
-        {:id => 1, :thing => 'stuff a', :updated_at => Time.new},
-        {:id => 2, :thing => 'stuff b', :updated_at => Time.new},
-        {:id => 3, :thing => 'stuff c', :updated_at => Time.new},
+        {id: 1, thing: 'stuff a', updated_at: Time.new},
+        {id: 2, thing: 'stuff b', updated_at: Time.new},
+        {id: 3, thing: 'stuff c', updated_at: Time.new},
       ]
       table = "new_table"
       plan = SpecPlan.new
@@ -106,9 +106,9 @@ describe 'mysql' do
     
     it "can lazy-create a table without primary keys provided" do
       data = [
-        {:thing => 'stuff a', :updated_at => Time.new},
-        {:thing => 'stuff b', :updated_at => Time.new},
-        {:thing => 'stuff c', :updated_at => Time.new},
+        {thing: 'stuff a', updated_at: Time.new},
+        {thing: 'stuff b', updated_at: Time.new},
+        {thing: 'stuff c', updated_at: Time.new},
       ]
       table = "new_table"
       plan = SpecPlan.new

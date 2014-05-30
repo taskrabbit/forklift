@@ -8,7 +8,7 @@ describe 'elasticsearch' do
 
   it "can read data (raw)" do
     index = 'forklift_test'
-    query = { :query => { :match_all => {} } }
+    query = { query: { match_all: {} } }
     plan = SpecPlan.new
     @rows = []
     plan.do! {
@@ -23,7 +23,7 @@ describe 'elasticsearch' do
 
   it "can read data (filtered)" do
     index = 'forklift_test'
-    query = { :query => { :match_all => {} } }
+    query = { query: { match_all: {} } }
     plan = SpecPlan.new
     @rows = []
     plan.do! {
@@ -40,7 +40,7 @@ describe 'elasticsearch' do
     index = 'forklift_test'
     plan = SpecPlan.new
     data = [
-      {:id => 99, :user_id => 99, :product_id => 99, :viewed_at => 99}
+      {id: 99, user_id: 99, product_id: 99, viewed_at: 99}
     ]
     plan.do! {
       destination = plan.connections[:elasticsearch][:forklift_test]
@@ -48,7 +48,7 @@ describe 'elasticsearch' do
     }
 
     destination = SpecClient.elasticsearch('forklift_test')
-    count = destination.count({ :index => index })["count"]
+    count = destination.count({ index: index })["count"]
 
     expect(count).to eql 6
   end
@@ -57,7 +57,7 @@ describe 'elasticsearch' do
     index = 'forklift_test'
     plan = SpecPlan.new
     data = [
-      {:id => 1, :user_id => 1, :product_id => 1, :viewed_at => 99}
+      {id: 1, user_id: 1, product_id: 1, viewed_at: 99}
     ]
     plan.do! {
       destination = plan.connections[:elasticsearch][:forklift_test]
@@ -65,9 +65,9 @@ describe 'elasticsearch' do
     }
 
     destination = SpecClient.elasticsearch('forklift_test')
-    count = destination.count({ :index => index })["count"]
+    count = destination.count({ index: index })["count"]
     expect(count).to eql 5
-    result = destination.search({ :index => index, :body => { :query => {:term => {:id => 1}} } })
+    result = destination.search({ index: index, body: { query: {term: {id: 1}} } })
     expect(result["hits"]["total"]).to eql 1
     obj = result["hits"]["hits"][0]["_source"]
     expect(obj["id"]).to eql 1
@@ -81,15 +81,15 @@ describe 'elasticsearch' do
     plan = SpecPlan.new
     client = SpecClient.elasticsearch('forklift_test')
     data = [
-      {:id => 1}
+      {id: 1}
     ]
     plan.do! {
       destination = plan.connections[:elasticsearch][:forklift_test]
-      expect { client.search({ :index => index }) }.to raise_error(/IndexMissingException/)
+      expect { client.search({ index: index }) }.to raise_error(/IndexMissingException/)
       destination.write(data, index, true)
-      expect { client.search({ :index => index }) }.to_not raise_error
+      expect { client.search({ index: index }) }.to_not raise_error
       destination.delete_index(index)
-      expect { client.search({ :index => index }) }.to raise_error(/IndexMissingException/)
+      expect { client.search({ index: index }) }.to raise_error(/IndexMissingException/)
     }    
   end
 end

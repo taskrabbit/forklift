@@ -1,7 +1,7 @@
 # plan = Forklift::Plan.new
 # Or, you can pass configs
 plan = Forklift::Plan.new ({
-  # :logger => {:debug => true}
+  # logger: {debug: true}
 })
 
 plan.do! {
@@ -31,7 +31,7 @@ plan.do! {
     destination = plan.connections[:mysql][:destination]
     table = 'es_import'
     index = 'aaa'
-    query = { :query => { :match_all => {} } } # pagination will happen automatically
+    query = { query: { match_all: {} } } # pagination will happen automatically
     destination.truncate!(table) if destination.tables.include? table
     source.read(index, query) {|data| destination.write(data, table) }
   }
@@ -71,14 +71,14 @@ plan.do! {
     destination = plan.connections[:mysql][:destination]
 
     email_args = {
-      :to      => "YOU@FAKE.com",
-      :from    => "Forklift",
-      :subject => "Forklift has moved your database @ #{Time.new}",
+      to:       "YOU@FAKE.com",
+      from:     "Forklift",
+      subject:  "value", "Forklift has moved your database @ #{Time.new}",
     }
 
     email_variables = {
-      :total_users_count => destination.read('select count(1) as "count" from users')[0][:count],
-      :new_users_count => destination.read('select count(1) as "count" from users where date(created_at) = date(NOW())')[0][:count],
+      total_users_count:  destination.read('select count(1) as "count" from users')[0][:count],
+      new_users_count:    destination.read('select count(1) as "count" from users where date(created_at) = date(NOW())')[0][:count],
     }
 
     email_template = "./template/email.erb"

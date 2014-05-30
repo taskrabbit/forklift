@@ -49,19 +49,19 @@ class SpecSeeds
       conn  = elasticsearch_connections[i]
       index = elasticsearch_databases[i]
       seed  = File.join(File.dirname(__FILE__), '..', 'support', 'dumps', 'elasticsearch', "#{index}.json")
-      conn.indices.delete({ :index => index }) if conn.indices.exists({ :index => index })
+      conn.indices.delete({ index: index }) if conn.indices.exists({ index: index })
       if File.exists? seed
         lines = JSON.parse(File.read(seed))
         lines.each do |line|
           object = {
-            :index => index,
-            :body  => line,
-            :type  => 'forklift',
-            :id    => line['id']
+            index:  index,
+            body:   line,
+            type:   'forklift',
+            id:     line['id']
           }
           conn.index object # assumes ES is setup to allow index creation on write
         end
-        conn.indices.refresh({ :index => index })
+        conn.indices.refresh({ index: index })
       end
       i = i + 1
     end
@@ -71,8 +71,8 @@ class SpecSeeds
     seed        = File.join(File.dirname(__FILE__), '..', 'support', 'dumps', 'csv', "source.csv")
     source      = '/tmp/source.csv'
     destination = '/tmp/destination.csv'
-    FileUtils.rm(source, {:force => true})
-    FileUtils.rm(destination, {:force => true})
+    FileUtils.rm(source, {force: true})
+    FileUtils.rm(destination, {force: true})
     FileUtils.copy(seed, source)
   end
 

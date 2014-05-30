@@ -20,7 +20,7 @@ module Forklift
 
       def read(size=1000)
         data = []
-        CSV.foreach(config[:file], :headers => true, :converters => :all) do |row|
+        CSV.foreach(config[:file], headers: true, converters: :all) do |row|
           data << row.to_hash.symbolize_keys
           if(data.length == size)
             if block_given?
@@ -41,7 +41,7 @@ module Forklift
 
       def write(data, append=true)
         if (append == false)
-          FileUtils.rm(config[:file], {:force => true})
+          FileUtils.rm(config[:file], {force: true})
         end
 
         if( !File.exists?(config[:file]) )
