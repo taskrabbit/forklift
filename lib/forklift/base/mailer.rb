@@ -24,9 +24,9 @@ module Forklift
 
       def message_defaults
         {
-          :from => "Forklift",
-          :subject => "Forklift has moved your database @ #{Time.new}",
-          :body => "Forklift has moved your database @ #{Time.new}",
+          from:     "Forklift",
+          subject:  "Forklift has moved your database @ #{Time.new}",
+          body:     "Forklift has moved your database @ #{Time.new}",
         }
       end
 

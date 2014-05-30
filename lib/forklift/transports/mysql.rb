@@ -39,7 +39,7 @@ module Forklift
           if prepared_query.downcase.include?("select") && !prepared_query.downcase.include?("limit")
             prepared_query = "#{prepared_query} LIMIT #{offset}, #{limit}"
           end
-          response = q(prepared_query, :symbolize_keys => true)
+          response = q(prepared_query, symbolize_keys: true)
           response.each do |row|
             data << row
           end

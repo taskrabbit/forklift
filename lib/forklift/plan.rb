@@ -52,10 +52,10 @@ module Forklift
       error_handler = default_error_handler
       error_handler = args[1] unless args[1].nil?
       self.steps[name] = {
-        :ran           => false,
-        :to_run        => false,
-        :block         => block,
-        :error_handler => error_handler,
+        ran:            false,
+        to_run:         false,
+        block:          block,
+        error_handler:  error_handler,
       }
     end
 
@@ -136,10 +136,10 @@ module Forklift
 
     def default_config
       return {
-        :project_root => Dir.pwd,
-        :logger => {
-          :stdout => true,
-          :debug => false,
+        project_root: Dir.pwd,
+        logger: {
+          stdout: true,
+          debug:  false,
         },
       }
     end

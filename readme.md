@@ -124,7 +124,7 @@ plan.do! do
   destination = plan.connections[:mysql][:destination]
   table = 'es_import'
   index = 'aaa'
-  query = { :query => { :match_all => {} } } # pagination will happen automatically
+  query = { query: { match_all: {} } } # pagination will happen automatically
   destination.truncate!(table) if destination.tables.include? table
   source.read(index, query) {|data| destination.write(data, table) }
 end
@@ -255,7 +255,7 @@ plan.do! do
     destination = plan.connections[:mysql][:destination]
     table = 'es_import'
     index = 'aaa'
-    query = { :query => { :match_all => {} } } # pagination will happen automatically
+    query = { query: { match_all: {} } } # pagination will happen automatically
     destination.truncate!(table) if destination.tables.include? table
     source.read(index, query) {|data| destination.write(data, table) }
   }

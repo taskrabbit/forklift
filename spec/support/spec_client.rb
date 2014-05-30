@@ -28,7 +28,7 @@ class SpecClient
   end
 
   def self.csv(file)
-    CSV.read(file, :headers => true, :converters => :all).map {|r| r = r.to_hash.symbolize_keys }
+    CSV.read(file, headers: true, converters: :all).map {|r| r = r.to_hash.symbolize_keys }
   end
 
 end

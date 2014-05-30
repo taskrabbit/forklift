@@ -52,18 +52,18 @@ module Forklift
 
         data.each do |d|
           object = {
-            :index => index,
-            :body  => d,
-            :type  => type,
+            index:  index,
+            body:   d,
+            type:   type,
           }
           object[:id] = d[primary_key] if ( !d[primary_key].nil? && update == true )
           client.index object
         end
-        client.indices.refresh({ :index => index })
+        client.indices.refresh({ index: index })
       end
 
       def delete_index(index)
-        client.indices.delete({ :index => index }) if client.indices.exists({ :index => index })
+        client.indices.delete({ index: index }) if client.indices.exists({ index: index })
       end
 
       private
