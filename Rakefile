@@ -9,5 +9,7 @@ RSpec::Core::RakeTask.new(:spec) do |spec|
     'spec/*/*/*_spec.rb',
     'spec/*/*/*/*_spec.rb',
   ]
+  spec.rspec_opts = '--format documentation'
 end
+
 task default: :spec
