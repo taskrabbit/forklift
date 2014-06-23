@@ -231,10 +231,11 @@ module Forklift
         values.each do |v|
           part = "NULL"
           if( [::String, ::Symbol].include?(v.class) )
-            v.gsub!('\\') { '\\\\' }
-            v.gsub!('\"', '\/"')
-            v.gsub!('"', '\"')
-            part = "\"#{v}\""
+            s = v.to_s
+            s.gsub!('\\') { '\\\\' }
+            s.gsub!('\"', '\/"')
+            s.gsub!('"', '\"')
+            part = "\"#{s}\""
           elsif( [::Date, ::Time, ::DateTime].include?(v.class) )
             s = v.to_s(:db)
             part = "\"#{s}\""
