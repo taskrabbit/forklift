@@ -82,8 +82,12 @@ module Forklift
         keys = {}
         data.each do |item|
           item.each do |k,v|
-            keys[k] = sql_type(v) if ( keys[k].nil? )
+            keys[k] = sql_type(v) if ( keys[k].nil? && v.class != NilClass )
           end
+        end
+
+        data.first do |k,v|
+          keys[k] = sql_type(v) if ( keys[k].nil? )
         end
 
         command = "CREATE TABLE `#{database}`.`#{table}` ( "

@@ -57,7 +57,11 @@ module Forklift
         from_db = source.current_database 
         to_db = destination.current_database 
         if self.can_incremental_pipe?(source, from_table, destination, to_table, matcher)
-          incremental_pipe(source, from_table, destination, to_table, matcher, primary_key)
+          begin
+            incremental_pipe(source, from_table, destination, to_table, matcher, primary_key)
+          rescue
+            pipe(source, from_table, destination, to_table)
+          end
         else
           pipe(source, from_table, destination, to_table)
         end

@@ -133,6 +133,37 @@ describe 'mysql' do
       expect(cols).to eql ['id', 'thing', 'updated_at']
     end
 
+    it "can will seek further for null-ish values" do 
+      data = [
+        {id: 1, thing: 'stuff a', number: nil, updated_at: Time.new},
+        {id: 2, thing: 'stuff b', number: nil, updated_at: Time.new},
+        {id: 3, thing: 'stuff c', number: 100, updated_at: Time.new},
+      ]
+      table = "new_table"
+      plan = SpecPlan.new
+      plan.do! {
+        destination = plan.connections[:mysql][:forklift_test_source_a]
+        destination.write(data, table)
+      }
+
+      destination = SpecClient.mysql('forklift_test_source_a')
+      cols = []
+      destination.query("describe #{table}").each do |row|
+        cols << row["Field"]
+        case row["Field"]
+        when "id" 
+          expect(row["Type"]).to eql "bigint(20)"
+        when "thing" 
+          expect(row["Type"]).to eql "text"
+        when "number" 
+          expect(row["Type"]).to eql "bigint(20)"
+        when "updated_at" 
+          expect(row["Type"]).to eql "datetime"
+        end
+      end
+      expect(cols).to eql ['id', 'thing', 'updated_at', 'number']
+    end
+
   end
 
 end
