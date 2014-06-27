@@ -60,7 +60,7 @@ module Forklift
         data.map{|l| l.symbolize_keys! }
 
         if tables.include? table
-          # all good, cary on
+          ensure_row_types(data, table, database)
         elsif(lazy == true && data.length > 0)
           lazy_table_create(table, data, database, primary_key)
         end
@@ -72,7 +72,8 @@ module Forklift
             if(to_update == true && !d[primary_key.to_sym].nil?)
               q("DELETE FROM `#{database}`.`#{table}` WHERE `#{primary_key}` = #{d[primary_key.to_sym]}")
             end
-            q("INSERT INTO `#{database}`.`#{table}` (#{safe_columns(d.keys)}) VALUES (#{safe_values(d.values)});")
+            insert_q = "INSERT INTO `#{database}`.`#{table}` (#{safe_columns(d.keys)}) VALUES (#{safe_values(d.values)});"
+            q(insert_q)
           end
           forklift.logger.log "wrote #{data.length} rows to `#{database}`.`#{table}`"
         end
@@ -86,12 +87,12 @@ module Forklift
           end
         end
 
-        data.first do |k,v|
+        data.first.each do |k,v|
           keys[k] = sql_type(v) if ( keys[k].nil? )
         end
 
         command = "CREATE TABLE `#{database}`.`#{table}` ( "
-        command << " `#{primary_key}` int(11) NOT NULL AUTO_INCREMENT, " if ( data.first[primary_key.to_sym].nil? )
+        command << " `#{primary_key}` bigint(20) NOT NULL AUTO_INCREMENT, " if ( data.first[primary_key.to_sym].nil? )
         keys.each do |col, type|
           command << " `#{col}` #{type} DEFAULT NULL, "
         end
@@ -113,7 +114,7 @@ module Forklift
         return "tinyint(1)"   if v.class == TrueClass
         return "tinyint(1)"   if v.class == FalseClass
         return "text"         if v.class == String
-        return "text"         if v.class == NilClass
+        return "varchar(0)"   if v.class == NilClass
         return "text"         # catchall
       end
 
@@ -213,6 +214,29 @@ module Forklift
       end
 
       private
+
+      def ensure_row_types(data, table, database=current_database)
+        read("describe `#{database}`.`#{table}`").each do |row|
+          if row[:Type] == 'varchar(0)'
+
+            value = nil
+            data.each do |r|
+              if ( !r[row[:Field].to_sym].nil? )
+                value = r[row[:Field].to_sym]
+                break
+              end
+            end
+
+            if !value.nil?
+              sql_type = sql_type(value)
+              alter_sql = "ALTER TABLE `#{database}`.`#{table}` CHANGE `#{row[:Field]}` `#{row[:Field]}` #{sql_type};"
+              puts alter_sql
+              q(alter_sql)
+            end
+
+          end
+        end 
+      end
 
       def safe_columns(cols)
         a = []

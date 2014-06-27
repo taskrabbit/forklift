@@ -123,7 +123,7 @@ describe 'mysql' do
         cols << row["Field"]
         case row["Field"]
         when "id" 
-          expect(row["Type"]).to eql "int(11)"
+          expect(row["Type"]).to eql "bigint(20)"
         when "thing" 
           expect(row["Type"]).to eql "text"
         when "updated_at" 
@@ -162,6 +162,59 @@ describe 'mysql' do
         end
       end
       expect(cols).to eql ['id', 'thing', 'updated_at', 'number']
+    end
+
+    it "null rows will be text, and can be updated on subsequent writes" do 
+      data = [
+        {id: 1, number: nil, updated_at: Time.new},
+        {id: 2, number: nil, updated_at: Time.new},
+      ]
+      
+      table = "new_table"
+
+      plan = SpecPlan.new
+      plan.do! {
+        destination = plan.connections[:mysql][:forklift_test_source_a]
+        destination.write(data, table)
+      }
+
+      destination = SpecClient.mysql('forklift_test_source_a')
+      cols = []
+
+      destination.query("describe #{table}").each do |row|
+        cols << row["Field"]
+        case row["Field"]
+        when "id" 
+          expect(row["Type"]).to eql "bigint(20)"
+        when "number" 
+          expect(row["Type"]).to eql "varchar(0)"
+        when "updated_at" 
+          expect(row["Type"]).to eql "datetime"
+        end
+      end
+      expect(cols).to eql ['id', 'updated_at', 'number']
+
+      data = [
+        {id: 3, number: 123, updated_at: Time.new},
+      ]
+
+      plan = SpecPlan.new
+      plan.do! {
+        destination = plan.connections[:mysql][:forklift_test_source_a]
+        destination.write(data, table)
+      }
+
+      destination = SpecClient.mysql('forklift_test_source_a')
+      cols = []
+
+      destination.query("describe #{table}").each do |row|
+        cols << row["Field"]
+        case row["Field"]
+        when "number" 
+          expect(row["Type"]).to eql "bigint(20)"
+        end
+      end
+      expect(cols).to eql ['id', 'updated_at', 'number']
     end
 
   end
