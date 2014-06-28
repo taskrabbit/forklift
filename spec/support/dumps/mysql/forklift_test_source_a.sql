@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS `products`;
 CREATE TABLE `products` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL DEFAULT '',
+  `description` text NOT NULL,
   `inventory` int(11) DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
@@ -14,13 +15,13 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 
-INSERT INTO `products` (`id`, `name`, `inventory`, `created_at`, `updated_at`)
+INSERT INTO `products` (`id`, `name`, `description`, `inventory`, `created_at`, `updated_at`)
 VALUES
-	(1,'car',10,'2014-04-03 11:45:51','2014-04-03 11:45:51'),
-	(2,'boat',3,'2014-04-03 11:45:52','2014-04-03 11:45:52'),
-	(3,'bus',5,'2014-04-03 11:45:54','2014-04-03 11:45:54'),
-	(4,'motorcycle',23,'2014-04-03 11:45:56','2014-04-03 11:45:56'),
-	(5,'hang_glider',2,'2014-04-03 11:46:19','2014-04-03 11:46:19');
+	(1,'car','a car',10,'2014-04-03 11:45:51','2014-04-03 11:45:51'),
+	(2,'boat','a boat',3,'2014-04-03 11:45:52','2014-04-03 11:45:52'),
+	(3,'bus','a bus',5,'2014-04-03 11:45:54','2014-04-03 11:45:54'),
+	(4,'motorcycle','a motorcycle',23,'2014-04-03 11:45:56','2014-04-03 11:45:56'),
+	(5,'hang_glider','awesome',2,'2014-04-03 11:46:19','2014-04-03 11:46:19');
 
 UNLOCK TABLES;
 
