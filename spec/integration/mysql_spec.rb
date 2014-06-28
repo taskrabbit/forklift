@@ -106,9 +106,9 @@ describe 'mysql' do
     
     it "can lazy-create a table without primary keys provided" do
       data = [
-        {thing: 'stuff a', updated_at: Time.new},
-        {thing: 'stuff b', updated_at: Time.new},
-        {thing: 'stuff c', updated_at: Time.new},
+        {thing: 'stuff a', number: 1.123, updated_at: Time.new},
+        {thing: 'stuff b', number: 1.123, updated_at: Time.new},
+        {thing: 'stuff c', number: 1.123, updated_at: Time.new},
       ]
       table = "new_table"
       plan = SpecPlan.new
@@ -126,11 +126,13 @@ describe 'mysql' do
           expect(row["Type"]).to eql "bigint(20)"
         when "thing" 
           expect(row["Type"]).to eql "text"
+        when "number" 
+          expect(row["Type"]).to eql "float"
         when "updated_at" 
           expect(row["Type"]).to eql "datetime"
         end
       end
-      expect(cols).to eql ['id', 'thing', 'updated_at']
+      expect(cols).to eql ['id', 'thing', 'number', 'updated_at']
     end
 
     it "can will seek further for null-ish values" do 

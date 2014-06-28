@@ -107,6 +107,7 @@ module Forklift
       def sql_type(v)
         return "bigint(20)"   if v.class == Fixnum
         return "float"        if v.class == Float
+        return "float"        if v.class == BigDecimal
         return "date"         if v.class == Date
         return "datetime"     if v.class == Time
         return "datetime"     if v.class == DateTime
@@ -230,7 +231,7 @@ module Forklift
             if !value.nil?
               sql_type = sql_type(value)
               alter_sql = "ALTER TABLE `#{database}`.`#{table}` CHANGE `#{row[:Field]}` `#{row[:Field]}` #{sql_type};"
-              puts alter_sql
+              forklift.logger.log alter_sql
               q(alter_sql)
             end
 
@@ -269,7 +270,7 @@ module Forklift
             part = "\"#{s}\""
           elsif( [::Fixnum].include?(v.class) )
             part = v
-          elsif( [::Float].include?(v.class) )
+          elsif( [::Float, ::BigDecimal].include?(v.class) )
             part = v.to_f
           end
           a << part
