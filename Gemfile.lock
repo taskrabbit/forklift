@@ -47,7 +47,7 @@ GEM
     mysql2 (0.3.16)
     pony (1.9)
       mail (>= 2.0)
-    rake (10.2.2)
+    rake (10.3.2)
     rspec (3.0.0)
       rspec-core (~> 3.0.0)
       rspec-expectations (~> 3.0.0)
