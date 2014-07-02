@@ -13,7 +13,7 @@ describe 'misc forklift core' do
 
     it "will run all steps with no extra ARGV" do
       plan = SpecPlan.new
-      plan.stub(:argv){ ['/path/to/plan'] }
+      allow(plan).to receive(:argv){ ['/path/to/plan'] }
       steps_run = []
       plan.do! {
         plan.step("a"){ steps_run << 'a' }
@@ -27,7 +27,7 @@ describe 'misc forklift core' do
 
     it "will only run steps named within ARGV" do
       plan = SpecPlan.new
-      plan.stub(:argv){ ['/path/to/plan', 'a','c'] }
+      allow(plan).to receive(:argv){ ['/path/to/plan', 'a','c'] }
       steps_run = []
       plan.do! {
         plan.step("a"){ steps_run << 'a' }
@@ -41,7 +41,7 @@ describe 'misc forklift core' do
 
     it "won't run on a badly defined step" do
       plan = SpecPlan.new
-      plan.stub(:argv){ ['/path/to/plan', 'missing_step'] }      
+      allow(plan).to receive(:argv){ ['/path/to/plan', 'missing_step'] }
       expect{
         plan.do! {
           plan.step("a"){ raise 'never should get here' }

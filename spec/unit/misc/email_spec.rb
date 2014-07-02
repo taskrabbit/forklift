@@ -22,15 +22,15 @@ describe 'misc forklift core' do
         @email = plan.mailer.send_template(email_args, email_template, email_variables).first
       }
       
-      @email.should deliver_to("YOU@FAKE.com")
-      @email.should have_subject(/Forklift has moved your database/)
-      @email.should have_body_text(/Your forklift email/) # base 
-      @email.should have_body_text(/Total Users: 10/) # template
-      @email.should have_body_text(/New Users: 5/) # template
+      expect(@email).to deliver_to("YOU@FAKE.com")
+      expect(@email).to have_subject(/Forklift has moved your database/)
+      expect(@email).to have_body_text(/Your forklift email/) # base
+      expect(@email).to have_body_text(/Total Users: 10/) # template
+      expect(@email).to have_body_text(/New Users: 5/) # template
     end
 
     it "can send mail with an attachment" do 
-      pending("how to test email attachments?")
+      skip("how to test email attachments?")
     end
   end
 
