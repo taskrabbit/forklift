@@ -28,6 +28,7 @@ module Forklift
           prepared_query[:from] = from + offset
           prepared_query[:size] = size
 
+          forklift.logger.debug "    ELASTICSEARCH: #{query}"
           results = client.search( { index: index, body: prepared_query } )
           results["hits"]["hits"].each do |hit|
             data << hit["_source"]
@@ -57,12 +58,15 @@ module Forklift
             type:   type,
           }
           object[:id] = d[primary_key] if ( !d[primary_key].nil? && update == true )
+
+          forklift.logger.debug "    ELASTICSEARCH (store): #{object}"
           client.index object
         end
         client.indices.refresh({ index: index })
       end
 
       def delete_index(index)
+        forklift.logger.debug "    ELASTICSEARCH (delete index): #{index}"
         client.indices.delete({ index: index }) if client.indices.exists({ index: index })
       end
 
