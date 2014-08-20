@@ -135,6 +135,26 @@ describe 'mysql' do
       expect(cols).to eql ['id', 'thing', 'number', 'updated_at']
     end
 
+    it "can add columns to exiting tables when new keys are provided" do
+      table = "users"
+      raw = SpecClient.mysql('forklift_test_source_a')
+
+      count = raw.query("SHOW COLUMNS FROM #{table}").count
+      expect(count).to eql 6
+
+      data = [
+        {email: 'other@example.com', something_else: :abc123, first_name: 'other', last_name: 'n', created_at: Time.new.to_s(:db), updated_at: Time.new.to_s(:db)}
+      ]
+      plan = SpecPlan.new
+      plan.do! {
+        destination = plan.connections[:mysql][:forklift_test_source_a]
+        destination.write(data, table)
+      }
+
+      count = raw.query("SHOW COLUMNS FROM #{table}").count
+      expect(count).to eql 7
+    end
+
     it "can will seek further for null-ish values" do 
       data = [
         {id: 1, thing: 'stuff a', number: nil, updated_at: Time.new},

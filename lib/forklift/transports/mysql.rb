@@ -68,10 +68,20 @@ module Forklift
         if data.length > 0
           columns = columns(table, database)
           data.each do |d|
-            d = clean_to_columns(d, columns) unless crash_on_extral_col == true
+
+            if crash_on_extral_col == false
+              d.each do |k,v|
+                unless columns.include?(k.to_s)
+                  q("ALTER TABLE `#{database}`.`#{table}` ADD `#{k}` #{sql_type(v)}  NULL  DEFAULT NULL;")
+                  columns = columns(table, database)
+                end
+              end
+            end
+
             if(to_update == true && !d[primary_key.to_sym].nil?)
               q("DELETE FROM `#{database}`.`#{table}` WHERE `#{primary_key}` = #{d[primary_key.to_sym]}")
             end
+
             insert_q = "INSERT INTO `#{database}`.`#{table}` (#{safe_columns(d.keys)}) VALUES (#{safe_values(d.values)});"
             q(insert_q)
           end
@@ -245,14 +255,6 @@ module Forklift
           a << "`#{c}`"
         end
         return a.join(', ')
-      end
-
-      def clean_to_columns(row, columns)
-        r = {}
-        row.each do |k,v|
-          r[k] = row[k] if columns.include?(k.to_s)
-        end
-        r
       end
 
       def safe_values(values)
