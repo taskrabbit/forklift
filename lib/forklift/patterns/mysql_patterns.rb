@@ -69,9 +69,17 @@ module Forklift
 
       def self.can_incremental_pipe?(source, from_table, destination, to_table, matcher=source.default_matcher)
         return false unless source.tables.include?(from_table)
-        return false unless source.columns(from_table, source.current_database).include?(matcher)
         return false unless destination.tables.include?(to_table)
-        return false unless destination.columns(to_table, destination.current_database).include?(matcher)
+        source_cols      = source.columns(from_table, source.current_database)
+        destination_cols = destination.columns(to_table, destination.current_database)
+        return false unless source_cols.include?(matcher)
+        return false unless destination_cols.include?(matcher)
+        source_cols.each do |source_col|
+          return false unless destination_cols.include?(source_col)
+        end
+        destination_cols.each do |destination_col|
+          return false unless source_cols.include?(destination_col)
+        end
         true
       end
 
