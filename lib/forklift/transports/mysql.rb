@@ -99,7 +99,22 @@ module Forklift
             q(delete_q)
           end
           insert_q = insert_q[0...-1]
-          q(insert_q)
+
+          begin
+            q(insert_q)
+          rescue Mysql2::Error => ex
+            # UTF8 Safety.  Open a PR if you don't want UTF8 data...
+            # https://github.com/taskrabbit/demoji
+            raise ex unless ex.message.match /Incorrect string value:/
+            safer_insert_q = ""
+            for i in (0...insert_q.length)
+              char = insert_q[i]
+              char = '???' if char.ord > forklift.config[:char_bytecode_max]
+              safer_insert_q << char
+            end
+            q(safer_insert_q)
+          end
+
           forklift.logger.log "wrote #{data.length} rows to `#{database}`.`#{table}`"
         end
       end

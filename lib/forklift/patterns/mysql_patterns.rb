@@ -107,21 +107,27 @@ module Forklift
       # The high water method will stub a row in all tables with a `default_matcher` column prentending to have a record from `time`
       # This enabled partial forklift funs which will only extract data "later than X"
       # TODO: assumes all columns have a default NULL setting
-      def self.write_high_water_mark(db, time, matcher=source.default_matcher)
+      def self.write_high_water_mark(db, time, matcher=db.default_matcher)
         db.tables.each do |table|
-          columns, types = db.columns(table, nil, true)
+          columns, types = db.columns(table, db.current_database, true)
           if columns.include?(matcher)
             row = {}
             i = 0
             while( i < columns.length )
               if(columns[i] == matcher)
-                row[column[i]] << time.to_s(:db)
-              elsif( types[i] =~ /text/ || types[i] =~ /varchar/ )
-                row[column[i]] << "~~stub~~" 
+                row[columns[i]] = time.to_s(:db)
+              elsif( types[i] =~ /text/ )
+                row[columns[i]] = "~~stub~~" 
+              elsif( types[i] =~ /varchar/  )
+                row[columns[i]] = "~~stub~~".to_sym
               elsif( types[i] =~ /float/ || types[i] =~ /int/ )
-                row[column[i]] << 0
+                row[columns[i]] = 0
+              elsif( types[i] =~ /datetime/ || types[i] =~ /timetsamp/ )
+                row[columns[i]] = time.to_s(:db)
+              elsif( types[i] =~ /date/ )
+                row[columns[i]] = time.to_s(:db).split(" ").first
               else
-                row[column[i]] << "NULL"
+                row[columns[i]] = "NULL"
               end
               i = i + 1
             end

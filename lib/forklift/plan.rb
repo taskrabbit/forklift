@@ -138,6 +138,7 @@ module Forklift
       return {
         project_root: Dir.pwd,
         batch_size: 1000,
+        char_bytecode_max: 65535, # the utf8 char limit
         logger: {
           stdout: true,
           debug:  false,
