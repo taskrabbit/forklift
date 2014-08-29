@@ -370,7 +370,8 @@ end
 - max_timestamp(table, matcher=default_matcher, database=current_database)
   - return the timestamp of the max(matcher) or 1970-01-01
 - truncate!(table, database=current_database)
-- columns(table, database=current_database)
+- columns(table, database=current_database, return_types=false)
+- rename(table, new_table, database, new_database)
 - dump(file)
   - mysqldump the database to `file` via gzip
 
@@ -384,6 +385,8 @@ end
 - mysql_optimistic_import(source, destination)
   - tries to do an incramental table copy, falls back to a full table copy
   - this differs from `pipe`, as all data is loaded into forklift, rather than relying on mysql transfer methods
+- write_high_water_mark(db, time, matcher)
+  - The high water method will stub a row in all tables with a `default_matcher` column prentending to have a record from `time`
 
 ### Elasticsearch
 

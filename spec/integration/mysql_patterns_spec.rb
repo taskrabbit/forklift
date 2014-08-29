@@ -73,4 +73,6 @@ describe 'mysql patterns' do
       expect(destination.read('select first_name from users where id = 1')[0][:first_name]).to eql 'EvanAgain'
     }
   end
+
+  it "can write the high_water_mark"
 end

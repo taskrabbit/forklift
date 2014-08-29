@@ -37,7 +37,8 @@ describe 'mysql' do
   it "can write new data" do
     table = "users"
     data = [
-      {email: 'other@example.com', first_name: 'other', last_name: 'n', created_at: Time.new.to_s(:db), updated_at: Time.new.to_s(:db)}
+      {email: 'other@example.com', first_name: 'other', last_name: 'n', created_at: Time.new.to_s(:db), updated_at: Time.new.to_s(:db)},
+      {email: 'else@example.com',  first_name: 'else', last_name: 'n', created_at: Time.new.to_s(:db), updated_at: Time.new.to_s(:db)}
     ]
     plan = SpecPlan.new
     plan.do! {
@@ -47,7 +48,7 @@ describe 'mysql' do
 
     destination = SpecClient.mysql('forklift_test_source_a')
     count = destination.query('select count(1) as "count" from users').first['count']
-    expect(count).to eql 6
+    expect(count).to eql 7
   end
 
   it "can update existing data" do 

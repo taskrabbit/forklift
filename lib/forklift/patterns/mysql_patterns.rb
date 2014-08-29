@@ -2,14 +2,18 @@ module Forklift
   module Patterns
     class Mysql
 
-      def self.pipe(source, from_table, destination, to_table)
+      def self.pipe(source, from_table, destination, to_table, tmp_table="_forklift_tmp")
         start = Time.new.to_i
         from_db = source.current_database 
         to_db = destination.current_database 
         source.forklift.logger.log("mysql pipe: `#{from_db}`.`#{from_table}` => `#{to_db}`.`#{to_table}`")
+
+        source.q("drop table if exists `#{to_db}`.`#{tmp_table}`")
+        source.q("create table `#{to_db}`.`#{tmp_table}` like `#{from_db}`.`#{from_table}`")
+        source.q("insert into `#{to_db}`.`#{tmp_table}` select * from `#{from_db}`.`#{from_table}`")
         source.q("drop table if exists `#{to_db}`.`#{to_table}`")
-        source.q("create table `#{to_db}`.`#{to_table}` like `#{from_db}`.`#{from_table}`")
-        source.q("insert into `#{to_db}`.`#{to_table}` select * from `#{from_db}`.`#{from_table}`")
+        source.q("rename table `#{to_db}`.`#{tmp_table}` to `#{to_db}`.`#{to_table}`")
+
         delta = Time.new.to_i - start
         source.forklift.logger.log("  ^ moved #{destination.count(to_table, to_db)} rows in #{delta}s")
       end
@@ -59,7 +63,9 @@ module Forklift
         if self.can_incremental_pipe?(source, from_table, destination, to_table, matcher)
           begin
             incremental_pipe(source, from_table, destination, to_table, matcher, primary_key)
-          rescue
+          rescue Exception => e
+            source.forklift.logger.log("! incremental_pipe failure on #{from_table} => #{to_table}: #{e} ")
+            source.forklift.logger.log("! falling back to pipe...")
             pipe(source, from_table, destination, to_table)
           end
         else
@@ -94,6 +100,32 @@ module Forklift
             # destination.truncate table
             destination.drop! table if destination.tables.include?(table)
             source.read("select * from #{table}"){ |data| destination.write(data, table) }
+          end
+        end
+      end
+
+      # The high water method will stub a row in all tables with a `default_matcher` column prentending to have a record from `time`
+      # This enabled partial forklift funs which will only extract data "later than X"
+      # TODO: assumes all columns have a default NULL setting
+      def self.write_high_water_mark(db, time, matcher=source.default_matcher)
+        db.tables.each do |table|
+          columns, types = db.columns(table, nil, true)
+          if columns.include?(matcher)
+            row = {}
+            i = 0
+            while( i < columns.length )
+              if(columns[i] == matcher)
+                row[column[i]] << time.to_s(:db)
+              elsif( types[i] =~ /text/ || types[i] =~ /varchar/ )
+                row[column[i]] << "~~stub~~" 
+              elsif( types[i] =~ /float/ || types[i] =~ /int/ )
+                row[column[i]] << 0
+              else
+                row[column[i]] << "NULL"
+              end
+              i = i + 1
+            end
+            db.write([row], table)
           end
         end
       end
