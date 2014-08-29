@@ -107,7 +107,7 @@ module Forklift
       # The high water method will stub a row in all tables with a `default_matcher` column prentending to have a record from `time`
       # This enabled partial forklift funs which will only extract data "later than X"
       # TODO: assumes all columns have a default NULL setting
-      def self.write_water_mark(db, time, matcher=source.default_matcher)
+      def self.write_high_water_mark(db, time, matcher=source.default_matcher)
         db.tables.each do |table|
           columns, types = db.columns(table, nil, true)
           if columns.include?(matcher)
