@@ -90,13 +90,15 @@ describe Forklift::Connection::Mysql do
     subject { described_class.new({}, {}) }
 
     it "escapes one trailing backslash" do
-      values = ["foo\\"]
-      expect(subject.send(:safe_values, values)).to eq("\"foo\\\\\"")
+      columns = ['col']
+      values = {:col => "foo\\"}
+      expect(subject.send(:safe_values, columns, values)).to eq("( \"foo\\\\\" )")
     end
 
     it "escapes two trailing backslashes" do
-      values = ["foo\\\\"]
-      expect(subject.send(:safe_values, values)).to eq("\"foo\\\\\\\\\"")
+      columns = ['col']
+      values = {:col => "foo\\\\" }
+      expect(subject.send(:safe_values, columns, values)).to eq("( \"foo\\\\\\\\\" )")
     end
   end
 end

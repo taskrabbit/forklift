@@ -28,6 +28,10 @@ module Forklift
         q("DROP table `#{database}`.`#{table}`");
       end
 
+      def rename(table, new_table, database=current_database, new_database=current_database)
+        q("RENAME TABLE `#{database}`.`#{table}` TO `#{new_database}`.`#{new_table}`")
+      end
+
       def read(query, database=current_database, looping=true, limit=forklift.config[:batch_size], offset=0)
         loop_count = 0
         # TODO: Detect limit/offset already present in query
@@ -77,14 +81,25 @@ module Forklift
                 end
               end
             end
-
-            if(to_update == true && !d[primary_key.to_sym].nil?)
-              q("DELETE FROM `#{database}`.`#{table}` WHERE `#{primary_key}` = #{d[primary_key.to_sym]}")
-            end
-
-            insert_q = "INSERT INTO `#{database}`.`#{table}` (#{safe_columns(d.keys)}) VALUES (#{safe_values(d.values)});"
-            q(insert_q)
           end
+
+          insert_q = "INSERT INTO `#{database}`.`#{table}` (#{safe_columns(columns)}) VALUES "
+          delete_q = "DELETE FROM `#{database}`.`#{table}` WHERE `#{primary_key}` IN "
+          delete_keys = []
+          data.each do |d|
+            if(to_update == true && !d[primary_key.to_sym].nil?)
+              delete_keys << d[primary_key.to_sym]
+            end
+            insert_q << safe_values(columns, d)
+            insert_q << ","
+          end
+          
+          if delete_keys.length > 0
+            delete_q << "(#{delete_keys.join(',')})"
+            q(delete_q)
+          end
+          insert_q = insert_q[0...-1]
+          q(insert_q)
           forklift.logger.log "wrote #{data.length} rows to `#{database}`.`#{table}`"
         end
       end
@@ -177,12 +192,15 @@ module Forklift
         end
       end
 
-      def columns(table, database=current_database)
+      def columns(table, database=current_database, return_types=false)
         cols = []
+        types = []
         read("describe `#{database}`.`#{table}`").each do |row|
-          cols << row[:Field]
+          cols  << row[:Field]
+          types << row[:Type]
         end
-        cols
+        return cols if return_types == false
+        return cols, types
       end
 
       def dump(file, options=[])
@@ -257,27 +275,31 @@ module Forklift
         return a.join(', ')
       end
 
-      def safe_values(values)
+      def safe_values(columns, d)
         a = []
-        values.each do |v|
+        sym_cols = columns.map { |s| s.to_sym }
+        sym_cols.each do |c|
           part = "NULL"
-          if( [::String, ::Symbol].include?(v.class) )
-            s = v.to_s
-            s.gsub!('\\') { '\\\\' }
-            s.gsub!('\"', '\/"')
-            s.gsub!('"', '\"')
-            part = "\"#{s}\""
-          elsif( [::Date, ::Time, ::DateTime].include?(v.class) )
-            s = v.to_s(:db)
-            part = "\"#{s}\""
-          elsif( [::Fixnum].include?(v.class) )
-            part = v
-          elsif( [::Float, ::BigDecimal].include?(v.class) )
-            part = v.to_f
+          v = d[c]
+          unless v.nil?
+            if( [::String, ::Symbol].include?(v.class) )
+              s = v.to_s
+              s.gsub!('\\') { '\\\\' }
+              s.gsub!('\"', '\/"')
+              s.gsub!('"', '\"')
+              part = "\"#{s}\""
+            elsif( [::Date, ::Time, ::DateTime].include?(v.class) )
+              s = v.to_s(:db)
+              part = "\"#{s}\""
+            elsif( [::Fixnum].include?(v.class) )
+              part = v
+            elsif( [::Float, ::BigDecimal].include?(v.class) )
+              part = v.to_f
+            end
           end
           a << part
         end
-        return a.join(', ')
+        return "( #{a.join(', ')} )"
       end
 
       #/private
