@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    forklift_etl (1.1.9)
+    forklift_etl (1.1.10)
       activesupport (~> 4.0, >= 4.0.0)
       elasticsearch (~> 1.0, >= 1.0.0)
       lumberjack (~> 1.0, >= 1.0.0)
