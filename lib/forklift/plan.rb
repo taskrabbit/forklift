@@ -137,6 +137,7 @@ module Forklift
     def default_config
       return {
         project_root: Dir.pwd,
+        batch_size: 1000,
         logger: {
           stdout: true,
           debug:  false,

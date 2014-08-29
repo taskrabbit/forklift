@@ -18,7 +18,7 @@ module Forklift
         @forklift
       end
 
-      def read(index, query, looping=true, from=0, size=1000)
+      def read(index, query, looping=true, from=0, size=forklift.config[:batch_size])
         offset = 0
         loop_count = 0
 

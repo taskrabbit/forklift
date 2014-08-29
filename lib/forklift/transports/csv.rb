@@ -18,7 +18,7 @@ module Forklift
         @forklift
       end
 
-      def read(size=1000)
+      def read(size=forklift.config[:batch_size])
         data = []
         CSV.foreach(config[:file], headers: true, converters: :all) do |row|
           data << row.to_hash.symbolize_keys

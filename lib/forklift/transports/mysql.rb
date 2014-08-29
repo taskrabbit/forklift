@@ -28,7 +28,7 @@ module Forklift
         q("DROP table `#{database}`.`#{table}`");
       end
 
-      def read(query, database=current_database, looping=true, limit=1000, offset=0)
+      def read(query, database=current_database, looping=true, limit=forklift.config[:batch_size], offset=0)
         loop_count = 0
         # TODO: Detect limit/offset already present in query
         q("USE `#{database}`")
