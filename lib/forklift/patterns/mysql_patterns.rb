@@ -120,7 +120,7 @@ module Forklift
                 row[columns[i]] = "~~stub~~" 
               elsif( types[i] =~ /varchar/  )
                 row[columns[i]] = "~~stub~~".to_sym
-              elsif( types[i] =~ /float/ || types[i] =~ /int/ )
+              elsif( types[i] =~ /float/ || types[i] =~ /int/ || types[i] =~ /decimal/ )
                 row[columns[i]] = 0
               elsif( types[i] =~ /datetime/ || types[i] =~ /timetsamp/ )
                 row[columns[i]] = time.to_s(:db)
