@@ -413,18 +413,29 @@ Forklift allows you to create both Ruby transformations and script transformatio
 - It is up to the transport to define `exec_script`, and not all transports will support it.  Mysql can run `.sql` files, but there is not an equivalent for elasticsearch.
 - `.exec` runs and logs exceptions, while `.exec!` will raise on an error.  For example, `destination.exec("./transformations/cleanup.rb")` will run cleanup.rb on the destination database.
 - Script files are run as-is, but ruby transformations must define a `do!` method in their class and are passed `def do!(connection, forklift)`
+- args is optional, and can be passed in from your plan
 
 ```ruby
 # Example transformation to count users
 # count_users.rb
 
 class CountUsers
-  def do!(connection, forklift)
+  def do!(connection, forklift, args)
     forklift.logger.log "counting users"
     count = connection.count('users')
-    forklift.logger.log "found #{count} users"
+    forklift.logger.log "[#{args.name}] found #{count} users"
   end
 end
+```
+
+```ruby
+# in your plan.rb
+plan = Forklift::Plan.new
+plan.do! do
+  destination = plan.connections[:mysql][:destination]
+  destination.exec!("./transformations/combined_name.sql", {name: 'user counter'})
+
+  end
 ```
 
 ## Options & Notes
