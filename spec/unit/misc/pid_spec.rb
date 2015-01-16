@@ -11,6 +11,7 @@ describe 'misc forklift core' do
         expect(File.exists?(pid)).to eql true
         expect(File.read(pid).to_i).to eql Process.pid
       }
+      plan.disconnect!
       expect(File.exists?(pid)).to eql false
     end
 
@@ -19,6 +20,7 @@ describe 'misc forklift core' do
       plan.pid.store!
       expect { plan.do! }.to raise_error SystemExit
       plan.pid.delete!
+      plan.disconnect!
     end 
   end
 

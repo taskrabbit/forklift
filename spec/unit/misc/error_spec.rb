@@ -11,6 +11,7 @@ describe 'misc forklift core' do
         }
       }.to raise_error 'BREAK'
       plan.pid.delete!
+      plan.disconnect!
     end
 
     it 'can make error handlers' do
@@ -24,6 +25,7 @@ describe 'misc forklift core' do
       plan.do! {
         plan.step("step_a", error_handler){ raise 'BREAK' }
       }
+      plan.disconnect!
 
       expect(name).to    eql :step_a
       expect(ex.to_s).to eql 'BREAK'

@@ -17,6 +17,7 @@ describe 'elasticsearch' do
         @rows = (@rows + data)
       }
     }
+    plan.disconnect!
 
     expect(@rows.length).to eql 5
   end
@@ -32,6 +33,7 @@ describe 'elasticsearch' do
         @rows = (@rows + data)
       }
     }
+    plan.disconnect!
 
     expect(@rows.length).to eql 3
   end
@@ -46,6 +48,7 @@ describe 'elasticsearch' do
       destination = plan.connections[:elasticsearch][:forklift_test]
       destination.write(data, index)
     }
+    plan.disconnect!
 
     destination = SpecClient.elasticsearch('forklift_test')
     count = destination.count({ index: index })["count"]
@@ -63,6 +66,7 @@ describe 'elasticsearch' do
       destination = plan.connections[:elasticsearch][:forklift_test]
       destination.write(data, index, true)
     }
+    plan.disconnect!
 
     destination = SpecClient.elasticsearch('forklift_test')
     count = destination.count({ index: index })["count"]
@@ -91,5 +95,6 @@ describe 'elasticsearch' do
       destination.delete_index(index)
       expect { client.search({ index: index }) }.to raise_error(/IndexMissingException/)
     }    
+    plan.disconnect!
   end
 end

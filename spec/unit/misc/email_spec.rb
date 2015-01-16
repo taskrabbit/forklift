@@ -21,6 +21,7 @@ describe 'misc forklift core' do
         email_template = "#{File.dirname(__FILE__)}/../../template/spec_email_template.erb"
         @email = plan.mailer.send_template(email_args, email_template, email_variables).first
       }
+      plan.disconnect!
       
       expect(@email).to deliver_to("YOU@FAKE.com")
       expect(@email).to have_subject(/Forklift has moved your database/)

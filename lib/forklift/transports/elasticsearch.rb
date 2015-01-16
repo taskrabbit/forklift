@@ -7,7 +7,6 @@ module Forklift
       def initialize(config, forklift)
         @config = config
         @forklift = forklift
-        @client = ::Elasticsearch::Client.new(config)
       end
 
       def config
@@ -16,6 +15,14 @@ module Forklift
 
       def forklift
         @forklift
+      end
+
+      def connect 
+        @client = ::Elasticsearch::Client.new(config)
+      end
+
+      def disconnect
+        @client = nil
       end
 
       def read(index, query, looping=true, from=0, size=forklift.config[:batch_size])

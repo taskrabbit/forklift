@@ -16,6 +16,7 @@ describe Forklift::Connection::Mysql do
         expect(source.tables).to include 'products'
         expect(source.tables).to include 'sales'
       }
+      plan.disconnect!
     end
 
     it "can delte a table" do 
@@ -27,6 +28,7 @@ describe Forklift::Connection::Mysql do
         source.drop! table
         expect(source.tables).to_not include 'users'
       }
+      plan.disconnect!
     end
 
     it "can count the rows in a table" do
@@ -36,6 +38,7 @@ describe Forklift::Connection::Mysql do
         source = plan.connections[:mysql][:forklift_test_source_a]
         expect(source.count(table)).to eql 5
       }
+      plan.disconnect!
     end
 
     it "can truncate a table (both with and without !)" do 
@@ -48,6 +51,7 @@ describe Forklift::Connection::Mysql do
         expect(source.count(table)).to eql 0
         expect { source.truncate(table) }.to_not raise_error
       }
+      plan.disconnect!
     end
 
     it 'trunacte! will raise if the table does not exist' do
@@ -57,6 +61,7 @@ describe Forklift::Connection::Mysql do
         source = plan.connections[:mysql][:forklift_test_source_a]
         expect { source.truncate!(table) }.to raise_error(/Table 'forklift_test_source_a.other_table' doesn't exist/)
       }
+      plan.disconnect!
     end
 
     it "can get the columns of a table" do 
@@ -69,6 +74,7 @@ describe Forklift::Connection::Mysql do
         expect(source.columns(table)).to include 'product_id' 
         expect(source.columns(table)).to include 'timestamp' 
       }
+      plan.disconnect!
     end
 
     it "can create a mysqldump" do
@@ -78,6 +84,7 @@ describe Forklift::Connection::Mysql do
         source = plan.connections[:mysql][:forklift_test_source_a]
         source.dump(dump)
       }
+      plan.disconnect!
 
       expect(File.exists?(dump)).to eql true
       contents = Zlib::GzipReader.new(StringIO.new(File.read(dump))).read  

@@ -20,6 +20,7 @@ describe 'misc forklift core' do
         plan.step("b"){ steps_run << 'b' }
         plan.step("c"){ steps_run << 'c' }
       }
+      plan.disconnect!
       expect(steps_run).to include 'a'
       expect(steps_run).to include 'b'
       expect(steps_run).to include 'c'
@@ -34,6 +35,7 @@ describe 'misc forklift core' do
         plan.step("b"){ steps_run << 'b' }
         plan.step("c"){ steps_run << 'c' }
       }
+      plan.disconnect!
       expect(steps_run).to include 'a'
       expect(steps_run).to_not include 'b'
       expect(steps_run).to include 'c'
@@ -46,6 +48,7 @@ describe 'misc forklift core' do
         plan.do! {
           plan.step("a"){ raise 'never should get here' }
         }
+        plan.disconnect!
       }.to raise_error SystemExit
     end
   end

@@ -8,8 +8,14 @@ module Forklift
       def initialize(config, forklift)
         @config = config
         @forklift = forklift
-        @client = Mysql2::Client.new(config)
-        # q("USE #{config['database']}")
+      end
+
+      def connect
+        @client = Mysql2::Client.new(@config)
+      end
+
+      def disconnect
+        @client.close
       end
 
       def config

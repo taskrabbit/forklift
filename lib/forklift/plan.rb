@@ -33,6 +33,7 @@ module Forklift
         begin
           loader = "Forklift::Connection::#{type.camelcase}.new(db_config, self)"
           connection = eval(loader)
+          connection.connect
           connections[type.to_sym][name.to_sym] = connection
           logger.debug "loaded a #{type.camelcase} connection from #{f}"
         rescue Exception => e
@@ -42,6 +43,13 @@ module Forklift
       end
     end
 
+    def disconnect!
+      connections.each do |k, collection|
+        collection.each do |k, connection|
+          connection.disconnect
+        end
+      end
+    end
 
     def default_error_handler
       return lambda {|name, e| raise e }

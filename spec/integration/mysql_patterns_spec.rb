@@ -21,6 +21,7 @@ describe 'mysql patterns' do
 
       expect(destination.tables.length).to eql 3
     }
+    plan.disconnect!
   end
 
   it "can do an incramental data pipe with only updated data" do
@@ -42,6 +43,7 @@ describe 'mysql patterns' do
       expect(destination.count('users')).to eql 5
       expect(destination.read('select first_name from users where id = 1')[0][:first_name]).to eql 'EvanAgain'
     }
+    plan.disconnect!
   end
 
   it "(optimistic_pipe) can determine if it should do an incramental or full pipe" do
@@ -52,6 +54,7 @@ describe 'mysql patterns' do
       expect(Forklift::Patterns::Mysql.can_incremental_pipe?(source, 'sales', source, 'sales')).to eql false
       expect(Forklift::Patterns::Mysql.can_incremental_pipe?(source, 'products', source, 'products')).to eql true
     }
+    plan.disconnect!
   end
 
   it "can run the mysql_optimistic_import pattern" do
@@ -72,6 +75,7 @@ describe 'mysql patterns' do
       expect(destination.count('users')).to eql 5
       expect(destination.read('select first_name from users where id = 1')[0][:first_name]).to eql 'EvanAgain'
     }
+    plan.disconnect!
   end
 
   it "can write the high_water_mark"

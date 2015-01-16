@@ -18,6 +18,9 @@ module Forklift
         @forklift
       end
 
+      def connect; end
+      def disconnect; end
+
       def read(size=forklift.config[:batch_size])
         data = []
         CSV.foreach(config[:file], headers: true, converters: :all) do |row|
