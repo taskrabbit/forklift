@@ -10,6 +10,7 @@ describe 'basics' do
         tables << row.values[0]
       end
       expect(tables.count).to eql 3
+      client.close
 
       client = SpecClient.mysql('forklift_test_source_b')
       tables = []
@@ -17,6 +18,7 @@ describe 'basics' do
         tables << row.values[0]
       end
       expect(tables.count).to eql 1
+      client.close
     end
 
     it 'seeded the elasticsearch db' do

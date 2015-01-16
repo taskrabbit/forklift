@@ -16,6 +16,7 @@ describe 'mysql' do
         @rows = (@rows + data)
       }
     }
+    plan.disconnect!
 
     expect(@rows.length).to eql 5
   end
@@ -30,6 +31,7 @@ describe 'mysql' do
         @rows = (@rows + data)
       }
     }
+    plan.disconnect!
 
     expect(@rows.length).to eql 3
   end
@@ -45,6 +47,7 @@ describe 'mysql' do
       destination = plan.connections[:mysql][:forklift_test_source_a]
       destination.write(data, table)
     }
+    plan.disconnect!
 
     destination = SpecClient.mysql('forklift_test_source_a')
     count = destination.query('select count(1) as "count" from users').first['count']
@@ -61,6 +64,7 @@ describe 'mysql' do
       destination = plan.connections[:mysql][:forklift_test_source_a]
       destination.write(data, table)
     }
+    plan.disconnect!
 
     destination = SpecClient.mysql('forklift_test_source_a')
     count = destination.query('select count(1) as "count" from users').first['count']
@@ -88,6 +92,7 @@ describe 'mysql' do
         destination = plan.connections[:mysql][:forklift_test_source_a]
         destination.write(data, table)
       }
+      plan.disconnect!
 
       destination = SpecClient.mysql('forklift_test_source_a')
       cols = []
@@ -117,6 +122,7 @@ describe 'mysql' do
         destination = plan.connections[:mysql][:forklift_test_source_a]
         destination.write(data, table)
       }
+      plan.disconnect!
 
       destination = SpecClient.mysql('forklift_test_source_a')
       cols = []
@@ -151,6 +157,7 @@ describe 'mysql' do
         destination = plan.connections[:mysql][:forklift_test_source_a]
         destination.write(data, table)
       }
+      plan.disconnect!
 
       count = raw.query("SHOW COLUMNS FROM #{table}").count
       expect(count).to eql 7
@@ -168,6 +175,7 @@ describe 'mysql' do
         destination = plan.connections[:mysql][:forklift_test_source_a]
         destination.write(data, table)
       }
+      plan.disconnect!
 
       destination = SpecClient.mysql('forklift_test_source_a')
       cols = []
@@ -200,6 +208,7 @@ describe 'mysql' do
         destination = plan.connections[:mysql][:forklift_test_source_a]
         destination.write(data, table)
       }
+      plan.disconnect!
 
       destination = SpecClient.mysql('forklift_test_source_a')
       cols = []
@@ -226,6 +235,7 @@ describe 'mysql' do
         destination = plan.connections[:mysql][:forklift_test_source_a]
         destination.write(data, table)
       }
+      plan.disconnect!
 
       destination = SpecClient.mysql('forklift_test_source_a')
       cols = []

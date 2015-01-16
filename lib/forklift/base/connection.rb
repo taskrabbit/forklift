@@ -38,32 +38,32 @@ module Forklift
         raise 'not implemented'
       end
 
-      def exec(path)
+      def exec(path, *args)
         begin
-          exec!(path)
+          exec!(path, &args)
         rescue Exception => e
           forklift.logger.log(e)
         end
       end
 
-      def exec!(path)
+      def exec!(path, *args)
         forklift.logger.log "Running script: #{path}"
         extension = path.split(".").last
         if(extension == "rb" || extension == "ruby")
-          exec_ruby(path)
+          exec_ruby(path, *args)
         else
-          exec_script(path)
+          exec_script(path, *args)
         end
       end
 
-      def exec_ruby(path)
+      def exec_ruby(path, *args)
         klass = forklift.utils.class_name_from_file(path)
         require path
         model = eval("#{klass}.new")
-        model.do!(self, forklift)
+        model.do!(self, forklift, *args)
       end
 
-      def exec_script(path)
+      def exec_script(path, *args)
         raise 'not implemented'
       end
 

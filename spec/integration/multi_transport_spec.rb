@@ -18,6 +18,7 @@ describe 'multiple trasport types' do
         destination = plan.connections[:mysql][:forklift_test_destination]
         source.read(index, query) {|data| destination.write(data, table) }
       }
+      plan.disconnect!
 
       destination = SpecClient.mysql('forklift_test_destination')
       rows = destination.query("select count(1) as 'count' from es_import").first["count"]
@@ -34,6 +35,7 @@ describe 'multiple trasport types' do
         destination = plan.connections[:mysql][:forklift_test_destination]
         source.read(index, query, false, 0, 3) {|data| destination.write(data, table) }
       }
+      plan.disconnect!
 
       destination = SpecClient.mysql('forklift_test_destination')
       rows = destination.query("select count(1) as 'count' from es_import").first["count"]
@@ -61,6 +63,7 @@ describe 'multiple trasport types' do
           destination.write(clean_data, table) 
         }
       }
+      plan.disconnect!
 
       destination = SpecClient.mysql('forklift_test_destination')
       max = destination.query("select max(viewed_at) as 'max' from es_import").first["max"]
@@ -85,6 +88,7 @@ describe 'multiple trasport types' do
         destination = plan.connections[:elasticsearch][:forklift_test]
         source.read("select * from #{table}") {|data| destination.write(data, index) }
       }
+      plan.disconnect!
 
       destination = SpecClient.elasticsearch('forklift_test')
       count = destination.count({ index: index })["count"]
@@ -102,6 +106,7 @@ describe 'multiple trasport types' do
           destination.write(data, index) 
         }
       }
+      plan.disconnect!
 
       destination = SpecClient.elasticsearch('forklift_test')
       count = destination.count({ index: index })["count"]
