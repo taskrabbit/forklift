@@ -1,7 +1,11 @@
 # Forklift ETL
 
+---
+
 ## THIS TOOL IS NO LONGER SUPORTED.
 It has been succeded by [Empujar](https://github.com/taskrabbit/empujar)
+
+---
 
 Moving heavy databases around. [![Gem Version](https://badge.fury.io/rb/forklift_etl.svg)](http://badge.fury.io/rb/forklift_etl)
 [![Build Status](https://secure.travis-ci.org/taskrabbit/forklift.png?branch=master)](http://travis-ci.org/taskrabbit/forklift)
