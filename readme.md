@@ -418,7 +418,7 @@ end
 
 Forklift allows you to create both Ruby transformations and script transformations.
 
-- It is up to the transport to define `exec_script`, and not all transports will support it.  Mysql can run `.sql` files, but there is not an equivalent for elasticsearch.
+- It is up to the transport to define `exec_script`, and not all transports will support it.  Mysql can run `.sql` files, but there is not an equivalent for elasticsearch. Mysql scripts evaluate statement by statement. The delimeter (by default `;`) can be redefined using the `delimeter` command as described [here](http://dev.mysql.com/doc/refman/5.7/en/stored-programs-defining.html)
 - `.exec` runs and logs exceptions, while `.exec!` will raise on an error.  For example, `destination.exec("./transformations/cleanup.rb")` will run cleanup.rb on the destination database.
 - Script files are run as-is, but ruby transformations must define a `do!` method in their class and are passed `def do!(connection, forklift)`
 - args is optional, and can be passed in from your plan
@@ -447,7 +447,7 @@ plan.do! do
 ```
 
 ## Options & Notes
-- Thanks to [@rahilsondhi](https://github.com/rahilsondhi) from [InternMatch](http://www.internmatch.com/) for all his help
+- Thanks to [@rahilsondhi](https://github.com/rahilsondhi) and [Looksharp](https://www.looksharp.com/) for all their help
 - email_options is a hash consumed by the [Pony mail gem](https://github.com/benprew/pony)
 - Forklift's logger is [Lumberjack](https://github.com/bdurand/lumberjack) with a wrapper to also echo the log lines to stdout and save them to an array to be accessed later by the email system.
 - The mysql connections hash will be passed directly to a [mysql2](https://github.com/brianmario/mysql2) connection.
