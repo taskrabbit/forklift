@@ -169,9 +169,9 @@ module Forklift
         return "text"         # catchall
       end
 
-      def read_since(table, since, matcher=default_matcher, database=current_database)
+      def read_since(table, since, matcher=default_matcher, database=current_database, limit=forklift.config[:batch_size])
         query = "select * from `#{database}`.`#{table}` where `#{matcher}` >= '#{since}' order by `#{matcher}` asc"
-        self.read(query, database){|data|
+        self.read(query, database, true, limit){|data|
           if block_given?
             yield data
           else
