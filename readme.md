@@ -447,7 +447,7 @@ plan.do! do
 ```
 
 ## Options & Notes
-- Thanks to [@rahilsondhi](https://github.com/rahilsondhi) and [Looksharp](https://www.looksharp.com/) for all their help
+- Thanks to [@rahilsondhi](https://github.com/rahilsondhi), [@rgarver](https://github.com/rgarver) and [Looksharp](https://www.looksharp.com/) for all their help
 - email_options is a hash consumed by the [Pony mail gem](https://github.com/benprew/pony)
 - Forklift's logger is [Lumberjack](https://github.com/bdurand/lumberjack) with a wrapper to also echo the log lines to stdout and save them to an array to be accessed later by the email system.
 - The mysql connections hash will be passed directly to a [mysql2](https://github.com/brianmario/mysql2) connection.
