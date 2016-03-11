@@ -89,11 +89,11 @@ describe 'elasticsearch' do
     ]
     plan.do! {
       destination = plan.connections[:elasticsearch][:forklift_test]
-      expect { client.search({ index: index }) }.to raise_error(/index_not_found_exception/)
+      expect { client.search({ index: index }) }.to raise_error(/index_not_found_exception|IndexMissingException/)
       destination.write(data, index, true)
       expect { client.search({ index: index }) }.to_not raise_error
       destination.delete_index(index)
-      expect { client.search({ index: index }) }.to raise_error(/index_not_found_exception/)
+      expect { client.search({ index: index }) }.to raise_error(/index_not_found_exception|IndexMissingException/)
     }
     plan.disconnect!
   end
