@@ -198,7 +198,7 @@ module Forklift
       end
 
       def current_database
-        q("select database() as 'db'").first['db']
+        @_current_database ||= q("select database() as 'db'").first['db']
       end
 
       def count(table, database=current_database)
@@ -255,15 +255,23 @@ module Forklift
 
       def exec_script(path)
         body = File.read(path)
-        lines = body.split(';')
-        lines.each do |line|
-          line.strip!
-          q(line) if line.length > 0
+        delim = ';'
+        body.split(/^(delimiter\s+.*)$/i).each do |section|
+          if section =~ /^delimiter/i
+            delim = section[/^delimiter\s+(.+)$/i,1]
+            next
+          end
+
+          lines = section.split(delim)
+          lines.each do |line|
+            line.strip!
+            q(line) if line.length > 0
+          end
         end
       end
 
       def q(query, options={})
-        forklift.logger.debug "    SQL: #{query}"
+        forklift.logger.debug "\tSQL[#{config[:database]}]: #{query}"
         return client.query(query, options)
       end
 
