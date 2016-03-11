@@ -73,3 +73,6 @@ DEPENDENCIES
   forklift_etl!
   rake
   rspec
+
+BUNDLED WITH
+   1.11.2

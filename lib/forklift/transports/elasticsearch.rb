@@ -17,7 +17,7 @@ module Forklift
         @forklift
       end
 
-      def connect 
+      def connect
         @client = ::Elasticsearch::Client.new(config)
       end
 
