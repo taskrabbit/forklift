@@ -29,7 +29,7 @@ describe 'elasticsearch' do
     @rows = []
     plan.do! {
       source = plan.connections[:elasticsearch][:forklift_test]
-      source.read(index, query, false, 0, 3) {|data| 
+      source.read(index, query, false, 0, 3) {|data|
         @rows = (@rows + data)
       }
     }
@@ -56,7 +56,7 @@ describe 'elasticsearch' do
     expect(count).to eql 6
   end
 
-  it "can overwrite existing data, probided a primary key" do 
+  it "can overwrite existing data, probided a primary key" do
     index = 'forklift_test'
     plan = SpecPlan.new
     data = [
@@ -80,7 +80,7 @@ describe 'elasticsearch' do
     expect(obj["viewed_at"]).to eql 99
   end
 
-  it "can delete an index" do 
+  it "can delete an index" do
     index = 'other_test_index'
     plan = SpecPlan.new
     client = SpecClient.elasticsearch('forklift_test')
@@ -89,12 +89,12 @@ describe 'elasticsearch' do
     ]
     plan.do! {
       destination = plan.connections[:elasticsearch][:forklift_test]
-      expect { client.search({ index: index }) }.to raise_error(/IndexMissingException/)
+      expect { client.search({ index: index }) }.to raise_error(/index_not_found_exception|IndexMissingException/)
       destination.write(data, index, true)
       expect { client.search({ index: index }) }.to_not raise_error
       destination.delete_index(index)
-      expect { client.search({ index: index }) }.to raise_error(/IndexMissingException/)
-    }    
+      expect { client.search({ index: index }) }.to raise_error(/index_not_found_exception|IndexMissingException/)
+    }
     plan.disconnect!
   end
 end

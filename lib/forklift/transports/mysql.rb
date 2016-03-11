@@ -99,7 +99,7 @@ module Forklift
             insert_q << safe_values(columns, d)
             insert_q << ","
           end
-          
+
           if delete_keys.length > 0
             delete_q << "(#{delete_keys.join(',')})"
             q(delete_q)
@@ -129,22 +129,26 @@ module Forklift
         keys = {}
         data.each do |item|
           item.each do |k,v|
-            keys[k] = sql_type(v) if ( keys[k].nil? && v.class != NilClass )
+            keys[k.to_s] = sql_type(v) if (keys[k.to_s].nil? || keys[k.to_s] == sql_type(nil))
           end
         end
+        keys[primary_key] = 'bigint(20)' unless keys.has_key?(primary_key)
 
-        data.first.each do |k,v|
-          keys[k] = sql_type(v) if ( keys[k].nil? )
+        col_defn = keys.map do |col, type|
+          if col == primary_key
+            "`#{col}` #{type} NOT NULL AUTO_INCREMENT"
+          else
+            "`#{col}` #{type} DEFAULT NULL"
+          end
         end
+        col_defn << "PRIMARY KEY (`#{primary_key}`)"
+        col_defn << "KEY `#{matcher}` (`#{matcher}`)" if keys.include?(matcher.to_sym)
 
-        command = "CREATE TABLE `#{database}`.`#{table}` ( "
-        command << " `#{primary_key}` bigint(20) NOT NULL AUTO_INCREMENT, " if ( data.first[primary_key.to_sym].nil? )
-        keys.each do |col, type|
-          command << " `#{col}` #{type} DEFAULT NULL, "
-        end
-        command << " PRIMARY KEY (`#{primary_key}`) "
-        command << " , KEY `#{matcher}` (`#{matcher}`) " if keys.include?(matcher.to_sym)
-        command << " ) "
+        command = <<-EOS
+        CREATE TABLE `#{database}`.`#{table}` (
+          #{col_defn.join(', ')}
+        )
+        EOS
 
         q(command)
         forklift.logger.log "lazy-created table `#{database}`.`#{table}`"
@@ -238,7 +242,7 @@ module Forklift
         cmd << " | gzip > #{file}"
         forklift.logger.log "Dumping #{config['database']} to #{file}"
         forklift.logger.debug cmd
-        
+
         stdin, stdout, stderr = Open3.popen3(cmd)
         stdout = stdout.readlines
         stderr = stderr.readlines
@@ -285,7 +289,7 @@ module Forklift
             end
 
           end
-        end 
+        end
       end
 
       def safe_columns(cols)

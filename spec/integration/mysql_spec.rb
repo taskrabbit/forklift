@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'mysql' do  
+describe 'mysql' do
 
   before(:each) do
     SpecSeeds.setup_mysql
@@ -12,7 +12,7 @@ describe 'mysql' do
     @rows = []
     plan.do! {
       source = plan.connections[:mysql][:forklift_test_source_a]
-      source.read(query) {|data| 
+      source.read(query) {|data|
         @rows = (@rows + data)
       }
     }
@@ -20,14 +20,14 @@ describe 'mysql' do
 
     expect(@rows.length).to eql 5
   end
-  
+
   it "can read data (filtered)" do
     query = 'select * from `users`'
     plan = SpecPlan.new
     @rows = []
     plan.do! {
       source = plan.connections[:mysql][:forklift_test_source_a]
-      source.read(query, source.current_database, false, 3, 0) {|data| 
+      source.read(query, source.current_database, false, 3, 0) {|data|
         @rows = (@rows + data)
       }
     }
@@ -54,7 +54,7 @@ describe 'mysql' do
     expect(count).to eql 7
   end
 
-  it "can update existing data" do 
+  it "can update existing data" do
     table = "users"
     data = [
       {id: 1, email: 'evan@example.com', first_name: 'New Name', last_name: 'T', created_at: Time.new.to_s(:db), updated_at: Time.new.to_s(:db)}
@@ -79,8 +79,8 @@ describe 'mysql' do
       destination = SpecClient.mysql('forklift_test_source_a')
       destination.query('drop table if exists `new_table`')
     end
-    
-    it "can lazy-create a table with primary keys provided" do 
+
+    it "can lazy-create a table with primary keys provided" do
       data = [
         {id: 1, thing: 'stuff a', updated_at: Time.new},
         {id: 2, thing: 'stuff b', updated_at: Time.new},
@@ -99,17 +99,17 @@ describe 'mysql' do
       destination.query("describe #{table}").each do |row|
         cols << row["Field"]
         case row["Field"]
-        when "id" 
+        when "id"
           expect(row["Type"]).to eql "bigint(20)"
-        when "thing" 
+        when "thing"
           expect(row["Type"]).to eql "text"
-        when "updated_at" 
+        when "updated_at"
           expect(row["Type"]).to eql "datetime"
         end
       end
       expect(cols).to eql ['id', 'thing', 'updated_at']
     end
-    
+
     it "can lazy-create a table without primary keys provided" do
       data = [
         {thing: 'stuff a', number: 1.123, updated_at: Time.new},
@@ -129,17 +129,17 @@ describe 'mysql' do
       destination.query("describe #{table}").each do |row|
         cols << row["Field"]
         case row["Field"]
-        when "id" 
+        when "id"
           expect(row["Type"]).to eql "bigint(20)"
-        when "thing" 
+        when "thing"
           expect(row["Type"]).to eql "text"
-        when "number" 
+        when "number"
           expect(row["Type"]).to eql "float"
-        when "updated_at" 
+        when "updated_at"
           expect(row["Type"]).to eql "datetime"
         end
       end
-      expect(cols).to eql ['id', 'thing', 'number', 'updated_at']
+      expect(cols).to include('id', 'thing', 'number', 'updated_at')
     end
 
     it "can add columns to exiting tables when new keys are provided" do
@@ -163,7 +163,7 @@ describe 'mysql' do
       expect(count).to eql 7
     end
 
-    it "can will seek further for null-ish values" do 
+    it "can will seek further for null-ish values" do
       data = [
         {id: 1, thing: 'stuff a', number: nil, updated_at: Time.new},
         {id: 2, thing: 'stuff b', number: nil, updated_at: Time.new},
@@ -182,25 +182,25 @@ describe 'mysql' do
       destination.query("describe #{table}").each do |row|
         cols << row["Field"]
         case row["Field"]
-        when "id" 
+        when "id"
           expect(row["Type"]).to eql "bigint(20)"
-        when "thing" 
+        when "thing"
           expect(row["Type"]).to eql "text"
-        when "number" 
+        when "number"
           expect(row["Type"]).to eql "bigint(20)"
-        when "updated_at" 
+        when "updated_at"
           expect(row["Type"]).to eql "datetime"
         end
       end
-      expect(cols).to eql ['id', 'thing', 'updated_at', 'number']
+      expect(cols).to include('id', 'thing', 'updated_at', 'number')
     end
 
-    it "null rows will be text, and can be updated on subsequent writes" do 
+    it "null rows will be text, and can be updated on subsequent writes" do
       data = [
         {id: 1, number: nil, updated_at: Time.new},
         {id: 2, number: nil, updated_at: Time.new},
       ]
-      
+
       table = "new_table"
 
       plan = SpecPlan.new
@@ -216,15 +216,15 @@ describe 'mysql' do
       destination.query("describe #{table}").each do |row|
         cols << row["Field"]
         case row["Field"]
-        when "id" 
+        when "id"
           expect(row["Type"]).to eql "bigint(20)"
-        when "number" 
+        when "number"
           expect(row["Type"]).to eql "varchar(0)"
-        when "updated_at" 
+        when "updated_at"
           expect(row["Type"]).to eql "datetime"
         end
       end
-      expect(cols).to eql ['id', 'updated_at', 'number']
+      expect(cols).to include('id', 'updated_at', 'number')
 
       data = [
         {id: 3, number: 123, updated_at: Time.new},
@@ -243,11 +243,11 @@ describe 'mysql' do
       destination.query("describe #{table}").each do |row|
         cols << row["Field"]
         case row["Field"]
-        when "number" 
+        when "number"
           expect(row["Type"]).to eql "bigint(20)"
         end
       end
-      expect(cols).to eql ['id', 'updated_at', 'number']
+      expect(cols).to include('id', 'updated_at', 'number')
     end
 
   end
