@@ -8,3 +8,4 @@ config/email.yml
 config/dump.yml
 /deploy
 /config
+.yardoc/

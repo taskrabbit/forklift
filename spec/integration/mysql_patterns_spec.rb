@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'mysql patterns' do  
+describe 'mysql patterns' do
 
   before(:each) do
     SpecSeeds.setup_mysql
@@ -11,10 +11,10 @@ describe 'mysql patterns' do
     plan.do! {
       source = plan.connections[:mysql][:forklift_test_source_a]
       destination = plan.connections[:mysql][:forklift_test_destination]
-      
+
       expect(source.tables.length).to eql 3
       expect(destination.tables.length).to eql 0
-      
+
       source.tables.each do |table|
         Forklift::Patterns::Mysql.pipe(source, table, destination, table)
       end
@@ -59,18 +59,19 @@ describe 'mysql patterns' do
 
   it "can run the mysql_optimistic_import pattern" do
     plan = SpecPlan.new
+    table = 'users'
     plan.do! {
       source = plan.connections[:mysql][:forklift_test_source_a]
       destination = plan.connections[:mysql][:forklift_test_destination]
 
-      Forklift::Patterns::Mysql.mysql_optimistic_import(source, destination)
+      Forklift::Patterns::Mysql.mysql_optimistic_import(source, table, destination, table)
 
-      expect(destination.tables.length).to eql 3
+      expect(destination.tables.length).to eql 1
 
       source.q("UPDATE `users` SET `first_name` = 'EvanAgain' WHERE `id` = '1'")
       source.q("UPDATE `users` SET `updated_at` = NOW() WHERE `id` = '1'")
 
-      Forklift::Patterns::Mysql.mysql_optimistic_import(source, destination)
+      Forklift::Patterns::Mysql.mysql_optimistic_import(source, table, destination, table)
 
       expect(destination.count('users')).to eql 5
       expect(destination.read('select first_name from users where id = 1')[0][:first_name]).to eql 'EvanAgain'
