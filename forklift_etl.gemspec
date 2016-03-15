@@ -6,12 +6,12 @@ require 'forklift/version'
 Gem::Specification.new do |s|
   s.name        = "forklift_etl"
   s.version     = Forklift::VERSION
-  s.authors     = ["Evan Tahler"]
-  s.email       = ["evan@taskrabbit.com"]
+  s.authors     = ["Evan Tahler", "Ryan Garver"]
+  s.email       = ["evan@taskrabbit.com", "ragarver@gmail.com"]
   s.homepage    = "https://github.com/taskrabbit/forklift"
   s.summary     = %q{Forklift: Moving big databases around. A ruby ETL tool.}
   s.description = %q{A collection of ETL tools and patterns for mysql and elasticsearch.}
-  s.license     = "MIT"
+  s.license     = "Apache-2.0"
 
   s.rubyforge_project = "forklift_etl"
 
