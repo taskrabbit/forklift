@@ -1,6 +1,6 @@
 # Change Log
 
-## [Unreleased]
+## [2.0.0 - Unreleased]
 ### Added
 - More docs around the Mysql code.
 

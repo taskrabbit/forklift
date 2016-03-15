@@ -9,7 +9,12 @@
 * You should be all set with a working dev environment.
 
 ## Running Tests
-  To run this test suite, you will need access to both a MySQL and Elasticsearch database. Test configurations are saved in `/spec/config/connections`. They assume that you have MySQL listening on `127.0.0.1:3306` and can be accessed with a user named `root` and with no password. Elasticsearch is expected to be listening on `127.0.0.1:9200`.
+  To run this test suite, you will need access to both a MySQL and
+Elasticsearch database. Test configurations are saved in
+`/spec/config/connections`. They assume that you have MySQL listening on
+`127.0.0.1:3306` and can be accessed with a user named `root` and with
+no password. Elasticsearch is expected to be listening on
+`127.0.0.1:9200`.
 
 The MySQL tests will create and auto-populate 4 databases:
 
@@ -19,3 +24,8 @@ The MySQL tests will create and auto-populate 4 databases:
 * `forklift_test_working`
 
 You can run the whole suite of tests by running `rake`.
+
+# Change Logs
+  When submitting a patch ensure you include an update to the relevant
+section of the [CHANGELOG](CHANGELOG.md). Use
+[http://keepachangelog.com/](http://keepachangelog.com/) as a guide.
