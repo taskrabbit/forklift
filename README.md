@@ -1,16 +1,9 @@
 # Forklift ETL
 
----
-
-## THIS TOOL IS NO LONGER SUPORTED.
-It has been succeded by [Empujar](https://github.com/taskrabbit/empujar)
-
----
-
 Moving heavy databases around. [![Gem Version](https://badge.fury.io/rb/forklift_etl.svg)](http://badge.fury.io/rb/forklift_etl)
 [![Build Status](https://secure.travis-ci.org/taskrabbit/forklift.png?branch=master)](http://travis-ci.org/taskrabbit/forklift)
 
-![picture](https://raw.github.com/taskrabbit/forklift/master/forklift.jpg)
+![picture](forklift_small.jpg)
 
 ## What?
 
@@ -96,10 +89,11 @@ plan.do! do
   # Load data from the working database to the final database
   analytics_working.tables.each do |table|
     # will attempt to do an incremental pipe, will fall back to a full table copy
-    # by default, incremental updates happen off of the `updated_at` column, but you can modify this by setting the `matcher` argument
+    # by default, incremental updates happen off of the `updated_at` column, but you can modify this by setting the `matcher` in the options
     # If you want a full pipe instead of incremental, then just use `pipe` instead of `optimistic_pipe`
     # The `pipe pattern` works within the same database.  To copy across databases, try the `mysql_optimistic_import` method
-    Forklift::Patterns::Mysql.optimistic_pipe(analytics_working.current_database, table, analytics.current_database, table)
+    # This example show the options with their default values.
+    Forklift::Patterns::Mysql.optimistic_pipe(analytics_working.current_database, table, analytics.current_database, table, matcher: 'updated_at', primary_key: 'id')
   end
 end
 ```
@@ -155,6 +149,7 @@ end
 
 #### Setup
 Put this at the end of your plan inside the `do!` block.
+
 ```ruby
 # ==> Email
 # Let your team know the outcome. Attaches the log.
@@ -169,6 +164,7 @@ plan.mailer.send(email_args, plan.logger.messages)
 
 #### ERB templates
 You can get fancy by using an ERB template for your email and SQL variables:
+
 ```ruby
 # ==> Email
 # Let your team know the outcome. Attaches the log.
@@ -185,6 +181,7 @@ plan.mailer.send_template(email_args, email_template, email_variables, plan.logg
 ```
 
 Then in `template/email.erb`:
+
 ```erb
 <h1>Your forklift email</h1>
 
@@ -246,6 +243,7 @@ end
 ### Steps
 
 You can optionally divide up your forklift plan into steps:
+
 ```ruby
 plan = Forklift::Plan.new
 plan.do! do
@@ -268,7 +266,7 @@ plan.do! do
     source.read(index, query) {|data| destination.write(data, table) }
   }
 
-end  
+end
 ```
 
 When you use steps, you can run your whole plan, or just part if it with command line arguments.  For example, `forklift plan.rb "Elasticsearch Import"` would just run that single portion of the plan.  Note that any parts of your plan not within a step will be run each time. 
@@ -356,63 +354,20 @@ module Forklift
 end
 ```
 
+Existing transports and patterns for them are documented [here](http://www.rubydoc.info/gems/forklift_etl)
 ### MySQL
 
-#### Forklift methods
-
-- read(query, database=current_database, looping=true, limit=1000, offset=0)
-- read_since(table, since, matcher=default_matcher, database=current_database)
-  - a wrapper around `read` to get only rows since a timestamp
-- write(data, table, to_update=false, database=current_database, primary_key='id', lazy=true, crash_on_extral_col=true)
-  - `lazy` will create a table if not found
-  - `crash_on_extral_col` will sanitize input to only contain the cols in the table
-
-#### Transport-specific methods
-
-- tables
-  - list connection's database tables
-- current_database
-  - return the database's name
-- count(table, database=current_database)
-  - count rows in table
-- max_timestamp(table, matcher=default_matcher, database=current_database)
-  - return the timestamp of the max(matcher) or 1970-01-01
-- truncate!(table, database=current_database)
-- columns(table, database=current_database, return_types=false)
-- rename(table, new_table, database, new_database)
-- dump(file)
-  - mysqldump the database to `file` via gzip
-
-#### Patterns
-
-- pipe(from_db, from_table, to_db, to_table)
-- incremental_pipe(from_db, from_table, to_db, to_table, matcher=default_matcher, primary_key='id')
-  - `pipe` with only new data where time is greater than the latest `matcher` on the `to_db`
-- optimistic_pipe(from_db, from_table, to_db, to_table, matcher=default_matcher, primary_key='id')
-  - tries to `incremental_pipe`, falling back to `pipe`
-- mysql_optimistic_import(source, destination)
-  - tries to do an incramental table copy, falls back to a full table copy
-  - this differs from `pipe`, as all data is loaded into forklift, rather than relying on mysql transfer methods
-- write_high_water_mark(db, time, matcher)
-  - The high water method will stub a row in all tables with a `default_matcher` column prentending to have a record from `time`
+- [Transport](http://www.rubydoc.info/gems/forklift_etl/Forklift/Connection/Mysql)
+- [Patterns](http://www.rubydoc.info/gems/forklift_etl/Forklift/Patterns/Mysql)
 
 ### Elasticsearch
 
-#### Forklift methods
-
-- read(index, query, looping=true, from=0, size=1000)
-- write(data, index, update=false, type='forklift', primary_key=:id)
-
-#### Transport-specific methods
-
-- delete_index(index)
+- [Transport](http://www.rubydoc.info/gems/forklift_etl/Forklift/Connection/Elasticsearch)
+- [Patterns](http://www.rubydoc.info/gems/forklift_etl/Forklift/Patterns/Elasticsearch)
 
 ### Csv
 
-#### Forklift methods
-
-- read(size)
-- write(data, append=true)
+- [Transport](http://www.rubydoc.info/gems/forklift_etl/Forklift/Connection/Csv)
 
 ## Transformations
 
@@ -447,7 +402,7 @@ plan.do! do
 ```
 
 ## Options & Notes
-- Thanks to [@rahilsondhi](https://github.com/rahilsondhi) and [Looksharp](https://www.looksharp.com/) for all their help
+- Thanks to [@rahilsondhi](https://github.com/rahilsondhi), [@rgarver](https://github.com/rgarver) and [Looksharp](https://www.looksharp.com/) for all their help
 - email_options is a hash consumed by the [Pony mail gem](https://github.com/benprew/pony)
 - Forklift's logger is [Lumberjack](https://github.com/bdurand/lumberjack) with a wrapper to also echo the log lines to stdout and save them to an array to be accessed later by the email system.
 - The mysql connections hash will be passed directly to a [mysql2](https://github.com/brianmario/mysql2) connection.
@@ -457,4 +412,7 @@ plan.do! do
 - If testing locally, mailcatcher (https://github.com/sj26/mailcatcher) is a helpful gem to test your email sending
 
 ## Contributing and Testing
-To run this test suite, you will need access to both a mysql and elasticsearch database. Test configurations are saved in `/spec/config/connections`.
+See: [CONTRIBUTING](CONTRIBUTING.md)
+
+## Alternatives
+If you want something similar for Node.js try [Empujar](https://github.com/taskrabbit/empujar)

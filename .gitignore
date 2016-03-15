@@ -1,6 +1,8 @@
 .DS_Store
 *.gem
 */.DS_Store
+Gemfile.lock
+.bundle/
 pid
 log
 config/databases.yml
@@ -8,3 +10,4 @@ config/email.yml
 config/dump.yml
 /deploy
 /config
+.yardoc/
