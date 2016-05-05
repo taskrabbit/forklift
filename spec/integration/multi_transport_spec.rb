@@ -1,28 +1,27 @@
 require 'spec_helper'
 
 describe 'multiple trasport types' do
+  describe 'elasticsearch => mysql' do
+    before(:each) do
+      SpecSeeds.setup_mysql
+      SpecSeeds.setup_elasticsearch
+    end
 
-  before(:each) do
-    SpecSeeds.setup_mysql
-    SpecSeeds.setup_elasticsearch
-  end
-
-  describe 'elasticsearch => mysql' do  
     it 'can load in a full query' do
       table = 'es_import'
       index = 'forklift_test'
       query = { query: { match_all: {} } }
-      plan = SpecPlan.new
-      plan.do! {
-        source = plan.connections[:elasticsearch][:forklift_test]
-        destination = plan.connections[:mysql][:forklift_test_destination]
-        source.read(index, query) {|data| destination.write(data, table) }
-      }
-      plan.disconnect!
-
-      destination = SpecClient.mysql('forklift_test_destination')
-      rows = destination.query("select count(1) as 'count' from es_import").first["count"]
-      expect(rows).to eql 5
+      begin
+        plan = SpecPlan.new
+        plan.do! {
+          source = plan.connections[:elasticsearch][:forklift_test]
+          destination = plan.connections[:mysql][:forklift_test_destination]
+          source.read(index, query) {|data| destination.write(data, table) }
+          expect(destination.count('es_import')).to eql(5)
+        }
+      ensure
+        plan.disconnect!
+      end
     end
 
     it 'can load in a partial query' do
@@ -54,13 +53,13 @@ describe 'multiple trasport types' do
       plan.do! {
         source = plan.connections[:elasticsearch][:forklift_test]
         destination = plan.connections[:mysql][:forklift_test_destination]
-        source.read(index, query) {|data| 
+        source.read(index, query) {|data|
           clean_data = []
           data.each do |row|
             row[:viewed_at] = Time.at(row[:viewed_at])
             clean_data << row
           end
-          destination.write(clean_data, table) 
+          destination.write(clean_data, table)
         }
       }
       plan.disconnect!
@@ -72,7 +71,11 @@ describe 'multiple trasport types' do
 
   end
 
-  describe 'mysql => elasticsearch' do  
+  describe 'mysql => elasticsearch' do
+    before(:each) do
+      SpecSeeds.setup_mysql
+      SpecSeeds.setup_elasticsearch
+    end
 
     after(:each) do
       es = SpecClient.elasticsearch('forklift_test')
@@ -94,7 +97,7 @@ describe 'multiple trasport types' do
       count = destination.count({ index: index })["count"]
       expect(count).to eql 5
     end
-    
+
     it 'can load in only some rows' do
       table = 'users'
       index = 'users'
@@ -102,7 +105,7 @@ describe 'multiple trasport types' do
       plan.do! {
         source = plan.connections[:mysql][:forklift_test_source_a]
         destination = plan.connections[:elasticsearch][:forklift_test]
-        source.read("select * from #{table}", source.current_database, false, 3, 0) {|data| 
+        source.read("select * from #{table}", source.current_database, false, 3, 0) {|data|
           destination.write(data, index) 
         }
       }
@@ -114,4 +117,13 @@ describe 'multiple trasport types' do
     end
   end
 
+  describe 'postgres => mysql' do
+    before do
+      SpecSeeds.setup_mysql
+      SpecSeeds.setup_postgres
+    end
+
+    it 'can load in a full table'
+    it 'can load in only some rows'
+  end
 end
