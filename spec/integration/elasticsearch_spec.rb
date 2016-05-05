@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'elasticsearch' do  
+describe 'elasticsearch' do
 
   before(:each) do
     SpecSeeds.setup_elasticsearch
@@ -13,7 +13,7 @@ describe 'elasticsearch' do
     @rows = []
     plan.do! {
       source = plan.connections[:elasticsearch][:forklift_test]
-      source.read(index, query) {|data| 
+      source.read(index, query) {|data|
         @rows = (@rows + data)
       }
     }
@@ -60,7 +60,7 @@ describe 'elasticsearch' do
     index = 'forklift_test'
     plan = SpecPlan.new
     data = [
-      {id: 1, user_id: 1, product_id: 1, viewed_at: 99}
+      {'id' => 1, 'user_id' => 1, 'product_id' => 1, 'viewed_at' => 99}
     ]
     plan.do! {
       destination = plan.connections[:elasticsearch][:forklift_test]

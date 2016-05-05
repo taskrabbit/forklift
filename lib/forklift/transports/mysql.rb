@@ -13,7 +13,7 @@ module Forklift
       end
 
       def default_matcher
-        'updated_at'
+        :updated_at
       end
 
       def drop!(table, database=current_database)
@@ -35,7 +35,7 @@ module Forklift
           if prepared_query.downcase.include?("select") && !prepared_query.downcase.include?("limit")
             prepared_query = "#{prepared_query} LIMIT #{offset}, #{limit}"
           end
-          response = q(prepared_query, symbolize_keys: true)
+          response = q(prepared_query)
           response.each do |row|
             data << row
           end
@@ -52,48 +52,39 @@ module Forklift
         end
       end
 
-      def write(data, table, to_update=true, database=current_database, primary_key='id', lazy=true, crash_on_extral_col=false)
-        data.map{|l| l.symbolize_keys! }
-
+      def write(rows, table, to_update=true, database=current_database, primary_key=:id, lazy=true, crash_on_extral_col=false)
         if tables.include? table
-          ensure_row_types(data, table, database)
-        elsif(lazy == true && data.length > 0)
-          lazy_table_create(table, data, database, primary_key)
+          ensure_row_types(rows, table, database)
+        elsif(lazy == true && rows.length > 0)
+          lazy_table_create(table, rows, database, primary_key)
         end
 
-        if data.length > 0
+        if rows.length > 0
           columns = columns(table, database)
-          data.each do |d|
-
+          rows.each do |row|
             if crash_on_extral_col == false
-              d.each do |k,v|
-                unless columns.include?(k.to_s)
-                  q("ALTER TABLE `#{database}`.`#{table}` ADD `#{k}` #{sql_type(v)}  NULL  DEFAULT NULL;")
+              row.each do |column, value|
+                unless columns.include?(column)
+                  q("ALTER TABLE `#{database}`.`#{table}` ADD `#{column}` #{sql_type(value)}  NULL  DEFAULT NULL;")
                   columns = columns(table, database)
                 end
               end
             end
           end
 
-          insert_q = "INSERT INTO `#{database}`.`#{table}` (#{safe_columns(columns)}) VALUES "
-          delete_q = "DELETE FROM `#{database}`.`#{table}` WHERE `#{primary_key}` IN "
+          insert_values = []
           delete_keys = []
-          data.each do |d|
-            if(to_update == true && !d[primary_key.to_sym].nil?)
-              delete_keys << d[primary_key.to_sym]
-            end
-            insert_q << safe_values(columns, d)
-            insert_q << ","
+          rows.map do |row|
+            delete_keys << row[primary_key] if to_update && !row[primary_key].nil?
+            insert_values << safe_values(columns, row)
           end
 
-          if delete_keys.length > 0
-            delete_q << "(#{delete_keys.join(',')})"
-            q(delete_q)
+          unless delete_keys.empty?
+            q(%{DELETE FROM `#{database}`.`#{table}` WHERE `#{primary_key}` IN (#{delete_keys.join(',')})})
           end
-          insert_q = insert_q[0...-1]
 
           begin
-            q(insert_q)
+            q(%{INSERT INTO `#{database}`.`#{table}` (#{safe_columns(columns)}) VALUES #{insert_values.join(',')}})
           rescue Mysql2::Error => ex
             # UTF8 Safety.  Open a PR if you don't want UTF8 data...
             # https://github.com/taskrabbit/demoji
@@ -107,15 +98,15 @@ module Forklift
             q(safer_insert_q)
           end
 
-          forklift.logger.log "wrote #{data.length} rows to `#{database}`.`#{table}`"
+          forklift.logger.log "wrote #{rows.length} rows to `#{database}`.`#{table}`"
         end
       end
 
-      def lazy_table_create(table, data, database=current_database, primary_key='id', matcher=default_matcher)
+      def lazy_table_create(table, data, database=current_database, primary_key=:id, matcher=default_matcher)
         keys = {}
         data.each do |item|
           item.each do |k,v|
-            keys[k.to_s] = sql_type(v) if (keys[k.to_s].nil? || keys[k.to_s] == sql_type(nil))
+            keys[k] = sql_type(v) if (keys[k].nil? || keys[k] == sql_type(nil))
           end
         end
         keys[primary_key] = 'bigint(20)' unless keys.has_key?(primary_key)
@@ -128,7 +119,7 @@ module Forklift
           end
         end
         col_defn << "PRIMARY KEY (`#{primary_key}`)"
-        col_defn << "KEY `#{matcher}` (`#{matcher}`)" if keys.include?(matcher.to_sym)
+        col_defn << "KEY `#{matcher}` (`#{matcher}`)" if keys.include?(matcher)
 
         command = <<-EOS
         CREATE TABLE `#{database}`.`#{table}` (
@@ -168,10 +159,10 @@ module Forklift
 
       def max_timestamp(table, matcher=default_matcher, database=current_database)
         last_copied_row = read("select max(`#{matcher}`) as \"#{matcher}\" from `#{database}`.`#{table}`")[0]
-        if ( last_copied_row.nil? || last_copied_row[matcher.to_sym].nil? )
+        if ( last_copied_row.nil? || last_copied_row[matcher].nil? )
           latest_timestamp = '1970-01-01 00:00'
         else
-          return last_copied_row[matcher.to_sym].to_s(:db)
+          return last_copied_row[matcher].to_s(:db)
         end
       end
 
@@ -184,11 +175,11 @@ module Forklift
       end
 
       def current_database
-        @_current_database ||= q("select database() as 'db'").first['db']
+        @_current_database ||= q("select database() as 'db'").first[:db]
       end
 
       def count(table, database=current_database)
-        read("select count(1) as \"count\" from `#{database}`.`#{table}`")[0][:count]
+        q("select count(1) as \"count\" from `#{database}`.`#{table}`").first[:count]
       end
 
       def truncate!(table, database=current_database)
@@ -207,7 +198,7 @@ module Forklift
         cols = []
         types = []
         read("describe `#{database}`.`#{table}`").each do |row|
-          cols  << row[:Field]
+          cols  << row[:Field].to_sym
           types << row[:Type]
         end
         return cols if return_types == false
@@ -258,7 +249,7 @@ module Forklift
 
       def q(query, options={})
         forklift.logger.debug "\tSQL[#{config[:database]}]: #{query}"
-        return client.query(query, options)
+        return client.query(query, {symbolize_keys: true}.merge(options))
       end
 
       private
@@ -294,31 +285,17 @@ module Forklift
         return a.join(', ')
       end
 
-      def safe_values(columns, d)
-        a = []
-        sym_cols = columns.map { |s| s.to_sym }
-        sym_cols.each do |c|
-          part = "NULL"
-          v = d[c]
-          unless v.nil?
-            if( [::String, ::Symbol].include?(v.class) )
-              s = v.to_s
-              s.gsub!('\\') { '\\\\' }
-              s.gsub!('\"', '\/"')
-              s.gsub!('"', '\"')
-              part = "\"#{s}\""
-            elsif( [::Date, ::Time, ::DateTime].include?(v.class) )
-              s = v.to_s(:db)
-              part = "\"#{s}\""
-            elsif( [::Fixnum].include?(v.class) )
-              part = v
-            elsif( [::Float, ::BigDecimal].include?(v.class) )
-              part = v.to_f
-            end
+      def safe_values(columns, row)
+        "(" + columns.map do |column|
+          v = row[column]
+          case v
+          when String, Symbol then %{"#{Mysql2::Client.escape(v.to_s)}"}
+          when Date, Time, DateTime then %{"#{v.to_s(:db)}"}
+          when Fixnum then v
+          when Float, BigDecimal then v.to_f
+          else 'NULL'
           end
-          a << part
-        end
-        return "( #{a.join(', ')} )"
+        end.compact.join(', ') + ")"
       end
 
       #/private

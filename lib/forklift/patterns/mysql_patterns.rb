@@ -62,7 +62,7 @@ module Forklift
           from_db = source.current_database
           to_db = destination.current_database
           matcher = options[:matcher] || source.default_matcher
-          primary_key = options[:primary_key] || 'id'
+          primary_key = options[:primary_key] || :id
           source.forklift.logger.log("mysql incremental_pipe: `#{from_db}`.`#{from_table}` => `#{to_db}`.`#{to_table}`")
           source.q("create table if not exists `#{to_db}`.`#{to_table}` like `#{from_db}`.`#{from_table}`")
 
@@ -84,7 +84,7 @@ module Forklift
               if stale_rows.length > 0
                 # Delete these ids from to_table.
                 # If the ids are stale, then they'll be deleted. If they're new, they won't exist, and nothing will happen.
-                stale_ids = stale_rows.map { |row| row[primary_key.to_sym] }.join(',')
+                stale_ids = stale_rows.map { |row| row[primary_key] }.join(',')
                 source.q("delete from `#{to_db}`.`#{to_table}` where `#{primary_key}` in (#{stale_ids})")
                 source.forklift.logger.log("  ^ deleted up to #{stale_rows.length} stale rows from `#{to_db}`.`#{to_table}`")
               end
@@ -155,7 +155,7 @@ module Forklift
         # @see .incremental_pipe
         def mysql_incremental_import(source, from_table, destination, to_table, options={})
           matcher =  options[:matcher] || source.default_matcher
-          primary_key = source.q("SHOW INDEX FROM `#{source.current_database}`.`#{from_table}` WHERE key_name = 'PRIMARY';").try(:first).try(:[], 'Column_name') || 'id'
+          primary_key = source.q("SHOW INDEX FROM `#{source.current_database}`.`#{from_table}` WHERE key_name = 'PRIMARY';").try(:first).try(:[], :Column_name) || :id
 
           since = destination.max_timestamp(to_table, matcher)
           source.read_since(from_table, since, matcher){ |data| destination.write(data, to_table, true, destination.current_database, primary_key) }
@@ -172,7 +172,8 @@ module Forklift
         #
         # @see .pipe
         def mysql_import(source, from_table, destination, to_table, options={})
-          primary_key = source.q("SHOW INDEX FROM `#{source.current_database}`.`#{from_table}` WHERE key_name = 'PRIMARY';").try(:first).try(:[], 'Column_name') || 'id'
+          index_result = source.q("SHOW INDEX FROM `#{source.current_database}`.`#{from_table}` WHERE key_name = 'PRIMARY';")
+          primary_key = (index_result.nil? ? :id : index_result.first[:Column_name].to_sym)
 
           # destination.truncate table
           destination.drop! to_table if destination.tables.include?(to_table)
@@ -198,7 +199,7 @@ module Forklift
                   row[columns[i]] = "~~stub~~".to_sym
                 elsif( types[i] =~ /float/ || types[i] =~ /int/ || types[i] =~ /decimal/ )
                   row[columns[i]] = 0
-                elsif( types[i] =~ /datetime/ || types[i] =~ /timetsamp/ )
+                elsif( types[i] =~ /datetime/ || types[i] =~ /timestamp/ )
                   row[columns[i]] = time.to_s(:db)
                 elsif( types[i] =~ /date/ )
                   row[columns[i]] = time.to_s(:db).split(" ").first
