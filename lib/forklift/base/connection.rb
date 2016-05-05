@@ -1,17 +1,11 @@
 module Forklift
   module Base
     class Connection
+      attr_reader :config, :forklift, :client
 
-      def initialize(config)
+      def initialize(config, forklift)
         @config = config
-      end
-
-      def config
-        @config
-      end
-
-      def client
-        @client
+        @forklift = forklift
       end
 
       def connect

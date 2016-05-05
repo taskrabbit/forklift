@@ -4,20 +4,6 @@ require 'fileutils'
 module Forklift
   module Connection
     class Csv < Forklift::Base::Connection
-
-      def initialize(config, forklift)
-        @config = config
-        @forklift = forklift
-      end
-
-      def config
-        @config
-      end
-
-      def forklift
-        @forklift
-      end
-
       def connect; end
       def disconnect; end
 

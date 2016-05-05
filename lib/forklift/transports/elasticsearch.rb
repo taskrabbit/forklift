@@ -3,20 +3,6 @@ require 'elasticsearch'
 module Forklift
   module Connection
     class Elasticsearch < Forklift::Base::Connection
-
-      def initialize(config, forklift)
-        @config = config
-        @forklift = forklift
-      end
-
-      def config
-        @config
-      end
-
-      def forklift
-        @forklift
-      end
-
       def connect
         @client = ::Elasticsearch::Client.new(config)
       end
