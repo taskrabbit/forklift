@@ -4,26 +4,12 @@ require 'open3'
 module Forklift
   module Connection
     class Mysql < Forklift::Base::Connection
-
-      def initialize(config, forklift)
-        @config = config
-        @forklift = forklift
-      end
-
       def connect
-        @client = Mysql2::Client.new(@config)
+        @client = Mysql2::Client.new(config)
       end
 
       def disconnect
         @client.close
-      end
-
-      def config
-        @config
-      end
-
-      def forklift
-        @forklift
       end
 
       def default_matcher
