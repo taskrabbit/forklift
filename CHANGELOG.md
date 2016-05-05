@@ -1,6 +1,10 @@
 # Change Log
 
 ## [2.0.0 - Unreleased]
+### Major
+- Remove support for Ruby 1.9.3 and earlier. This version is no longer
+  supported per [this announcement](https://www.ruby-lang.org/en/news/2015/02/23/support-for-ruby-1-9-3-has-ended/).
+
 ### Added
 - More docs around the Mysql code.
 - New maintainer contact information added to gem

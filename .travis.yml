@@ -2,10 +2,10 @@ sudo: false
 
 language: ruby
 rvm:
-  - 1.9.3
   - 2.0.0
-  - 2.1.5
-  - 2.2.0
+  - 2.1.9
+  - 2.2.5
+  - 2.3.1
   - rbx # https://github.com/wayneeseguin/rvm/issues/2744 (we can test this again later when travis updates RVM)
   # - jruby-19mode # TODO: We'll need a ODBC variant of the mysql2 driver
 services:
