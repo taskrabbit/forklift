@@ -19,7 +19,7 @@ describe Forklift::Connection::Mysql do
       plan.disconnect!
     end
 
-    it "can delte a table" do 
+    it "can delete a table" do
       plan = SpecPlan.new
       table = "users"
       plan.do! {
@@ -41,7 +41,7 @@ describe Forklift::Connection::Mysql do
       plan.disconnect!
     end
 
-    it "can truncate a table (both with and without !)" do 
+    it "can truncate a table (both with and without !)" do
       plan = SpecPlan.new
       table = "users"
       plan.do! {
@@ -64,15 +64,16 @@ describe Forklift::Connection::Mysql do
       plan.disconnect!
     end
 
-    it "can get the columns of a table" do 
+    it "can get the columns of a table" do
       plan = SpecPlan.new
       table = "sales"
       plan.do! {
         source = plan.connections[:mysql][:forklift_test_source_a]
-        expect(source.columns(table)).to include 'id' 
-        expect(source.columns(table)).to include 'user_id' 
-        expect(source.columns(table)).to include 'product_id' 
-        expect(source.columns(table)).to include 'timestamp' 
+        columns = source.columns(table)
+        expect(columns).to include :id
+        expect(columns).to include :user_id
+        expect(columns).to include :product_id
+        expect(columns).to include :timestamp
       }
       plan.disconnect!
     end
@@ -87,7 +88,7 @@ describe Forklift::Connection::Mysql do
       plan.disconnect!
 
       expect(File.exists?(dump)).to eql true
-      contents = Zlib::GzipReader.new(StringIO.new(File.read(dump))).read  
+      contents = Zlib::GzipReader.new(StringIO.new(File.read(dump))).read
       expect(contents).to include "(1,'evan@example.com','Evan','T','2014-04-03 11:40:12','2014-04-03 11:39:28')"
     end
 
@@ -97,15 +98,15 @@ describe Forklift::Connection::Mysql do
     subject { described_class.new({}, {}) }
 
     it "escapes one trailing backslash" do
-      columns = ['col']
+      columns = [:col]
       values = {:col => "foo\\"}
-      expect(subject.send(:safe_values, columns, values)).to eq("( \"foo\\\\\" )")
+      expect(subject.send(:safe_values, columns, values)).to eq("(\"foo\\\\\")")
     end
 
     it "escapes two trailing backslashes" do
-      columns = ['col']
+      columns = [:col]
       values = {:col => "foo\\\\" }
-      expect(subject.send(:safe_values, columns, values)).to eq("( \"foo\\\\\\\\\" )")
+      expect(subject.send(:safe_values, columns, values)).to eq("(\"foo\\\\\\\\\")")
     end
   end
 end

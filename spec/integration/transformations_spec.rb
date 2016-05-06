@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'transformations' do  
+describe 'transformations' do
 
   before(:each) do
     SpecSeeds.setup_mysql
@@ -17,12 +17,12 @@ describe 'transformations' do
       destination = plan.connections[:mysql][:forklift_test_destination]
       source.read('select * from `users`') {|data| destination.write(data, 'users') }
 
-      expect( destination.columns("users").include?("full_name") ).to eql false
+      expect( destination.columns("users").include?(:full_name) ).to eql false
 
       transformation_file = "#{File.dirname(__FILE__)}/../template/spec_user_transformation.sql"
       destination.exec!(transformation_file)
 
-      expect( destination.columns("users").include?("full_name") ).to eql true
+      expect( destination.columns("users").include?(:full_name) ).to eql true
     }
     plan.disconnect!
   end
@@ -38,12 +38,12 @@ describe 'transformations' do
       destination = plan.connections[:mysql][:forklift_test_destination]
       source.read('select * from `users`') {|data| destination.write(data, 'users') }
 
-      expect( destination.columns("users").include?("full_name") ).to eql false
+      expect( destination.columns("users").include?(:full_name) ).to eql false
 
       transformation_file = "#{File.dirname(__FILE__)}/../template/spec_user_transformation.rb"
       destination.exec!(transformation_file, {prefix: 'my_prefix' })
 
-      expect( destination.columns("users").include?("full_name") ).to eql true
+      expect( destination.columns("users").include?(:full_name) ).to eql true
 
       data = destination.read('select * from `users` where email="evan@example.com"')
       expect( data.first[:full_name] ).to eql 'my_prefix Evan T'
