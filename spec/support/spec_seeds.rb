@@ -34,6 +34,7 @@ class SpecSeeds
   end
 
   def self.setup_pg
+    require 'pg' unless defined?(PG)
     @pg_connections         = []
     pg_databases           = []
 

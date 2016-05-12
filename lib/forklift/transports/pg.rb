@@ -1,9 +1,11 @@
+require 'delegate'
+
 module Forklift
   module Connection
     class Pg < Forklift::Base::Connection
       def initialize(config, forklift)
         begin
-          require 'pg'
+          require 'pg' unless defined?(PG)
         rescue LoadError
           raise "To use the postgres connection you must add 'pg' to your Gemfile"
         end
@@ -41,7 +43,7 @@ module Forklift
         end
       end
 
-      def write(rows, table, to_update=true, database=current_database, primary_key='id', lazy=true, crash_on_extral_col=false)
+      def write(rows, table, to_update=true, database=current_database, primary_key=:id, lazy=true, crash_on_extral_col=false)
         if tables.include? table
           ensure_row_types(rows, table, database)
         elsif lazy && rows.length > 0
@@ -67,7 +69,7 @@ module Forklift
       end
 
       # @todo
-      def lazy_table_create(table, data, database=current_database, primary_key='id', matcher=default_matcher)
+      def lazy_table_create(table, data, database=current_database, primary_key=:id, matcher=default_matcher)
         raise NotImplementedError.new
       end
 
@@ -105,7 +107,7 @@ module Forklift
       end
 
       def count(table)
-        q(%{SELECT count(1) AS "count" FROM #{quote_ident(table)}})[0]['count'].to_i
+        q(%{SELECT count(1) AS "count" FROM #{quote_ident(table)}})[0][:count].to_i
       end
 
       def truncate!(table)
@@ -124,17 +126,30 @@ module Forklift
         columns = {}
         read(%{SELECT column_name, data_type, character_maximum_length FROM "information_schema"."columns" WHERE table_name='#{table}'}) do |rows|
           rows.each do |row|
-            type = case row['data_type']
-                   when 'character varying' then "varchar(#{row['character_maximum_length']})"
-                   else row['data_type']
+            type = case row[:data_type]
+                   when 'character varying' then "varchar(#{row[:character_maximum_length]})"
+                   else row[:data_type]
                    end
-            columns[row['column_name']] = type
+            columns[row[:column_name].to_sym] = type
           end
         end
         return_types ? columns : columns.keys
       end
 
       def dump(file, options=[])
+        dburl = URI::Generic.new('postgresql', "#{client.user}:#{config[:password]}", (client.host || 'localhost'), client.port, nil, "/#{client.db}", nil, nil, nil)
+        cmd = %{pg_dump --dbname #{dburl.to_s} -Fp #{options.join(' ')} | gzip > #{file}}
+        forklift.logger.log "Dumping #{client.db} to #{file}"
+        forklift.logger.debug cmd
+        Open3.popen3(cmd) do |stdin, stdout, stderr|
+          stdout = stdout.readlines
+          stderr = stderr.readlines
+          if stderr.length > 0
+            raise "  > Dump error: #{stderr.join(" ")}"
+          else
+            forklift.logger.log "  > Dump complete"
+          end
+        end
       end
 
       def exec_script(path)
@@ -142,7 +157,32 @@ module Forklift
 
       def q(query, options={})
         forklift.logger.debug "\tSQL[#{config[:database]}]: #{query}"
-        client.exec(query)
+        Result.new(client.exec(query))
+      end
+
+      class Result < SimpleDelegator
+        def initialize(pg_result)
+          @pg_result = pg_result
+          super(pg_result)
+        end
+
+        def [](idx)
+          symbolize_row(@pg_result[idx])
+        end
+
+        def each
+          @pg_result.each do |row|
+            yield symbolize_row(row)
+          end
+        end
+
+        private
+        def symbolize_row(row)
+          row.inject({}) do |memo, (k,v)|
+            memo[k.to_sym] = v
+            memo
+          end
+        end
       end
 
       private

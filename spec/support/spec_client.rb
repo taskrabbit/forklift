@@ -22,6 +22,7 @@ class SpecClient
   end
 
   def self.pg(name)
+    require 'pg' unless defined?(PG)
     file = File.join(File.dirname(__FILE__), '..', 'config', 'connections', 'pg', "#{name}.yml")
     config = self.load_config(file)
     db = config[:dbname]

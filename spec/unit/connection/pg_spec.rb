@@ -75,15 +75,15 @@ describe Forklift::Connection::Pg do
       plan.do! {
         source = plan.connections[:pg][:forklift_test_source_a]
         columns = source.columns(table)
-        expect(columns).to include 'id'
-        expect(columns).to include 'user_id'
-        expect(columns).to include 'product_id'
-        expect(columns).to include 'timestamp'
+        expect(columns).to include :id
+        expect(columns).to include :user_id
+        expect(columns).to include :product_id
+        expect(columns).to include :timestamp
       }
       plan.disconnect!
     end
 
-    it "can create a mysqldump" do
+    it "can create a pg_dump" do
       dump = "/tmp/destination.sql.gz"
       plan = SpecPlan.new
       plan.do! {
@@ -94,7 +94,7 @@ describe Forklift::Connection::Pg do
 
       expect(File.exists?(dump)).to eql true
       contents = Zlib::GzipReader.new(StringIO.new(File.read(dump))).read
-      expect(contents).to include "(1,'evan@example.com','Evan','T','2014-04-03 11:40:12','2014-04-03 11:39:28')"
+      expect(contents).to include "1\tevan@example.com\tEvan\tT\t2014-04-03 11:40:12\t2014-04-03 11:39:28"
     end
 
   end
