@@ -145,6 +145,10 @@ module Forklift
           end
         end
 
+        def detect_primary_key_or_default(source, from_table)
+          source.q("SHOW INDEX FROM `#{source.current_database}`.`#{from_table}` WHERE key_name = 'PRIMARY';").try(:first).try(:[], :Column_name).try(:to_sym) || :id
+        end
+
         # Import table from one mysql instance to another incrementally.
         #
         # @param (see .mysql_import
@@ -155,7 +159,7 @@ module Forklift
         # @see .incremental_pipe
         def mysql_incremental_import(source, from_table, destination, to_table, options={})
           matcher =  options[:matcher] || source.default_matcher
-          primary_key = source.q("SHOW INDEX FROM `#{source.current_database}`.`#{from_table}` WHERE key_name = 'PRIMARY';").try(:first).try(:[], :Column_name).try(:to_sym) || :id
+          primary_key = detect_primary_key_or_default(source, from_table)
 
           since = destination.max_timestamp(to_table, matcher)
           source.read_since(from_table, since, matcher){ |data| destination.write(data, to_table, true, destination.current_database, primary_key) }
@@ -172,8 +176,7 @@ module Forklift
         #
         # @see .pipe
         def mysql_import(source, from_table, destination, to_table, options={})
-          index_result = source.q("SHOW INDEX FROM `#{source.current_database}`.`#{from_table}` WHERE key_name = 'PRIMARY';")
-          primary_key = (index_result.nil? ? :id : index_result.first[:Column_name].to_sym)
+          primary_key = detect_primary_key_or_default(source, from_table)
 
           # destination.truncate table
           destination.drop! to_table if destination.tables.include?(to_table)
