@@ -155,7 +155,7 @@ module Forklift
         # @see .incremental_pipe
         def mysql_incremental_import(source, from_table, destination, to_table, options={})
           matcher =  options[:matcher] || source.default_matcher
-          primary_key = source.q("SHOW INDEX FROM `#{source.current_database}`.`#{from_table}` WHERE key_name = 'PRIMARY';").try(:first).try(:[], :Column_name) || :id
+          primary_key = source.q("SHOW INDEX FROM `#{source.current_database}`.`#{from_table}` WHERE key_name = 'PRIMARY';").try(:first).try(:[], :Column_name).try(:to_sym) || :id
 
           since = destination.max_timestamp(to_table, matcher)
           source.read_since(from_table, since, matcher){ |data| destination.write(data, to_table, true, destination.current_database, primary_key) }
@@ -235,7 +235,7 @@ module Forklift
           true
         end
 
-        # Tests if a particular pipe parameterization can be performed incrementally
+        # Tests if a particular import parameterization can be performed incrementally
         #
         # @param (see .mysql_incremental_import)
         #

@@ -75,7 +75,7 @@ module Forklift
           insert_values = []
           delete_keys = []
           rows.map do |row|
-            delete_keys << row[primary_key] if to_update && !row[primary_key].nil?
+            delete_keys << row[primary_key] if to_update && row[primary_key].present?
             insert_values << safe_values(columns, row)
           end
 
