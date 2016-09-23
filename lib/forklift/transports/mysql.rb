@@ -147,7 +147,7 @@ module Forklift
       end
 
       def read_since(table, since, matcher=default_matcher, database=current_database, limit=forklift.config[:batch_size])
-        query = "select * from `#{database}`.`#{table}` where `#{matcher}` >= '#{since}' order by `#{matcher}` asc"
+        query = "select * from `#{database}`.`#{table}` where `#{matcher}` >= '#{since.to_s(:db)}' order by `#{matcher}` asc"
         self.read(query, database, true, limit){|data|
           if block_given?
             yield data
@@ -160,9 +160,9 @@ module Forklift
       def max_timestamp(table, matcher=default_matcher, database=current_database)
         last_copied_row = read("select max(`#{matcher}`) as \"#{matcher}\" from `#{database}`.`#{table}`")[0]
         if ( last_copied_row.nil? || last_copied_row[matcher].nil? )
-          latest_timestamp = '1970-01-01 00:00'
+          Time.at(0)
         else
-          return last_copied_row[matcher].to_s(:db)
+          last_copied_row[matcher]
         end
       end
 
