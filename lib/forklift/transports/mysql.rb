@@ -158,6 +158,7 @@ module Forklift
       end
 
       def max_timestamp(table, matcher=default_matcher, database=current_database)
+        return Time.at(0) unless tables.include?(table)
         last_copied_row = read("select max(`#{matcher}`) as \"#{matcher}\" from `#{database}`.`#{table}`")[0]
         if ( last_copied_row.nil? || last_copied_row[matcher].nil? )
           Time.at(0)

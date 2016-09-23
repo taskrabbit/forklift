@@ -92,7 +92,7 @@ module Forklift
           end
 
           # Do the insert into to_table
-          destination.q("insert into `#{to_db}`.`#{to_table}` select * from `#{from_db}`.`#{from_table}` where `#{matcher}` > \"#{latest_timestamp}\" order by `#{matcher}`")
+          destination.q("insert into `#{to_db}`.`#{to_table}` select * from `#{from_db}`.`#{from_table}` where `#{matcher}` > \"#{latest_timestamp.to_s(:db)}\" order by `#{matcher}`")
           delta = Time.new.to_i - start
           new_count = destination.count(to_table, to_db) - original_count
           source.forklift.logger.log("  ^ created #{new_count} new rows in #{delta}s")

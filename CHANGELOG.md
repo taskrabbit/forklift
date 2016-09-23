@@ -14,9 +14,24 @@
   Apache-2.0
 
 ### Changed
-- Transitioned `Forklift::Patterns::Mysql` methods to use an options `Hash`
-  instead of positional parameters.
+- Transitioned `Forklift::Patterns::Mysql` methods to use an options
+  `Hash` instead of positional parameters. See:
+  - `.pipe`
+  - `.incremental_pipe`
+  - `.optimistic_pipe`
+  - `.mysql_optimistic_import`
+  - `.mysql_incremental_import`
+  - `.mysql_import`
+  - `.can_incremental_pipe?`
+  - `.can_incremental_import?`
 - `Forklift::Patterns::Mysql.mysql_optimistic_import` no longer loops
   through all tables. This behavior was inconsitent with the semantics
   of similar methods and caused problems if the specific tables required
   different parameters to be imported properly
+- `Forklift::Connection::Mysql#max_timestamp` now accepts a symbol for
+  the matcher and returns a `Time` object. If no timestamp is found
+  either due to missing table, missing column, or empty table then the
+  epoch is returned (`Time.at(0)`).
+- `Forklift::Connection::Mysql#read_since` expects a `Time` object for
+  the second "since" parameter in accordance with the change to
+  `#max_timestamp`.

@@ -98,7 +98,7 @@ plan.do! do
 end
 ```
 
-### Simple mySQL ETL
+### Simple MySQL ETL
 ```ruby
 plan = Forklift::Plan.new
 plan.do! do
