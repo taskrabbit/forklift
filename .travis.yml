@@ -6,7 +6,7 @@ rvm:
   - 2.1.9
   - 2.2.5
   - 2.3.1
-  - rbx # https://github.com/wayneeseguin/rvm/issues/2744 (we can test this again later when travis updates RVM)
+  - rbx-2
   # - jruby-19mode # TODO: We'll need a ODBC variant of the mysql2 driver
 services:
   - elasticsearch
