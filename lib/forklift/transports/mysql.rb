@@ -6,6 +6,7 @@ module Forklift
     class Mysql < Forklift::Base::Connection
       def connect
         @client = Mysql2::Client.new(config)
+        q("USE `#{config[:database]}`")
       end
 
       def disconnect
@@ -27,7 +28,6 @@ module Forklift
       def read(query, database=current_database, looping=true, limit=forklift.config[:batch_size], offset=0)
         loop_count = 0
         # TODO: Detect limit/offset already present in query
-        q("USE `#{database}`")
 
         while ( looping == true || loop_count == 0 )
           data = []
@@ -147,7 +147,7 @@ module Forklift
       end
 
       def read_since(table, since, matcher=default_matcher, database=current_database, limit=forklift.config[:batch_size])
-        query = "select * from `#{database}`.`#{table}` where `#{matcher}` >= '#{since.to_s(:db)}' order by `#{matcher}` asc"
+        query = "SELECT * FROM `#{database}`.`#{table}` WHERE `#{matcher}` >= '#{since.to_s(:db)}' ORDER BY `#{matcher}` ASC"
         self.read(query, database, true, limit){|data|
           if block_given?
             yield data
@@ -159,7 +159,7 @@ module Forklift
 
       def max_timestamp(table, matcher=default_matcher, database=current_database)
         return Time.at(0) unless tables.include?(table)
-        last_copied_row = read("select max(`#{matcher}`) as \"#{matcher}\" from `#{database}`.`#{table}`")[0]
+        last_copied_row = read("SELECT MAX(`#{matcher}`) AS \"#{matcher}\" FROM `#{database}`.`#{table}`")[0]
         if ( last_copied_row.nil? || last_copied_row[matcher].nil? )
           Time.at(0)
         else
@@ -176,15 +176,15 @@ module Forklift
       end
 
       def current_database
-        @_current_database ||= q("select database() as 'db'").first[:db]
+        @_current_database ||= q("SELECT DATABASE() AS 'db'").first[:db]
       end
 
       def count(table, database=current_database)
-        q("select count(1) as \"count\" from `#{database}`.`#{table}`").first[:count]
+        q("SELECT COUNT(1) AS \"count\" FROM `#{database}`.`#{table}`").first[:count]
       end
 
       def truncate!(table, database=current_database)
-        q("truncate table `#{database}`.`#{table}`")
+        q("TRUNCATE TABLE `#{database}`.`#{table}`")
       end
 
       def truncate(table, database=current_database)
@@ -198,7 +198,7 @@ module Forklift
       def columns(table, database=current_database, return_types=false)
         cols = []
         types = []
-        read("describe `#{database}`.`#{table}`").each do |row|
+        read("DESCRIBE `#{database}`.`#{table}`").each do |row|
           cols  << row[:Field].to_sym
           types << row[:Type]
         end

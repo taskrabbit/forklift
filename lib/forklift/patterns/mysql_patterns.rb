@@ -32,11 +32,11 @@ module Forklift
           tmp_table = options[:tmp_table] || '_forklift_tmp'
           source.forklift.logger.log("mysql pipe: `#{from_db}`.`#{from_table}` => `#{to_db}`.`#{to_table}`")
 
-          source.q("drop table if exists `#{to_db}`.`#{tmp_table}`")
-          source.q("create table `#{to_db}`.`#{tmp_table}` like `#{from_db}`.`#{from_table}`")
-          source.q("insert into `#{to_db}`.`#{tmp_table}` select * from `#{from_db}`.`#{from_table}`")
-          source.q("drop table if exists `#{to_db}`.`#{to_table}`")
-          source.q("rename table `#{to_db}`.`#{tmp_table}` to `#{to_db}`.`#{to_table}`")
+          source.q("DROP TABLE IF EXISTS `#{to_db}`.`#{tmp_table}`")
+          source.q("CREATE TABLE `#{to_db}`.`#{tmp_table}` LIKE `#{from_db}`.`#{from_table}`")
+          source.q("INSERT INTO `#{to_db}`.`#{tmp_table}` SELECT * FROM `#{from_db}`.`#{from_table}`")
+          source.q("DROP TABLE IF EXISTS `#{to_db}`.`#{to_table}`")
+          source.q("RENAME TABLE `#{to_db}`.`#{tmp_table}` TO `#{to_db}`.`#{to_table}`")
 
           delta = Time.new.to_i - start
           source.forklift.logger.log("  ^ moved #{destination.count(to_table, to_db)} rows in #{delta}s")
@@ -64,7 +64,7 @@ module Forklift
           matcher = options[:matcher] || source.default_matcher
           primary_key = options[:primary_key] || :id
           source.forklift.logger.log("mysql incremental_pipe: `#{from_db}`.`#{from_table}` => `#{to_db}`.`#{to_table}`")
-          source.q("create table if not exists `#{to_db}`.`#{to_table}` like `#{from_db}`.`#{from_table}`")
+          source.q("CREATE TABLE IF NOT EXISTS `#{to_db}`.`#{to_table}` LIKE `#{from_db}`.`#{from_table}`")
 
           # Count the number of rows in to_table
           original_count = source.count(to_table, to_db)
@@ -80,19 +80,19 @@ module Forklift
           if original_count > 0
             # Get the ids of rows in from_table that are newer than the newest row in to_table.
             # Some of these rows could either be a) stale or b) new.
-            source.read("select `#{primary_key}` from `#{from_db}`.`#{from_table}` where `#{matcher}` > \"#{latest_timestamp}\" order by `#{matcher}`") do |stale_rows|
+            source.read("SELECT `#{primary_key}` FROM `#{from_db}`.`#{from_table}` WHERE `#{matcher}` > \"#{latest_timestamp}\" ORDER BY `#{matcher}`") do |stale_rows|
               if stale_rows.length > 0
                 # Delete these ids from to_table.
                 # If the ids are stale, then they'll be deleted. If they're new, they won't exist, and nothing will happen.
                 stale_ids = stale_rows.map { |row| row[primary_key] }.join(',')
-                source.q("delete from `#{to_db}`.`#{to_table}` where `#{primary_key}` in (#{stale_ids})")
+                source.q("DELETE FROM `#{to_db}`.`#{to_table}` WHERE `#{primary_key}` IN (#{stale_ids})")
                 source.forklift.logger.log("  ^ deleted up to #{stale_rows.length} stale rows from `#{to_db}`.`#{to_table}`")
               end
             end
           end
 
           # Do the insert into to_table
-          destination.q("insert into `#{to_db}`.`#{to_table}` select * from `#{from_db}`.`#{from_table}` where `#{matcher}` > \"#{latest_timestamp.to_s(:db)}\" order by `#{matcher}`")
+          destination.q("INSERT INTO `#{to_db}`.`#{to_table}` SELECT * FROM `#{from_db}`.`#{from_table}` WHERE `#{matcher}` > \"#{latest_timestamp.to_s(:db)}\" ORDER BY `#{matcher}`")
           delta = Time.new.to_i - start
           new_count = destination.count(to_table, to_db) - original_count
           source.forklift.logger.log("  ^ created #{new_count} new rows in #{delta}s")
@@ -180,7 +180,7 @@ module Forklift
 
           # destination.truncate table
           destination.drop! to_table if destination.tables.include?(to_table)
-          source.read("select * from #{from_table}"){ |data| destination.write(data, to_table, true, destination.current_database, primary_key) }
+          source.read("SELECT * FROM #{from_table}"){ |data| destination.write(data, to_table, true, destination.current_database, primary_key) }
         end
 
         # The high water method will stub a row in all tables with a `default_matcher` column prentending to have a record from `time`
