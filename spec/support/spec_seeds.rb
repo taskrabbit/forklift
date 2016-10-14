@@ -33,6 +33,35 @@ class SpecSeeds
     end
   end
 
+  def self.setup_pg
+    require 'pg' unless defined?(PG)
+    @pg_connections         = []
+    pg_databases           = []
+
+    files = Dir["#{File.dirname(__FILE__)}/../config/connections/pg/*.yml"]
+    files.each do |f|
+      name = f.split('/').last.gsub('.yml','')
+      @pg_connections << ::SpecClient.pg(name)
+      pg_databases << name
+    end
+
+    @pg_connections.each do |conn|
+      db   = conn.db
+      seed = File.join(File.dirname(__FILE__), '..', 'support', 'dumps', 'pg', "#{db}.sql")
+      if File.exists? seed
+        lines = File.read(seed).split(";")
+        lines.each do |line|
+          conn.exec(line) if line[0] != "#"
+        end
+      end
+    end
+  end
+
+  def self.teardown_pg
+    @pg_connections.map(&:close)
+    @pg_connections.clear
+  end
+
   def self.setup_elasticsearch
     elasticsearch_connections = []
     elasticsearch_databases   = []

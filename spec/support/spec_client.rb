@@ -13,12 +13,25 @@ class SpecClient
     db = config[:database]
     config.delete(:database)
     connection = ::Mysql2::Client.new(config)
-    begin 
+    begin
       connection.query("use `#{db}`")
     rescue Exception => e
       puts "#{e} => will create new databse #{db}"
     end
     connection
+  end
+
+  def self.pg(name)
+    require 'pg' unless defined?(PG)
+    file = File.join(File.dirname(__FILE__), '..', 'config', 'connections', 'pg', "#{name}.yml")
+    config = self.load_config(file)
+    db = config[:dbname]
+    pg_conn = ::PG::Connection.new(config.merge(dbname: 'postgres'))
+    pg_conn.exec(%{DROP DATABASE IF EXISTS #{db}})
+    pg_conn.exec(%{CREATE DATABASE #{db}})
+    pg_conn.close
+
+    ::PG::Connection.new(config)
   end
 
   def self.elasticsearch(name)
