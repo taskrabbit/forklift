@@ -18,7 +18,12 @@ module Forklift
 
       def logger
         log_dir = "#{forklift.config[:project_root]}/log"
-        @logger ||= ::Lumberjack::Logger.new("#{log_dir}/forklift.log", buffer_size: 0)
+        @logger ||= case forklift.config[:logger][:output]
+                      when :stdout
+                        ::Lumberjack::Logger.new(Lumberjack::Device::Writer.new(STDOUT), buffer_size: 0)
+                      else
+                        ::Lumberjack::Logger.new("#{log_dir}/forklift.log", buffer_size: 0)
+                    end
       end
 
       def log(message, severity="info")
@@ -45,5 +50,5 @@ module Forklift
       end
 
     end
-    end
+  end
 end
