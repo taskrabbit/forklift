@@ -28,7 +28,7 @@ module Forklift
         name = f.split("/")[-1].split('.')[0]
         type = f.split("/")[-2]
         connections[type.to_sym] = {} if connections[type.to_sym].nil?
-        db_config = utils.load_yml(f)
+        db_config = utils.load_yml(f).deep_symbolize_keys
 
         begin
           loader = "Forklift::Connection::#{type.camelcase}.new(db_config, self)"
@@ -60,10 +60,10 @@ module Forklift
       error_handler = default_error_handler
       error_handler = args[1] unless args[1].nil?
       self.steps[name] = {
-        ran:            false,
-        to_run:         false,
-        block:          block,
-        error_handler:  error_handler,
+          ran:            false,
+          to_run:         false,
+          block:          block,
+          error_handler:  error_handler,
       }
     end
 
@@ -144,13 +144,13 @@ module Forklift
 
     def default_config
       return {
-        project_root: Dir.pwd,
-        batch_size: 1000,
-        char_bytecode_max: 65535, # the utf8 char limit
-        logger: {
-          stdout: true,
-          debug:  false,
-        },
+          project_root: Dir.pwd,
+          batch_size: 1000,
+          char_bytecode_max: 65535, # the utf8 char limit
+          logger: {
+              stdout: true,
+              debug:  false,
+          },
       }
     end
 
